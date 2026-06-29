@@ -1,0 +1,290 @@
+---
+/** Centerpiece · crm — "the 12 tabs fan open".
+ *  A 3D-tilted CRM workbook window whose 12 bilingual tabs FAN OUT as the proof
+ *  pin scrubs: at --q=0 the tabs are stacked + the window is steeply tilted; at
+ *  --q=1 the window settles flat and the tabs spread into a readable strip while
+ *  an ads → leads → CRM funnel hint assembles. Pure CSS off var(--q) — no JS.
+ *  (var(--q) is set on the pinned Proof ancestor by lib/storyscroll.ts:
+ *   0 at the start of the pin, 1 at the end / under reduced-motion + mobile.) */
+import AssetSlot from '../spine/AssetSlot.astro';
+import { pick, type Lang } from '../../../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+
+// The 12 workbook tabs (bilingual). Names mirror the real system: the four
+// named tabs from the story plus the documented feature tabs.
+const tabs = [
+  { label: { en: 'Leads', ar: 'العملاء' }, on: true },
+  { label: { en: 'Dashboard', ar: 'اللوحة' }, on: false },
+  { label: { en: 'Sales log', ar: 'سجل المبيعات' }, on: false },
+  { label: { en: 'Ads → leads', ar: 'إعلانات ← عملاء' }, on: false },
+  { label: { en: 'Offers', ar: 'العروض' }, on: false },
+  { label: { en: 'Contacts', ar: 'جهات الاتصال' }, on: false },
+  { label: { en: 'Engineer queue', ar: 'طابور المهندس' }, on: false },
+  { label: { en: 'Accountability', ar: 'المساءلة' }, on: false },
+  { label: { en: 'SLA / days', ar: 'الخدمة / الأيام' }, on: false },
+  { label: { en: 'Status key', ar: 'مفتاح الحالات' }, on: false },
+  { label: { en: 'Priorities', ar: 'الأولويات' }, on: false },
+  { label: { en: 'Follow-ups', ar: 'المتابعات' }, on: false },
+];
+
+// ads → leads → CRM funnel hint that assembles as --q rises
+const funnel = [
+  { num: '$0.84', cap: { en: 'ad → lead', ar: 'إعلان ← عميل' } },
+  { num: '200+', cap: { en: 'contacts', ar: 'جهات اتصال' } },
+  { num: '45', cap: { en: 'active leads', ar: 'عملاء نشطون' } },
+];
+---
+
+<div class="proof__grid tabsfan">
+  <div class="tabsfan__copy reveal">
+    <span class="kicker">{pick(lang, { en: 'The proof · the workbook', ar: 'الإثبات · الملف' })}</span>
+    <h2>{pick(lang, { en: '12 tabs, one pipeline.', ar: '١٢ تبويبًا، مسارٌ واحد.' })}</h2>
+    <p>
+      {
+        pick(lang, {
+          en: 'Every dinar of ad spend lands in a named lead, a status and a next action — across twelve bilingual tabs that read the same in Arabic and English.',
+          ar: 'كل دينار إنفاقٍ يصل إلى عميلٍ مُسمّى وحالةٍ وإجراءٍ تالٍ — عبر اثني عشر تبويبًا ثنائي اللغة يُقرأ بالعربية والإنجليزية سواء.',
+        })
+      }
+    </p>
+
+    <div class="tabsfan__funnel" aria-hidden="true">
+      {
+        funnel.map((f, i) => (
+          <div class="ff" style={`--i:${i}`}>
+            <b class="ff__num"><bdi>{f.num}</bdi></b>
+            <span class="ff__cap">{pick(lang, f.cap)}</span>
+            {i < funnel.length - 1 && <span class="ff__arrow" aria-hidden="true">→</span>}
+          </div>
+        ))
+      }
+    </div>
+  </div>
+
+  <div class="tabsfan__stage">
+    <div class="tabsfan__win">
+      <div class="tabsfan__bar" aria-hidden="true">
+        <i class="r"></i><i class="y"></i><i class="g"></i>
+        <span class="addr"><bdi>CRM · 12 tabs · AR / EN</bdi></span>
+      </div>
+
+      <div class="tabsfan__tabstrip" aria-hidden="true">
+        {
+          tabs.map((t, i) => (
+            <span class={`tf-tab${t.on ? ' is-on' : ''}`} style={`--i:${i}`}>
+              <bdi>{pick(lang, t.label)}</bdi>
+            </span>
+          ))
+        }
+      </div>
+
+      <div class="tabsfan__shot">
+        <AssetSlot
+          lang={lang}
+          ratio="16/10"
+          label={{ en: 'CRM workbook — 12 bilingual tabs', ar: 'ملف نظام العملاء — ١٢ تبويبًا ثنائي اللغة' }}
+        />
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .tabsfan {
+    align-items: center;
+  }
+
+  /* ----- left copy ----- */
+  .tabsfan__copy h2 {
+    font-size: clamp(28px, 4vw, 46px);
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    line-height: 1.04;
+    margin: 14px 0 14px;
+  }
+  .tabsfan__copy p {
+    color: var(--ink-2);
+    font-size: 16px;
+    line-height: 1.6;
+    max-width: 400px;
+  }
+
+  /* ----- ads → leads → CRM funnel hint (assembles on --q) ----- */
+  .tabsfan__funnel {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 14px;
+    margin-top: 26px;
+  }
+  .ff {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 8px;
+    /* each item slides + fades in, staggered by index, as --q rises */
+    opacity: calc((var(--q, 1) - var(--i) * 0.22) * 3.2);
+    transform: translateY(calc((1 - var(--q, 1)) * 14px));
+  }
+  .ff__num {
+    font-size: clamp(20px, 2.6vw, 30px);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+  .ff__cap {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .ff__arrow {
+    margin-inline-start: 4px;
+    color: var(--ink-3);
+    font-size: 16px;
+  }
+  [dir='rtl'] .ff__arrow {
+    display: inline-block;
+    transform: scaleX(-1);
+  }
+
+  /* ----- right: the tilted CRM window ----- */
+  .tabsfan__stage {
+    perspective: 1300px;
+    display: flex;
+    justify-content: center;
+  }
+  .tabsfan__win {
+    width: 100%;
+    max-width: 460px;
+    border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--surface-raised);
+    box-shadow: -24px 30px 70px -24px rgba(0, 0, 0, 0.7);
+    transform-style: preserve-3d;
+    will-change: transform;
+    /* tilt settles flat as --q → 1 */
+    transform: perspective(1300px) rotateX(calc((1 - var(--q, 1)) * 13deg))
+      rotateY(calc((1 - var(--q, 1)) * -20deg));
+  }
+  [dir='rtl'] .tabsfan__win {
+    box-shadow: 24px 30px 70px -24px rgba(0, 0, 0, 0.7);
+    transform: perspective(1300px) rotateX(calc((1 - var(--q, 1)) * 13deg))
+      rotateY(calc((1 - var(--q, 1)) * 20deg));
+  }
+  .tabsfan__bar {
+    height: 36px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 0 14px;
+    border-bottom: 1px solid var(--hair);
+    background: var(--win-bar);
+  }
+  .tabsfan__bar i {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+  }
+  .tabsfan__bar .r {
+    background: #ff5f57;
+  }
+  .tabsfan__bar .y {
+    background: #febc2e;
+  }
+  .tabsfan__bar .g {
+    background: #28c840;
+  }
+  .tabsfan__bar .addr {
+    margin-inline-start: 10px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-3);
+  }
+
+  /* ----- the 12 tabs that FAN OUT ----- */
+  .tabsfan__tabstrip {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    padding: 12px 14px 10px;
+    border-bottom: 1px solid var(--hair);
+    /* the strip itself reveals as the fan settles */
+    background: color-mix(in srgb, var(--accent) 5%, transparent);
+  }
+  .tf-tab {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink-2);
+    border: 1px solid var(--hair);
+    border-radius: 8px;
+    padding: 5px 9px;
+    background: var(--surface-card);
+    white-space: nowrap;
+    transform-origin: bottom center;
+    /* STACKED at --q=0 (rotated + lifted + faint), settle into the strip at --q=1.
+       Sign per index spreads the fan; magnitude scales with how stacked we are. */
+    --fan: calc(1 - var(--q, 1));
+    --dir: calc(var(--i) - 5.5); /* -5.5 … +5.5 around centre */
+    transform: rotate(calc(var(--dir) * var(--fan) * 4deg))
+      translateY(calc(var(--fan) * -10px))
+      translateX(calc(var(--dir) * var(--fan) * -6px));
+    opacity: calc(0.4 + var(--q, 1) * 0.6);
+    transition: color 0.25s, border-color 0.25s, background 0.25s;
+  }
+  [dir='rtl'] .tf-tab {
+    /* mirror the horizontal spread direction in RTL */
+    transform: rotate(calc(var(--dir) * var(--fan) * -4deg))
+      translateY(calc(var(--fan) * -10px))
+      translateX(calc(var(--dir) * var(--fan) * 6px));
+  }
+  .tf-tab.is-on {
+    color: var(--ink);
+    border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+    background: color-mix(in srgb, var(--accent) 16%, var(--surface-card));
+  }
+
+  .tabsfan__shot {
+    padding: 14px;
+  }
+
+  /* ----- fallbacks: neutralise transforms to the readable END state ----- */
+  @media (prefers-reduced-motion: reduce) {
+    .tabsfan__win {
+      transform: none !important;
+    }
+    .tf-tab {
+      transform: none !important;
+      opacity: 1 !important;
+    }
+    .ff {
+      opacity: 1 !important;
+      transform: none !important;
+    }
+  }
+  @media (max-width: 820px) {
+    .tabsfan__win {
+      transform: none !important;
+    }
+    .tf-tab {
+      transform: none !important;
+      opacity: 1 !important;
+    }
+    .ff {
+      opacity: 1 !important;
+      transform: none !important;
+    }
+    .tabsfan__copy p {
+      max-width: none;
+    }
+  }
+</style>

@@ -1,5 +1,11 @@
 ---
-import StoryHero from './StoryHero.astro';
+import Spine from './spine/Spine.astro';
+import Hook from './spine/Hook.astro';
+import Brief from './spine/Brief.astro';
+import Build from './spine/Build.astro';
+import Proof from './spine/Proof.astro';
+import Honesty from './spine/Honesty.astro';
+import Orbit from './centerpieces/Orbit.astro';
 import FilmEmbed from './FilmEmbed.astro';
 import Metrics, { type MetricItem } from '../Metrics.astro';
 import TechRow from '../TechRow.astro';
@@ -10,38 +16,56 @@ interface Props {
 }
 const { lang } = Astro.props;
 
+// Brief artifact — the RFQ pipeline funnel (verbatim from the current story).
 const funnel = [
+  { w: '100%', d: 0, label: { en: 'RFQs consolidated', ar: 'طلبات مُجمَّعة' }, count: 23 },
+  { w: '100%', d: 1, label: { en: 'Reply drafts written', ar: 'مسوّدات ردود' }, count: 23 },
+  { w: '24%', d: 2, label: { en: 'Live tenders recovered', ar: 'مناقصات حيّة مُستعادة' }, count: 4 },
+];
+
+// Beat 3 · Build — the operating model + the win, broken into scrub items.
+const buildItems = [
   {
-    w: '100%',
-    d: 0,
-    label: { en: 'RFQs consolidated', ar: 'طلبات مُجمَّعة' },
-    count: 23,
+    n: '01',
+    title: { en: 'I’m the controller', ar: 'أنا المُتحكِّم' },
+    body: {
+      en: 'Me + Cowork hold the memory, write the briefs, and verify — every handoff is a labelled, ready-to-paste brief, so work is never redone and context is never lost.',
+      ar: 'أنا + Cowork نحفظ الذاكرة، ونكتب المهام، ونتحقّق — وكل تسليمٍ مهمةٌ مُعنونة جاهزة للّصق، فلا يُعاد العمل ولا يُفقد السياق.',
+    },
   },
   {
-    w: '100%',
-    d: 1,
-    label: { en: 'Reply drafts written', ar: 'مسوّدات ردود' },
-    count: 23,
+    n: '02',
+    title: { en: 'Claude Design — the look', ar: 'Claude Design — الشكل' },
+    body: {
+      en: 'One AI tool owns the look, only. Direction in, design out.',
+      ar: 'أداة ذكاءٍ واحدة تتولّى الشكل، فقط. توجيهٌ يدخل، وتصميمٌ يخرج.',
+    },
   },
   {
-    w: '24%',
-    d: 2,
-    label: { en: 'Live tenders recovered', ar: 'مناقصات حيّة مُستعادة' },
-    count: 4,
+    n: '03',
+    title: { en: 'Claude Code — build · git · deploy', ar: 'Claude Code — بناء · git · نشر' },
+    body: {
+      en: 'A second AI tool turns the brief into shipped code — build, git, deploy. (It’s how this very site is being built.)',
+      ar: 'أداة ذكاءٍ ثانية تُحوّل المهمة إلى كودٍ مُسلَّم — بناء وgit ونشر. (وهكذا يُبنى هذا الموقع ذاته.)',
+    },
+  },
+  {
+    n: '04',
+    title: { en: 'The win it caught', ar: 'المكسب الذي التقطه' },
+    body: {
+      en: 'I pointed the system at 6 months of email, separated genuine RFQs from supplier noise, ranked them by deadline, and drafted a reply for each — surfacing 4 live tenders the manual list had dropped.',
+      ar: 'وجّهت النظام إلى ٦ أشهرٍ من البريد، وفصلت طلبات العروض الحقيقية عن ضجيج المورّدين، ورتّبتها حسب الموعد النهائي، وصغت ردًّا لكلٍّ منها — كاشفًا ٤ مناقصاتٍ حيّة أسقطتها القائمة اليدوية.',
+    },
   },
 ];
 
+// Numbers grid — verbatim from the current story ("What it drove").
 const droveMetrics: MetricItem[] = [
   { count: 23, label: { en: 'RFQs consolidated', ar: 'طلبات عروض مُجمَّعة' } },
   { count: 4, label: { en: 'Live tenders recovered', ar: 'مناقصات حيّة مُستعادة' } },
   { count: 3, label: { en: 'Automations on schedule', ar: 'أتمتةٌ مجدولة' } },
   { count: 23, prefix: '~', label: { en: 'Website commits shipped', ar: 'دفعات موقع مُسلَّمة' } },
 ];
-
-const honest = {
-  en: '<b>Honest credit:</b> The AI tools execute under my direction — I designed the model, wrote the briefs, set the no-fabrication rules, and made every decision. Hours or money saved were never measured, so I don’t claim them; the 4 recovered tenders are the concrete, sourced win.',
-  ar: '<b>نسبٌ صادق:</b> أدوات الذكاء تُنفّذ تحت إدارتي — صمّمت النموذج، وكتبت المهام، ووضعت قواعد "لا اختلاق"، واتخذت كل قرار. ولم يُقَس الوقت أو المال الموفّر، فلا أدّعيه؛ والمناقصات الأربع المُستعادة هي المكسب الملموس والموثّق.',
-};
 
 const tools = [
   'Cowork',
@@ -53,123 +77,109 @@ const tools = [
   'Gmail · Drive',
   'WhatsApp Web',
 ];
+
+// Verbatim honesty note (bold lead-in moved into the Honesty kicker).
+const note = {
+  en: 'The AI tools execute under my direction — I designed the model, wrote the briefs, set the no-fabrication rules, and made every decision. Hours or money saved were never measured, so I don’t claim them; the 4 recovered tenders are the concrete, sourced win.',
+  ar: 'أدوات الذكاء تُنفّذ تحت إدارتي — صمّمت النموذج، وكتبت المهام، ووضعت قواعد "لا اختلاق"، واتخذت كل قرار. ولم يُقَس الوقت أو المال الموفّر، فلا أدّعيه؛ والمناقصات الأربع المُستعادة هي المكسب الملموس والموثّق.',
+};
 ---
 
-<StoryHero
-  lang={lang}
-  badge={{ en: 'AI Operating Model', ar: 'نموذج تشغيل بالذكاء الاصطناعي' }}
-  headline={{
-    en: 'One person.<br><span class="gradient-text">Three AI tools.</span>',
-    ar: 'شخصٌ واحد.<br><span class="gradient-text">ثلاث أدوات ذكاء.</span>',
-  }}
-  headlineStyle="font-size:clamp(38px,7.5vw,104px)"
-  lead={{
-    en: 'I direct three AI tools as one system — and it ships real work. The same model recovered <b style="color:var(--ink)">4 live tenders</b> a manual list had missed. (It’s how this very site is being built.)',
-    ar: 'أُوجّه ثلاث أدوات ذكاءٍ كنظامٍ واحد — وهو يُنجز عملًا حقيقيًا. وقد استعاد النموذج نفسه <b style="color:var(--ink)">٤ مناقصاتٍ حيّة</b> أغفلتها قائمةٌ يدوية. (وهكذا يُبنى هذا الموقع ذاته.)',
-  }}
-/>
+<Spine lang={lang}>
+  <Hook
+    lang={lang}
+    badge={{ en: 'AI Operating Model', ar: 'نموذج تشغيل بالذكاء الاصطناعي' }}
+    headline={{
+      en: 'One person.<br><span class="gradient-text">Three AI tools.</span>',
+      ar: 'شخصٌ واحد.<br><span class="gradient-text">ثلاث أدوات ذكاء.</span>',
+    }}
+    lead={{
+      en: 'I direct three AI tools as one system — and it ships real work. The same model recovered <b>4 live tenders</b> a manual list had missed. (It’s how this very site is being built.)',
+      ar: 'أُوجّه ثلاث أدوات ذكاءٍ كنظامٍ واحد — وهو يُنجز عملًا حقيقيًا. وقد استعاد النموذج نفسه <b>٤ مناقصاتٍ حيّة</b> أغفلتها قائمةٌ يدوية. (وهكذا يُبنى هذا الموقع ذاته.)',
+    }}
+    heroNumber="23 tenders"
+    heroCaption={{ en: 'found · 4 of them<br>nearly lost', ar: 'مُكتشَفة · ٤ منها<br>كادت تضيع' }}
+    ghost="AI"
+  />
 
-<FilmEmbed
-  lang={lang}
-  film="ai-workflow.html"
-  title={{ en: 'Interactive story film', ar: 'Interactive story film' }}
-/>
-
-<!-- THE OPERATING MODEL -->
-<section class="story-section">
-  <div class="wrap">
-    <div class="center stack" style="max-width:720px;margin-inline:auto">
-      <p class="kicker reveal">{pick(lang, { en: 'The operating model', ar: 'نموذج التشغيل' })}</p>
-      <h2 class="h-xl reveal d1">{pick(lang, { en: 'I’m the controller.', ar: 'أنا المُتحكِّم.' })}</h2>
+  <Brief
+    lang={lang}
+    kicker={{ en: 'The win it caught', ar: 'المكسب الذي التقطه' }}
+    heading={{ en: '23 tenders found. 4 of them, nearly lost.', ar: '٢٣ مناقصة. ٤ منها كادت تضيع.' }}
+    body={{
+      en: 'I pointed the system at 6 months of email, separated genuine RFQs from supplier noise, ranked them by deadline, and drafted a reply for each — surfacing 4 live tenders the manual list had dropped.',
+      ar: 'وجّهت النظام إلى ٦ أشهرٍ من البريد، وفصلت طلبات العروض الحقيقية عن ضجيج المورّدين، ورتّبتها حسب الموعد النهائي، وصغت ردًّا لكلٍّ منها — كاشفًا ٤ مناقصاتٍ حيّة أسقطتها القائمة اليدوية.',
+    }}
+    ghostWord="RFQ"
+  >
+    <div slot="aside" style="margin-top:22px">
+      <TechRow lang={lang} items={['Cowork', 'Claude Design', 'Claude Code']} center={false} />
     </div>
-    <div class="orchestra reveal d1">
-      <div class="node ctrl">
-        <b>{pick(lang, { en: 'Me + Cowork', ar: 'أنا + Cowork' })}</b>
-        <span>{pick(lang, { en: 'Controller · memory · briefs · verify', ar: 'تحكّم · ذاكرة · مهام · تحقّق' })}</span>
+    <div class="device">
+      <div class="device__bar">
+        <span class="d r"></span><span class="d y"></span><span class="d g"></span>
+        <span class="addr">RFQ pipeline</span>
       </div>
-      <div class="branch"><span class="arm a1"></span><span class="arm a2"></span></div>
-      <div class="leaves">
-        <div class="node">
-          <b>Claude Design</b>
-          <span>{pick(lang, { en: 'The look — only', ar: 'الشكل — فقط' })}</span>
+      <div class="device__body" style="padding:26px">
+        <div class="funnel">
+          {
+            funnel.map((f) => (
+              <div class={`fbar reveal${f.d ? ` d${f.d}` : ''}`} style={`--w:${f.w}`}>
+                <span>{pick(lang, f.label)}</span>
+                <b class="tnum" data-count={f.count} data-duration="1400">
+                  0
+                </b>
+              </div>
+            ))
+          }
         </div>
-        <div class="node">
-          <b>Claude Code</b>
-          <span>{pick(lang, { en: 'Build · git · deploy', ar: 'بناء · git · نشر' })}</span>
-        </div>
-      </div>
-    </div>
-    <p class="muted center" style="font-size:13px;margin-top:18px">
-      {pick(lang, {
-        en: 'Every handoff is a labelled, ready-to-paste brief — so work is never redone and context is never lost.',
-        ar: 'كل تسليمٍ مهمةٌ مُعنونة جاهزة للّصق — فلا يُعاد العمل ولا يُفقد السياق.',
-      })}
-    </p>
-  </div>
-</section>
-
-<!-- THE WIN IT CAUGHT -->
-<section class="story-section">
-  <div class="wrap two-col">
-    <div class="stack">
-      <p class="kicker reveal">{pick(lang, { en: 'The win it caught', ar: 'المكسب الذي التقطه' })}</p>
-      <h2 class="h-lg reveal d1">
-        {pick(lang, {
-          en: '23 tenders found. 4 of them, nearly lost.',
-          ar: '٢٣ مناقصة. ٤ منها كادت تضيع.',
-        })}
-      </h2>
-      <p class="lead reveal d2">
-        {pick(lang, {
-          en: 'I pointed the system at 6 months of email, separated genuine RFQs from supplier noise, ranked them by deadline, and drafted a reply for each — surfacing 4 live tenders the manual list had dropped.',
-          ar: 'وجّهت النظام إلى ٦ أشهرٍ من البريد، وفصلت طلبات العروض الحقيقية عن ضجيج المورّدين، ورتّبتها حسب الموعد النهائي، وصغت ردًّا لكلٍّ منها — كاشفًا ٤ مناقصاتٍ حيّة أسقطتها القائمة اليدوية.',
-        })}
-      </p>
-    </div>
-    <div class="reveal d1">
-      <div class="device">
-        <div class="device__bar">
-          <span class="d r"></span><span class="d y"></span><span class="d g"></span>
-          <span class="addr">RFQ pipeline</span>
-        </div>
-        <div class="device__body" style="padding:26px">
-          <div class="funnel">
-            {
-              funnel.map((f) => (
-                <div class={`fbar reveal${f.d ? ` d${f.d}` : ''}`} style={`--w:${f.w}`}>
-                  <span>{pick(lang, f.label)}</span>
-                  <b class="tnum" data-count={f.count} data-duration="1400">
-                    0
-                  </b>
-                </div>
-              ))
-            }
-          </div>
-        </div>
+        <p class="muted" style="font-size:12.5px;margin-top:16px">
+          {
+            pick(lang, {
+              en: '6 months of email · genuine RFQs ranked by deadline',
+              ar: '٦ أشهرٍ من البريد · طلبات حقيقية مُرتَّبة حسب الموعد',
+            })
+          }
+        </p>
       </div>
     </div>
-  </div>
-</section>
+  </Brief>
 
-<!-- WHAT IT DROVE -->
-<section class="story-section section-glow">
-  <div class="wrap">
-    <Metrics
-      lang={lang}
-      eyebrow={{ en: 'What it drove', ar: 'ما الذي أنجزه' }}
-      items={droveMetrics}
-    />
-    <div class="note reveal" style="margin-top:30px" set:html={honest[lang]}></div>
-  </div>
-</section>
+  <Build
+    lang={lang}
+    kicker={{ en: 'The operating model', ar: 'نموذج التشغيل' }}
+    heading={{ en: 'I’m the controller.', ar: 'أنا المُتحكِّم.' }}
+    intro={{
+      en: 'Three AI tools, one system — directed end-to-end through labelled briefs.',
+      ar: 'ثلاث أدوات ذكاء، نظامٌ واحد — مُوجَّهٌ من الألف إلى الياء عبر مهامٍ مُعنونة.',
+    }}
+    mult={2.6}
+    items={buildItems}
+  />
 
-<!-- TOOLS ORCHESTRATED -->
-<section class="story-section">
-  <div class="wrap center stack" style="max-width:760px;margin-inline:auto">
-    <p class="kicker reveal">{pick(lang, { en: 'Tools orchestrated', ar: 'الأدوات المُنسَّقة' })}</p>
-    <TechRow lang={lang} items={tools} center={true} />
-  </div>
-</section>
+  <Proof lang={lang} center="orbit" mult={2.4}>
+    <Orbit lang={lang} />
+  </Proof>
+
+  <section class="story-section section-glow proof-numbers">
+    <div class="wrap">
+      <Metrics lang={lang} eyebrow={{ en: 'What it drove', ar: 'ما الذي أنجزه' }} items={droveMetrics} />
+    </div>
+  </section>
+
+  <Honesty
+    lang={lang}
+    slug="ai-workflow"
+    kicker={{ en: 'Honest credit', ar: 'نسبٌ صادق' }}
+    note={note}
+  >
+    <div slot="tools" style="margin-top:22px">
+      <TechRow lang={lang} items={tools} center={false} />
+    </div>
+  </Honesty>
+</Spine>
+
+<FilmEmbed lang={lang} film="ai-workflow.html" title={{ en: 'AI workflow — interactive story film', ar: 'فيلم القصة التفاعلي — منظومة الذكاء' }} />
 
 <style>
   .funnel {
@@ -214,73 +224,5 @@ const tools = [
     color: var(--ink-2);
     font-weight: 600;
     font-size: 14px;
-  }
-  .orchestra {
-    max-width: 760px;
-    margin: 44px auto 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0;
-  }
-  .orchestra .node {
-    width: 100%;
-    max-width: 360px;
-    text-align: center;
-    padding: 20px;
-    border: 1px solid var(--panel-brd);
-    border-radius: 16px;
-    background: var(--panel);
-  }
-  .orchestra .node b {
-    display: block;
-    font-size: 19px;
-    font-weight: 800;
-  }
-  .orchestra .node span {
-    font-size: 13px;
-    color: var(--ink-2);
-  }
-  .orchestra .node.ctrl {
-    border-color: transparent;
-    background: var(--grad);
-    color: #fff;
-  }
-  .orchestra .node.ctrl span {
-    color: rgba(255, 255, 255, 0.85);
-  }
-  .branch {
-    height: 42px;
-    width: 2px;
-    background: var(--panel-brd);
-    position: relative;
-  }
-  .branch .arm {
-    position: absolute;
-    top: 50%;
-    height: 2px;
-    width: 130px;
-    background: var(--panel-brd);
-  }
-  .branch .a1 {
-    right: 0;
-    transform-origin: left;
-  }
-  .branch .a2 {
-    left: 0;
-    transform-origin: right;
-  }
-  .leaves {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    width: 100%;
-    max-width: 560px;
-    margin-top: 0;
-  }
-  @media (max-width: 560px) {
-    .leaves {
-      grid-template-columns: 1fr;
-    }
   }
 </style>

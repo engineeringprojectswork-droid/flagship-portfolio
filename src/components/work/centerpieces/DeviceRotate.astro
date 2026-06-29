@@ -1,0 +1,223 @@
+---
+/** Centerpiece · sheep-app — "the app, proven".
+ *  The desktop app sits in a 3D-tilted device frame that settles toward flat as
+ *  the proof pin scrubs (rotateY/rotateX scaled off --q). A "59/59 tests"
+ *  pass-bar fills with --q, and the offline / bilingual / CI badges parallax up
+ *  and fade in. Pure CSS off var(--q) — no JS. --q=1 is the readable end-state.
+ *  One AssetSlot 16:10 for the real app screenshot. */
+import { pick, type Lang } from '../../../i18n/utils';
+import AssetSlot from '../spine/AssetSlot.astro';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+
+const badges = [
+  { txt: { en: 'Offline', ar: 'دون إنترنت' }, d: '0' },
+  { txt: { en: 'Bilingual', ar: 'ثنائي اللغة' }, d: '1' },
+  { txt: { en: 'CI-built', ar: 'مبنيٌّ آليًا' }, d: '2' },
+];
+---
+
+<div class="proof__grid dr">
+  <div class="dr__left reveal">
+    <span class="kicker">{pick(lang, { en: 'The proof · it ships', ar: 'الإثبات · يُسلَّم فعلًا' })}</span>
+    <h2>{pick(lang, { en: '59 / 59 green.', ar: '٥٩ / ٥٩ ناجحة.' })}</h2>
+    <p>
+      {
+        pick(lang, {
+          en: 'An acceptance + regression suite — 0 failures across 17 assertion groups — guards a 15-table model, proven over 17 successful CI builds.',
+          ar: 'حزمة قبولٍ وانحدار — صفر إخفاقات عبر ١٧ مجموعة تحقّق — تحمي نموذجًا من ١٥ جدولًا، مُثبَتًا عبر ١٧ بناءً ناجحًا.',
+        })
+      }
+    </p>
+
+    <div class="dr__bar" aria-hidden="true">
+      <span class="dr__fill"></span>
+      <span class="dr__barlbl"><bdi>59 / 59</bdi></span>
+    </div>
+
+    <div class="dr__badges">
+      {
+        badges.map((b) => (
+          <span class="dr__badge" style={`--bi:${b.d}`}>
+            {pick(lang, b.txt)}
+          </span>
+        ))
+      }
+    </div>
+  </div>
+
+  <div class="dr__stagewrap">
+    <div class="dr__stage">
+      <div class="dr__bar2" aria-hidden="true">
+        <i class="r"></i><i class="y"></i><i class="g"></i>
+        <span class="addr">SheepFarm — offline</span>
+      </div>
+      <AssetSlot
+        lang={lang}
+        ratio="16/10"
+        label={{ en: 'SheepFarm desktop app — dashboard', ar: 'تطبيق SheepFarm — لوحة التحكّم' }}
+      />
+    </div>
+  </div>
+</div>
+
+<style>
+  .dr {
+    align-items: center;
+  }
+  .dr__left h2 {
+    font-size: clamp(28px, 4vw, 46px);
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    line-height: 1.04;
+    margin: 14px 0 14px;
+    font-variant-numeric: tabular-nums;
+  }
+  .dr__left p {
+    color: var(--ink-2);
+    font-size: 16px;
+    line-height: 1.6;
+    max-width: 400px;
+  }
+
+  /* 59/59 pass-bar — fills with --q (width:calc(var(--q)*100%)) */
+  .dr__bar {
+    position: relative;
+    margin-top: 26px;
+    height: 30px;
+    border-radius: 8px;
+    border: 1px solid var(--hair);
+    background: color-mix(in srgb, var(--ink) 6%, transparent);
+    overflow: hidden;
+    max-width: 360px;
+  }
+  .dr__fill {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    width: calc(var(--q, 1) * 100%);
+    background: linear-gradient(90deg, var(--accent-2), var(--accent));
+    border-radius: 8px;
+  }
+  [dir='rtl'] .dr__fill {
+    background: linear-gradient(270deg, var(--accent-2), var(--accent));
+  }
+  .dr__barlbl {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--ink);
+  }
+
+  /* badges parallax up + fade in with --q */
+  .dr__badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin-top: 20px;
+  }
+  .dr__badge {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 7px 13px;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+    color: var(--ink);
+    background: color-mix(in srgb, var(--accent) 12%, var(--surface-card));
+    /* staggered: each badge resolves a little later along --q */
+    opacity: clamp(0, calc((var(--q, 1) - var(--bi) * 0.18) * 4), 1);
+    transform: translateY(calc((1 - clamp(0, calc((var(--q, 1) - var(--bi) * 0.18) * 4), 1)) * 14px));
+    will-change: opacity, transform;
+  }
+
+  /* the 3D device that settles toward flat at --q=1 */
+  .dr__stagewrap {
+    perspective: 1200px;
+    display: flex;
+    justify-content: center;
+  }
+  .dr__stage {
+    width: 100%;
+    max-width: 460px;
+    border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--surface-raised);
+    box-shadow: -24px 30px 70px -24px rgba(0, 0, 0, 0.8);
+    transform-style: preserve-3d;
+    /* start tilted (--q=0), settle flat (--q=1) */
+    transform: perspective(1200px)
+      rotateX(calc((1 - var(--q, 1)) * 12deg))
+      rotateY(calc((1 - var(--q, 1)) * -20deg));
+    will-change: transform;
+  }
+  [dir='rtl'] .dr__stage {
+    box-shadow: 24px 30px 70px -24px rgba(0, 0, 0, 0.8);
+    transform: perspective(1200px)
+      rotateX(calc((1 - var(--q, 1)) * 12deg))
+      rotateY(calc((1 - var(--q, 1)) * 20deg));
+  }
+  .dr__bar2 {
+    height: 38px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 0 14px;
+    border-bottom: 1px solid var(--hair);
+  }
+  .dr__bar2 i {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+  }
+  .dr__bar2 .r {
+    background: #ff5f57;
+  }
+  .dr__bar2 .y {
+    background: #febc2e;
+  }
+  .dr__bar2 .g {
+    background: #28c840;
+  }
+  .dr__bar2 .addr {
+    margin-inline-start: 10px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-3);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .dr__stage {
+      transform: none !important;
+    }
+    .dr__fill {
+      width: 100% !important;
+    }
+    .dr__badge {
+      opacity: 1 !important;
+      transform: none !important;
+    }
+  }
+  @media (max-width: 820px) {
+    .dr__stage {
+      transform: none !important;
+    }
+    .dr__fill {
+      width: 100% !important;
+    }
+    .dr__badge {
+      opacity: 1 !important;
+      transform: none !important;
+    }
+  }
+</style>

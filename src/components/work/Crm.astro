@@ -1,5 +1,11 @@
 ---
-import StoryHero from './StoryHero.astro';
+import Spine from './spine/Spine.astro';
+import Hook from './spine/Hook.astro';
+import Brief from './spine/Brief.astro';
+import Build from './spine/Build.astro';
+import Proof from './spine/Proof.astro';
+import Honesty from './spine/Honesty.astro';
+import TabsFan from './centerpieces/TabsFan.astro';
 import FilmEmbed from './FilmEmbed.astro';
 import Metrics, { type MetricItem } from '../Metrics.astro';
 import TechRow from '../TechRow.astro';
@@ -10,6 +16,13 @@ interface Props {
 }
 const { lang } = Astro.props;
 
+// Brief artifact — the CRM device window (tabs + colour-coded status rows).
+const tabs = [
+  { on: true, label: { en: 'Leads', ar: 'العملاء' } },
+  { on: false, label: { en: 'Dashboard', ar: 'اللوحة' } },
+  { on: false, label: { en: 'Sales log', ar: 'سجل المبيعات' } },
+  { on: false, label: { en: 'Ads → leads', ar: 'إعلانات ← عملاء' } },
+];
 const rows = [
   { st: 'new', label: { en: 'New lead', ar: 'عميل جديد' }, b: 'WhatsApp' },
   { st: 'off', label: { en: 'Offer sent', ar: 'عرض مُرسل' }, b: '22' },
@@ -17,42 +30,36 @@ const rows = [
   { st: 'eng', label: { en: '→ Engineer', ar: '← المهندس' }, b: '↗' },
 ];
 
-const tabs = [
-  { on: true, label: { en: 'Leads', ar: 'العملاء' } },
-  { on: false, label: { en: 'Dashboard', ar: 'اللوحة' } },
-  { on: false, label: { en: 'Sales log', ar: 'سجل المبيعات' } },
-  { on: false, label: { en: 'Ads → leads', ar: 'إعلانات ← عملاء' } },
-];
-
-const feats = [
+// Beat 3 · Build — "what I built" items (the four CRM features), revealed on scrub.
+const buildItems = [
   {
-    ic: '◧',
-    h: { en: 'Status taxonomy & color-coding', ar: 'تصنيف الحالات والترميز اللوني' },
-    p: {
+    n: '01',
+    title: { en: 'Status taxonomy & color-coding', ar: 'تصنيف الحالات والترميز اللوني' },
+    body: {
       en: 'Every lead has a status, a priority, and a conditional color so the pipeline reads at a glance.',
       ar: 'لكل عميل حالة وأولوية ولونٌ شرطي ليُقرأ المسار بنظرة.',
     },
   },
   {
-    ic: '▣',
-    h: { en: 'Dashboard & ad-spend → lead funnel', ar: 'لوحة وقمع من الإنفاق إلى العميل' },
-    p: {
+    n: '02',
+    title: { en: 'Dashboard & ad-spend → lead funnel', ar: 'لوحة وقمع من الإنفاق إلى العميل' },
+    body: {
       en: 'A tab that links Meta ad spend to the leads it produced — closing the loop between marketing and money.',
       ar: 'تبويب يربط إنفاق ميتا بالعملاء الذين أنتجهم — يُغلق الحلقة بين التسويق والمال.',
     },
   },
   {
-    ic: '⇄',
-    h: { en: 'Engineer hand-off queue', ar: 'طابور تسليم المهندس' },
-    p: {
+    n: '03',
+    title: { en: 'Engineer hand-off queue', ar: 'طابور تسليم المهندس' },
+    body: {
       en: 'Qualified leads route cleanly to the engineer who prices and closes.',
       ar: 'العملاء المؤهّلون يُحالون بوضوح إلى المهندس الذي يُسعّر ويُغلق.',
     },
   },
   {
-    ic: '◷',
-    h: { en: 'Accountability / SLA tab', ar: 'تبويب المساءلة / مستوى الخدمة' },
-    p: {
+    n: '04',
+    title: { en: 'Accountability / SLA tab', ar: 'تبويب المساءلة / مستوى الخدمة' },
+    body: {
       en: 'Owner-by-status, a day-counter and fault scoring that surfaced stuck-lead bottlenecks.',
       ar: 'مسؤولٌ حسب الحالة، وعدّاد أيام، وتسجيل أخطاء كشف اختناقات العملاء العالقين.',
     },
@@ -66,12 +73,7 @@ const workbookMetrics: MetricItem[] = [
   { count: 200, suffix: '+', label: { en: 'Contacts captured', ar: 'جهات اتصال مُسجّلة' } },
 ];
 
-const honest = {
-  en: '<b>Honest line:</b> The CRM currently shows 0 closed sales — and that’s correct: I run marketing and lead-gen; the engineer prices and closes. The system’s job is to make sure no lead is lost on the way there.',
-  ar: '<b>سطرٌ صادق:</b> يُظهر النظام حاليًا ٠ صفقة مُغلقة — وهذا صحيح: أنا أُدير التسويق وتوليد العملاء؛ والمهندس يُسعّر ويُغلق. ومهمة النظام ألّا يضيع أيُّ عميلٍ في الطريق.',
-};
-
-const chips = [
+const tools = [
   { en: 'Excel / Google Sheets', ar: 'Excel / Google Sheets' },
   { en: 'COUNTIFS', ar: 'COUNTIFS' },
   { en: 'Conditional formatting', ar: 'تنسيق شرطي' },
@@ -79,132 +81,161 @@ const chips = [
   { en: 'openpyxl', ar: 'openpyxl' },
   { en: 'Bilingual RTL', ar: 'ثنائي اللغة RTL' },
 ];
+
+// Verbatim honesty note — the bold "Honest line:" lead-in moves to the beat kicker.
+const note = {
+  en: 'The CRM currently shows 0 closed sales — and that’s correct: I run marketing and lead-gen; the engineer prices and closes. The system’s job is to make sure no lead is lost on the way there.',
+  ar: 'يُظهر النظام حاليًا ٠ صفقة مُغلقة — وهذا صحيح: أنا أُدير التسويق وتوليد العملاء؛ والمهندس يُسعّر ويُغلق. ومهمة النظام ألّا يضيع أيُّ عميلٍ في الطريق.',
+};
 ---
 
-<StoryHero
-  lang={lang}
-  badge={{ en: 'Marketing Ops · CRM', ar: 'عمليات التسويق · نظام العملاء' }}
-  headlineStyle="font-size:clamp(40px,8vw,110px)"
-  headline={{
-    en: 'From ad spend<br>to a <span class="gradient-text">tracked lead.</span>',
-    ar: 'من الإنفاق<br>إلى <span class="gradient-text">عميلٍ مُتتبَّع.</span>',
-  }}
-  lead={{
-    en: 'No system existed, so I built one: a <b style="color:var(--ink)">12-tab bilingual CRM</b> that connects every dinar of ad spend to a named lead and a next action.',
-    ar: 'لم يكن هناك نظام، فبنيت واحدًا: <b style="color:var(--ink)">نظام عملاء بـ١٢ تبويبًا ثنائي اللغة</b> يربط كل دينار إنفاقٍ بعميلٍ مُسمّى وإجراءٍ تالٍ.',
-  }}
-/>
+<Spine lang={lang}>
+  <Hook
+    lang={lang}
+    badge={{ en: 'Marketing Ops · CRM', ar: 'عمليات التسويق · نظام العملاء' }}
+    headline={{
+      en: 'From ad spend<br>to a <span class="gradient-text">tracked lead.</span>',
+      ar: 'من الإنفاق<br>إلى <span class="gradient-text">عميلٍ مُتتبَّع.</span>',
+    }}
+    lead={{
+      en: 'No system existed, so I built one: a <b>12-tab bilingual CRM</b> that connects every dinar of ad spend to a named lead and a next action.',
+      ar: 'لم يكن هناك نظام، فبنيت واحدًا: <b>نظام عملاء بـ١٢ تبويبًا ثنائي اللغة</b> يربط كل دينار إنفاقٍ بعميلٍ مُسمّى وإجراءٍ تالٍ.',
+    }}
+    heroNumber="12 tabs"
+    heroCaption={{ en: 'bilingual CRM<br>built from scratch', ar: 'نظام عملاء ثنائي<br>اللغة بُني من الصفر' }}
+    ghost="12"
+  />
+
+  <Brief
+    lang={lang}
+    kicker={{ en: 'The problem', ar: 'المشكلة' }}
+    heading={{
+      en: 'Leads were arriving. Nothing was holding them.',
+      ar: 'العملاء يصلون. ولا شيء يُمسك بهم.',
+    }}
+    body={{
+      en: 'Ads drove WhatsApp chats, but there was no shared place to track status, priority, who owns what, and which spend produced which lead. So I designed the system the company didn’t have.',
+      ar: 'الإعلانات تجلب محادثات واتساب، لكن لا مكان مشترك لتتبّع الحالة والأولوية ومن المسؤول وأيُّ إنفاقٍ أنتج أيَّ عميل. فصمّمت النظام الذي تفتقده الشركة.',
+    }}
+    ghostWord="CRM"
+  >
+    <div slot="aside" style="margin-top:22px">
+      <TechRow lang={lang} items={['Excel / Google Sheets', 'COUNTIFS', 'Bilingual RTL']} center={false} />
+    </div>
+    <div class="device">
+      <div class="device__bar">
+        <span class="d r"></span><span class="d y"></span><span class="d g"></span>
+        <span class="addr"><bdi>CRM · 12 tabs · AR / EN</bdi></span>
+      </div>
+      <div class="device__body" style="padding:18px">
+        <div class="crm-tabs">
+          {tabs.map((t) => <span class={`crm-tab${t.on ? ' on' : ''}`}>{pick(lang, t.label)}</span>)}
+        </div>
+        <div class="crm-rows">
+          {
+            rows.map((r, i) => (
+              <div class={`crm-row reveal${i ? ` d${i}` : ''}`}>
+                <span class={`crm-st ${r.st}`} aria-hidden="true" />
+                {pick(lang, r.label)}
+                <b><bdi>{r.b}</bdi></b>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </Brief>
+
+  <Build
+    lang={lang}
+    kicker={{ en: 'What I built', ar: 'ما الذي بنيته' }}
+    heading={{ en: 'A whole pipeline, in a spreadsheet.', ar: 'مسار مبيعاتٍ كامل، داخل جدول.' }}
+    mult={2.6}
+    items={buildItems}
+  />
+
+  <Proof lang={lang} center="tabs-fan" mult={2.4}>
+    <TabsFan lang={lang} />
+  </Proof>
+
+  <section class="story-section section-glow proof-numbers">
+    <div class="wrap">
+      <Metrics lang={lang} eyebrow={{ en: 'In the workbook', ar: 'داخل الملف' }} items={workbookMetrics} />
+    </div>
+  </section>
+
+  <Honesty
+    lang={lang}
+    slug="crm"
+    kicker={{ en: 'Honest line', ar: 'سطرٌ صادق' }}
+    note={note}
+  >
+    <div slot="tools" style="margin-top:22px">
+      <TechRow lang={lang} items={tools} center={false} />
+    </div>
+  </Honesty>
+</Spine>
 
 <FilmEmbed
   lang={lang}
   film="crm.html"
-  title={{ en: 'Interactive story film', ar: 'قصة تفاعلية' }}
+  title={{ en: 'CRM — interactive story film', ar: 'فيلم القصة التفاعلي — نظام العملاء' }}
 />
 
-<!-- THE PROBLEM -->
-<section class="story-section">
-  <div class="wrap two-col">
-    <div class="stack">
-      <p class="kicker reveal">{pick(lang, { en: 'The problem', ar: 'المشكلة' })}</p>
-      <h2 class="h-lg reveal d1">
-        {pick(lang, {
-          en: 'Leads were arriving. Nothing was holding them.',
-          ar: 'العملاء يصلون. ولا شيء يُمسك بهم.',
-        })}
-      </h2>
-      <p class="lead reveal d2">
-        {pick(lang, {
-          en: 'Ads drove WhatsApp chats, but there was no shared place to track status, priority, who owns what, and which spend produced which lead. So I designed the system the company didn’t have.',
-          ar: 'الإعلانات تجلب محادثات واتساب، لكن لا مكان مشترك لتتبّع الحالة والأولوية ومن المسؤول وأيُّ إنفاقٍ أنتج أيَّ عميل. فصمّمت النظام الذي تفتقده الشركة.',
-        })}
-      </p>
-    </div>
-    <div class="reveal d1">
-      <div class="device">
-        <div class="device__bar">
-          <span class="d r"></span><span class="d y"></span><span class="d g"></span>
-          <span class="addr">CRM · 12 tabs · AR / EN</span>
-        </div>
-        <div class="device__body" style="padding:18px">
-          <div class="tabs">
-            {
-              tabs.map((t) => (
-                <span class={`tab${t.on ? ' on' : ''}`}>{t.label[lang]}</span>
-              ))
-            }
-          </div>
-          <div class="rows">
-            {
-              rows.map((r, i) => (
-                <div class={`row reveal${i ? ` d${i}` : ''}`}>
-                  <span class={`st ${r.st}`}></span>
-                  {r.label[lang]}
-                  <b>{r.b}</b>
-                </div>
-              ))
-            }
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- WHAT I BUILT -->
-<section class="story-section">
-  <div class="wrap">
-    <div class="center stack" style="max-width:720px;margin-inline:auto">
-      <p class="kicker reveal">{pick(lang, { en: 'What I built', ar: 'ما الذي بنيته' })}</p>
-      <h2 class="h-xl reveal d1">
-        {pick(lang, {
-          en: 'A whole pipeline, in a spreadsheet.',
-          ar: 'مسار مبيعاتٍ كامل، داخل جدول.',
-        })}
-      </h2>
-    </div>
-    <div class="feat-list" style="max-width:880px;margin:46px auto 0">
-      {
-        feats.map((f, i) => (
-          <div class={`feat reveal${i ? ` d${i}` : ''}`}>
-            <div class="ic" aria-hidden="true">{f.ic}</div>
-            <div>
-              <h4>{f.h[lang]}</h4>
-              <p>{f.p[lang]}</p>
-            </div>
-          </div>
-        ))
-      }
-    </div>
-  </div>
-</section>
-
-<!-- IN THE WORKBOOK -->
-<section class="story-section section-glow">
-  <div class="wrap">
-    <Metrics
-      lang={lang}
-      eyebrow={{ en: 'In the workbook', ar: 'داخل الملف' }}
-      items={workbookMetrics}
-    />
-    <div class="note reveal" style="margin-top:30px" set:html={honest[lang]}></div>
-  </div>
-</section>
-
-<!-- TOOLS -->
-<section class="story-section">
-  <div class="wrap center stack" style="max-width:760px;margin-inline:auto">
-    <p class="kicker reveal">{pick(lang, { en: 'Tools', ar: 'الأدوات' })}</p>
-    <TechRow lang={lang} items={chips} center={true} />
-  </div>
-</section>
-
 <style>
-  .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
-  .tab{font-size:12px;color:var(--ink-2);border:1px solid var(--panel-brd);border-radius:8px;padding:5px 10px}
-  .tab.on{color:var(--ink);background:color-mix(in srgb,var(--accent) 18%,transparent);border-color:transparent}
-  .rows{display:grid;gap:8px}
-  .row{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;padding:11px 13px;border:1px solid var(--panel-brd);border-radius:10px;background:var(--panel);font-size:14px;color:var(--ink-2)}
-  .row b{color:var(--ink);font-weight:700}
-  .st{width:10px;height:10px;border-radius:50%}
-  .st.new{background:#2997ff}.st.off{background:#ff9f0a}.st.hot{background:#ff375f}.st.eng{background:#30d158}
+  .crm-tabs {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .crm-tab {
+    font-size: 12px;
+    color: var(--ink-2);
+    border: 1px solid var(--panel-brd);
+    border-radius: 8px;
+    padding: 5px 10px;
+  }
+  .crm-tab.on {
+    color: var(--ink);
+    background: color-mix(in srgb, var(--accent) 18%, transparent);
+    border-color: transparent;
+  }
+  .crm-rows {
+    display: grid;
+    gap: 8px;
+  }
+  .crm-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 13px;
+    border: 1px solid var(--panel-brd);
+    border-radius: 10px;
+    background: var(--panel);
+    font-size: 14px;
+    color: var(--ink-2);
+  }
+  .crm-row b {
+    color: var(--ink);
+    font-weight: 700;
+  }
+  .crm-st {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+  .crm-st.new {
+    background: #2997ff;
+  }
+  .crm-st.off {
+    background: #ff9f0a;
+  }
+  .crm-st.hot {
+    background: #ff375f;
+  }
+  .crm-st.eng {
+    background: #30d158;
+  }
 </style>

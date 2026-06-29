@@ -160,6 +160,19 @@ export const projects: ProjectMeta[] = [
   },
 ];
 
+/** Canonical hex for each domain accent (single source for inline card colours). */
+export const accentHex: Record<Accent, string> = {
+  blue: '#2997ff',
+  red: '#ff453a',
+  green: '#30d158',
+  violet: '#bf5af2',
+  teal: '#64d2ff',
+  yellow: '#ffd60a',
+  indigo: '#5e5ce6',
+  orange: '#ff9f0a',
+  resume: '#bf5af2',
+};
+
 export const projectSlugs = projects.map((p) => p.slug);
 
 export function getProject(slug: string): ProjectMeta | undefined {

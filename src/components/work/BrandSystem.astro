@@ -1,5 +1,11 @@
 ---
-import StoryHero from './StoryHero.astro';
+import Spine from './spine/Spine.astro';
+import Hook from './spine/Hook.astro';
+import Brief from './spine/Brief.astro';
+import Build from './spine/Build.astro';
+import Proof from './spine/Proof.astro';
+import Honesty from './spine/Honesty.astro';
+import Mosaic from './centerpieces/Mosaic.astro';
 import FilmEmbed from './FilmEmbed.astro';
 import Metrics, { type MetricItem } from '../Metrics.astro';
 import TechRow from '../TechRow.astro';
@@ -10,9 +16,7 @@ interface Props {
 }
 const { lang } = Astro.props;
 
-// NOTE: the ad-creative image gallery (mosaic) was removed for now — the
-// presentation will be redesigned later. The images remain in public/img/work/.
-
+// Beat 2 · Brief artifact — the three flagship deliverables, as a stat card.
 const feats = [
   {
     ic: '◑',
@@ -40,17 +44,48 @@ const feats = [
   },
 ];
 
+// Beat 3 · Build — "what I built", revealed one at a time on scrub.
+const buildItems = [
+  {
+    n: '01',
+    title: { en: 'Design tokens & UI kits', ar: 'رموز التصميم وأطقم الواجهة' },
+    body: {
+      en: 'Reusable kits for social ads, the WhatsApp catalog, and OpenSooq — the rules everything is made from.',
+      ar: 'أطقم قابلة لإعادة الاستخدام لإعلانات السوشيال وكتالوج واتساب وOpenSooq — القواعد التي يُصنع منها كل شيء.',
+    },
+  },
+  {
+    n: '02',
+    title: { en: '18 HTML preview pages', ar: '١٨ صفحة معاينة HTML' },
+    body: {
+      en: 'The system, previewable — so every asset stays on-brand.',
+      ar: 'النظام قابلٌ للمعاينة — ليبقى كل عنصرٍ مطابقًا للهوية.',
+    },
+  },
+  {
+    n: '03',
+    title: { en: 'A 10-page A4 print catalog', ar: 'كتالوج طباعة A4 من ١٠ صفحات' },
+    body: {
+      en: 'Print-ready, bilingual, fully laid out.',
+      ar: 'جاهز للطباعة، ثنائي اللغة، بتنسيقٍ كامل.',
+    },
+  },
+  {
+    n: '04',
+    title: { en: '~254 files · ~144 videos', ar: '~٢٥٤ ملفًا · ~١٤٤ فيديو' },
+    body: {
+      en: 'Canva, After Effects and Premiere; AI video (Kling, Wan) on rented GPUs; AI restoration of hundreds of legacy photos.',
+      ar: 'Canva وAfter Effects وPremiere؛ وفيديو الذكاء الاصطناعي (Kling وWan) على معالجاتٍ مستأجرة؛ وترميمٌ بالذكاء الاصطناعي لمئات الصور القديمة.',
+    },
+  },
+];
+
 const outputMetrics: MetricItem[] = [
   { count: 254, prefix: '~', label: { en: 'Production files', ar: 'ملفات إنتاج' } },
   { count: 144, prefix: '~', label: { en: 'Videos', ar: 'مقاطع فيديو' } },
   { count: 18, label: { en: 'Brand preview pages', ar: 'صفحات معاينة الهوية' } },
   { count: 10, label: { en: 'Page print catalog', ar: 'صفحات كتالوج طباعة' } },
 ];
-
-const howMade = {
-  en: '<b>How it was made:</b> Canva, After Effects and Premiere for design and motion; AI video (Kling, Wan) on rented GPUs for ad concepts; and AI restoration of hundreds of legacy project photos. The file and video counts come from the company’s production archive.',
-  ar: '<b>كيف صُنع:</b> Canva وAfter Effects وPremiere للتصميم والموشن؛ وفيديو الذكاء الاصطناعي (Kling وWan) على معالجاتٍ مستأجرة لمفاهيم الإعلانات؛ وترميمٌ بالذكاء الاصطناعي لمئات صور المشاريع القديمة. وأعداد الملفات والفيديو من أرشيف إنتاج الشركة.',
-};
 
 const tools = [
   'Canva',
@@ -61,74 +96,100 @@ const tools = [
   'ComfyUI',
   { en: 'Rented GPUs', ar: 'معالجات مستأجرة' },
 ];
+
+// Verbatim honesty note — the bold lead-in ("How it was made:") moves to the
+// beat kicker; the rest is the original copy unchanged.
+const note = {
+  en: 'Canva, After Effects and Premiere for design and motion; AI video (Kling, Wan) on rented GPUs for ad concepts; and AI restoration of hundreds of legacy project photos. The file and video counts come from the company’s production archive.',
+  ar: 'Canva وAfter Effects وPremiere للتصميم والموشن؛ وفيديو الذكاء الاصطناعي (Kling وWan) على معالجاتٍ مستأجرة لمفاهيم الإعلانات؛ وترميمٌ بالذكاء الاصطناعي لمئات صور المشاريع القديمة. وأعداد الملفات والفيديو من أرشيف إنتاج الشركة.',
+};
 ---
 
-<StoryHero
-  lang={lang}
-  badge={{ en: 'Brand & Content', ar: 'الهوية والمحتوى' }}
-  headline={{
-    en: 'A whole<br><span class="gradient-text">content engine.</span>',
-    ar: 'محرّك محتوى<br><span class="gradient-text">متكامل.</span>',
-  }}
-  lead={{
-    en: 'Around <b style="color:var(--ink)">254 production files — including ~144 videos</b> — plus a complete bilingual brand system. One person, the output of a studio.',
-    ar: 'نحو <b style="color:var(--ink)">٢٥٤ ملف إنتاج — منها ~١٤٤ فيديو</b> — إضافةً إلى نظام هويةٍ ثنائي اللغة كامل. شخصٌ واحد، بإنتاج استوديو.',
-  }}
-/>
+<Spine lang={lang}>
+  <Hook
+    lang={lang}
+    badge={{ en: 'Brand & Content', ar: 'الهوية والمحتوى' }}
+    headline={{
+      en: 'A whole<br><span class="gradient-text">content engine.</span>',
+      ar: 'محرّك محتوى<br><span class="gradient-text">متكامل.</span>',
+    }}
+    lead={{
+      en: 'Around <b>254 production files — including ~144 videos</b> — plus a complete bilingual brand system. One person, the output of a studio.',
+      ar: 'نحو <b>٢٥٤ ملف إنتاج — منها ~١٤٤ فيديو</b> — إضافةً إلى نظام هويةٍ ثنائي اللغة كامل. شخصٌ واحد، بإنتاج استوديو.',
+    }}
+    heroNumber="~254 files"
+    heroCaption={{ en: 'production files<br>~144 of them video', ar: 'ملف إنتاج<br>~١٤٤ منها فيديو' }}
+    ghost="254"
+  />
+
+  <Brief
+    lang={lang}
+    kicker={{ en: 'The flagship', ar: 'العمل الأبرز' }}
+    heading={{ en: 'The Niagara Fog brand system', ar: 'نظام هوية Niagara Fog' }}
+    body={{
+      en: 'For the misting line I built a complete bilingual design system — not just posts, but the rules everything is made from.',
+      ar: 'لخطّ الترذيذ بنيت نظام تصميمٍ ثنائي اللغة كامل — لا مجرّد منشورات، بل القواعد التي يُصنع منها كل شيء.',
+    }}
+    ghostWord="Niagara Fog"
+  >
+    <div slot="aside" style="margin-top:22px">
+      <TechRow lang={lang} items={['Canva', 'After Effects', 'Premiere']} center={false} />
+    </div>
+    <div class="device">
+      <div class="device__bar">
+        <span class="d r"></span><span class="d y"></span><span class="d g"></span>
+        <span class="addr">{pick(lang, { en: 'brand-system / preview', ar: 'نظام-الهوية / معاينة' })}</span>
+      </div>
+      <div class="device__body" style="padding:22px">
+        <div class="feat-list">
+          {
+            feats.map((f) => (
+              <div class="feat">
+                <div class="ic">{f.ic}</div>
+                <div>
+                  <h4>{pick(lang, f.h)}</h4>
+                  <p>{pick(lang, f.p)}</p>
+                </div>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </Brief>
+
+  <Build
+    lang={lang}
+    kicker={{ en: 'What I built', ar: 'ما الذي بنيته' }}
+    heading={{ en: 'One person, the output of a studio.', ar: 'شخصٌ واحد، بإنتاج استوديو.' }}
+    mult={2.6}
+    items={buildItems}
+  />
+
+  <Proof lang={lang} center="mosaic" mult={2.4}>
+    <Mosaic lang={lang} />
+  </Proof>
+
+  <section class="story-section section-glow proof-numbers">
+    <div class="wrap">
+      <Metrics lang={lang} eyebrow={{ en: 'The output', ar: 'المُخرَجات' }} items={outputMetrics} />
+    </div>
+  </section>
+
+  <Honesty
+    lang={lang}
+    slug="brand-system"
+    kicker={{ en: 'How it was made', ar: 'كيف صُنع' }}
+    note={note}
+  >
+    <div slot="tools" style="margin-top:22px">
+      <TechRow lang={lang} items={tools} center={false} />
+    </div>
+  </Honesty>
+</Spine>
 
 <FilmEmbed
   lang={lang}
   film="brand-system.html"
-  title={{ en: 'Interactive story film', ar: 'قصة تفاعلية' }}
+  title={{ en: 'Brand system — interactive story film', ar: 'فيلم القصة التفاعلي — نظام الهوية' }}
 />
-
-<!-- THE FLAGSHIP -->
-<section class="story-section">
-  <div class="wrap two-col">
-    <div class="stack">
-      <p class="kicker reveal">{pick(lang, { en: 'The flagship', ar: 'العمل الأبرز' })}</p>
-      <h2 class="h-lg reveal d1">
-        {pick(lang, { en: 'The Niagara Fog brand system', ar: 'نظام هوية Niagara Fog' })}
-      </h2>
-      <p class="lead reveal d2">
-        {pick(lang, {
-          en: 'For the misting line I built a complete bilingual design system — not just posts, but the rules everything is made from.',
-          ar: 'لخطّ الترذيذ بنيت نظام تصميمٍ ثنائي اللغة كامل — لا مجرّد منشورات، بل القواعد التي يُصنع منها كل شيء.',
-        })}
-      </p>
-    </div>
-    <div class="feat-list reveal d1">
-      {
-        feats.map((f) => (
-          <div class="feat">
-            <div class="ic">{f.ic}</div>
-            <div>
-              <h4>{f.h[lang]}</h4>
-              <p>{f.p[lang]}</p>
-            </div>
-          </div>
-        ))
-      }
-    </div>
-  </div>
-</section>
-
-<!-- THE OUTPUT -->
-<section class="story-section section-glow">
-  <div class="wrap">
-    <Metrics
-      lang={lang}
-      eyebrow={{ en: 'The output', ar: 'المُخرَجات' }}
-      items={outputMetrics}
-    />
-    <div class="note reveal" style="margin-top:30px" set:html={howMade[lang]}></div>
-  </div>
-</section>
-
-<!-- TOOLS -->
-<section class="story-section">
-  <div class="wrap center stack" style="max-width:760px;margin-inline:auto">
-    <p class="kicker reveal">{pick(lang, { en: 'Tools', ar: 'الأدوات' })}</p>
-    <TechRow lang={lang} items={tools} />
-  </div>
-</section>

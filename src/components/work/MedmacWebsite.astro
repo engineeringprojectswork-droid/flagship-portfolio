@@ -1,9 +1,14 @@
 ---
-import StoryHero from './StoryHero.astro';
+import Spine from './spine/Spine.astro';
+import Hook from './spine/Hook.astro';
+import Brief from './spine/Brief.astro';
+import Build from './spine/Build.astro';
+import Proof from './spine/Proof.astro';
+import Honesty from './spine/Honesty.astro';
+import BrowserDials from './centerpieces/BrowserDials.astro';
 import FilmEmbed from './FilmEmbed.astro';
 import Metrics, { type MetricItem } from '../Metrics.astro';
 import TechRow from '../TechRow.astro';
-import StatRing from '../viz/StatRing.astro';
 import { pick, type Lang } from '../../i18n/utils';
 
 interface Props {
@@ -11,6 +16,7 @@ interface Props {
 }
 const { lang } = Astro.props;
 
+// Brief artifact — the four Lighthouse gauges in a live-site browser frame.
 const gauges = [
   { p: 96, count: 96, label: { en: 'Performance', ar: 'الأداء' } },
   { p: 100, count: 100, label: { en: 'Accessibility', ar: 'الوصول' } },
@@ -18,29 +24,39 @@ const gauges = [
   { p: 100, count: 100, label: { en: 'SEO', ar: 'SEO' } },
 ];
 
-const feats = [
+// Beat 3 · Build — "what I built / owned", revealed one at a time on scrub.
+// (Verbatim from the prior feat list; framed as ownership items.)
+const buildItems = [
   {
-    ic: '⌥',
-    h: { en: 'Astro · TypeScript · Tailwind', ar: 'Astro · TypeScript · Tailwind' },
-    p: {
+    n: '01',
+    title: { en: 'Astro · TypeScript · Tailwind', ar: 'Astro · TypeScript · Tailwind' },
+    body: {
       en: '10 localized page templates (AR/EN) + 404, ~16 components, 11 typed data files.',
       ar: '١٠ قوالب صفحات مُعرّبة (AR/EN) + ٤٠٤، و~١٦ مكوّنًا، و١١ ملف بيانات مُنمّط.',
     },
   },
   {
-    ic: '◐',
-    h: { en: 'sharp image pipeline', ar: 'خط معالجة صور sharp' },
-    p: {
+    n: '02',
+    title: { en: 'sharp image pipeline', ar: 'خط معالجة صور sharp' },
+    body: {
       en: 'Raw photos processed to optimized, progressive web assets automatically.',
       ar: 'صورٌ خام تُعالَج إلى أصول ويب مُحسّنة وتدريجية تلقائيًا.',
     },
   },
   {
-    ic: '▢',
-    h: { en: 'medmac-ui — a design system', ar: 'medmac-ui — نظام تصميم' },
-    p: {
+    n: '03',
+    title: { en: 'medmac-ui — a design system', ar: 'medmac-ui — نظام تصميم' },
+    body: {
       en: 'A 9-component React + Storybook library behind the site.',
       ar: 'مكتبة من ٩ مكوّنات React + Storybook خلف الموقع.',
+    },
+  },
+  {
+    n: '04',
+    title: { en: 'Shipped to production on Vercel', ar: 'مُطلَق في الإنتاج على Vercel' },
+    body: {
+      en: 'Arabic-default RTL and English, live and scoring 96–100 on Lighthouse — every CTA routes to WhatsApp.',
+      ar: 'عربي افتراضي RTL وإنجليزي، مباشر ويُسجّل ٩٦–١٠٠ في Lighthouse — وكل دعوة لإجراءٍ تُوجّه إلى واتساب.',
     },
   },
 ];
@@ -52,140 +68,158 @@ const shippedMetrics: MetricItem[] = [
   { count: 23, prefix: '~', label: { en: 'Commits to production', ar: 'دفعات إلى الإنتاج' } },
 ];
 
-const honest = {
-  en: '<b>Honest credit:</b> Spec-driven, AI-assisted (Claude Code), under a strict no-fabrication policy I set and enforced — I even held back unverified stats until confirmed. The site is live; the Lighthouse scores are from real runs on the production build.',
-  ar: '<b>نسبٌ صادق:</b> مدفوعٌ بالمواصفات، وبمساعدة الذكاء الاصطناعي (Claude Code)، تحت سياسة "لا اختلاق" وضعتها وطبّقتها — حتى أنني أوقفت إحصاءاتٍ غير مُتحقَّقة حتى تأكّدت. الموقع مباشر؛ ودرجات Lighthouse من قياساتٍ حقيقية على نسخة الإنتاج.',
-};
-
-const stack = [
+const tools = [
   'Astro', 'TypeScript', 'Tailwind CSS', 'sharp', 'Vercel', 'React', 'Storybook', 'RTL / i18n', 'Lighthouse',
 ];
+
+// Verbatim honesty note (bold lead-in moved into the beat kicker to avoid duplication).
+const note = {
+  en: 'Spec-driven, AI-assisted (Claude Code), under a strict no-fabrication policy I set and enforced — I even held back unverified stats until confirmed. The site is live; the Lighthouse scores are from real runs on the production build.',
+  ar: 'مدفوعٌ بالمواصفات، وبمساعدة الذكاء الاصطناعي (Claude Code)، تحت سياسة "لا اختلاق" وضعتها وطبّقتها — حتى أنني أوقفت إحصاءاتٍ غير مُتحقَّقة حتى تأكّدت. الموقع مباشر؛ ودرجات Lighthouse من قياساتٍ حقيقية على نسخة الإنتاج.',
+};
 ---
 
-<StoryHero
-  lang={lang}
-  badge={{ en: 'Web · Live in production', ar: 'ويب · مباشر في الإنتاج' }}
-  headline={{
-    en: 'Live. Bilingual.<br><span class="gradient-text">Near-perfect.</span>',
-    ar: 'مباشر. ثنائي اللغة.<br><span class="gradient-text">شبه مثالي.</span>',
-  }}
-  lead={{
-    en: 'A real company’s website — Arabic-default RTL and English — shipped to production on Vercel and scoring <b style="color:var(--ink)">96–100 on Lighthouse</b>. Open it on your phone.',
-    ar: 'موقع شركةٍ حقيقية — عربي افتراضي RTL وإنجليزي — مُطلَق في الإنتاج على Vercel ويُسجّل <b style="color:var(--ink)">٩٦–١٠٠ في Lighthouse</b>. افتحه على هاتفك.',
-  }}
-  cta={{ en: 'Open the live site', ar: 'افتح الموقع المباشر' }}
-  ctaHref="https://medmac-kuwait.vercel.app"
-  headlineStyle="font-size:clamp(40px,8vw,110px)"
-/>
+<Spine lang={lang}>
+  <Hook
+    lang={lang}
+    badge={{ en: 'Web · Live in production', ar: 'ويب · مباشر في الإنتاج' }}
+    headline={{
+      en: 'Live. Bilingual.<br><span class="gradient-text">Near-perfect.</span>',
+      ar: 'مباشر. ثنائي اللغة.<br><span class="gradient-text">شبه مثالي.</span>',
+    }}
+    lead={{
+      en: 'A real company’s website — Arabic-default RTL and English — shipped to production on Vercel and scoring <b>96–100 on Lighthouse</b>. Open it on your phone.',
+      ar: 'موقع شركةٍ حقيقية — عربي افتراضي RTL وإنجليزي — مُطلَق في الإنتاج على Vercel ويُسجّل <b>٩٦–١٠٠ في Lighthouse</b>. افتحه على هاتفك.',
+    }}
+    heroNumber="96–100"
+    heroCaption={{ en: 'Lighthouse · perf · a11y<br>best-practices · SEO', ar: 'Lighthouse · أداء · وصول<br>أفضل الممارسات · SEO' }}
+    ghost="96"
+  />
 
-<FilmEmbed
-  lang={lang}
-  film="medmac-website.html"
-  title={{ en: 'Interactive story film', ar: 'Interactive story film' }}
-/>
-
-<!-- LIGHTHOUSE GAUGES -->
-<section class="story-section section-glow">
-  <div class="wrap">
-    <div class="center stack" style="max-width:560px;margin-inline:auto;margin-bottom:44px">
-      <StatRing
-        lang={lang}
-        pct={98}
-        display="96–100"
-        label={{ en: 'Lighthouse score', ar: 'تقييم Lighthouse' }}
-        sub={{ en: 'performance · a11y · best-practices · SEO', ar: 'الأداء · الوصول · أفضل الممارسات · SEO' }}
-      />
+  <Brief
+    lang={lang}
+    kicker={{ en: 'The brief', ar: 'المهمة' }}
+    heading={{ en: 'Credible, bilingual, and factually strict.', ar: 'موثوق، ثنائي اللغة، وصارمٌ في الحقائق.' }}
+    body={{
+      en: 'A real industrial company’s reputation was on the line, so the rules were absolute: no fabricated prices, clients or certifications; Arabic-first RTL; fast; and every call-to-action routes to WhatsApp.',
+      ar: 'سمعة شركةٍ صناعية حقيقية على المحك، فكانت القواعد قاطعة: لا أسعار أو عملاء أو شهادات مُختلَقة؛ عربي أولًا RTL؛ سريع؛ وكل دعوة لإجراءٍ تُوجّه إلى واتساب.',
+    }}
+    ghostWord="Lighthouse"
+  >
+    <div slot="aside" style="margin-top:22px">
+      <TechRow lang={lang} items={['Astro', 'TypeScript', 'Tailwind CSS']} center={false} />
     </div>
-    <div class="device reveal" style="max-width:880px;margin-inline:auto">
+    <div class="device">
       <div class="device__bar">
         <span class="d r"></span><span class="d y"></span><span class="d g"></span>
         <span class="addr">medmac-kuwait.vercel.app</span>
       </div>
-      <div class="device__body" style="padding:30px">
+      <div class="device__body" style="padding:26px">
         <div class="gauges">
           {
             gauges.map((g, i) => (
               <div class={`gauge reveal${i ? ` d${i}` : ''}`}>
                 <div class="ring" style={`--p:${g.p}`}>
-                  <b class="tnum" data-count={g.count}>0</b>
+                  <b class="tnum" data-count={g.count} data-duration="1700">
+                    0
+                  </b>
                 </div>
                 <span>{pick(lang, g.label)}</span>
               </div>
             ))
           }
         </div>
-        <p class="muted center" style="font-size:12.5px;margin-top:18px">
-          {pick(lang, {
-            en: 'Lighthouse · mobile · 96–98 performance across AR & EN',
-            ar: 'Lighthouse · جوال · أداء ٩٦–٩٨ عبر العربية والإنجليزية',
-          })}
+        <p class="muted" style="font-size:12.5px;margin-top:16px;text-align:center">
+          {
+            pick(lang, {
+              en: 'Lighthouse · mobile · 96–98 performance across AR & EN',
+              ar: 'Lighthouse · جوال · أداء ٩٦–٩٨ عبر العربية والإنجليزية',
+            })
+          }
         </p>
       </div>
     </div>
-  </div>
-</section>
+  </Brief>
 
-<!-- THE BRIEF -->
-<section class="story-section">
-  <div class="wrap two-col">
-    <div class="stack">
-      <p class="kicker reveal">{pick(lang, { en: 'The brief', ar: 'المهمة' })}</p>
-      <h2 class="h-lg reveal d1">
-        {pick(lang, {
-          en: 'Credible, bilingual, and factually strict.',
-          ar: 'موثوق، ثنائي اللغة، وصارمٌ في الحقائق.',
-        })}
-      </h2>
-      <p class="lead reveal d2">
-        {pick(lang, {
-          en: 'A real industrial company’s reputation was on the line, so the rules were absolute: no fabricated prices, clients or certifications; Arabic-first RTL; fast; and every call-to-action routes to WhatsApp.',
-          ar: 'سمعة شركةٍ صناعية حقيقية على المحك، فكانت القواعد قاطعة: لا أسعار أو عملاء أو شهادات مُختلَقة؛ عربي أولًا RTL؛ سريع؛ وكل دعوة لإجراءٍ تُوجّه إلى واتساب.',
-        })}
-      </p>
+  <Build
+    lang={lang}
+    kicker={{ en: 'What I built', ar: 'ما الذي بنيته' }}
+    heading={{ en: 'Owned end-to-end.', ar: 'أُدير من الألف إلى الياء.' }}
+    mult={2.6}
+    items={buildItems}
+  />
+
+  <Proof lang={lang} center="browser-dials" mult={2.4}>
+    <BrowserDials lang={lang} />
+  </Proof>
+
+  <section class="story-section section-glow proof-numbers">
+    <div class="wrap">
+      <Metrics lang={lang} eyebrow={{ en: 'Shipped', ar: 'ما تم تسليمه' }} items={shippedMetrics} />
     </div>
-    <div class="feat-list reveal d1">
-      {
-        feats.map((f) => (
-          <div class="feat">
-            <div class="ic" aria-hidden="true">{f.ic}</div>
-            <div>
-              <h4>{f.h[lang]}</h4>
-              <p>{f.p[lang]}</p>
-            </div>
-          </div>
-        ))
-      }
+  </section>
+
+  <Honesty
+    lang={lang}
+    slug="medmac-website"
+    kicker={{ en: 'Honest credit', ar: 'نسبٌ صادق' }}
+    note={note}
+  >
+    <div slot="tools" style="margin-top:22px">
+      <TechRow lang={lang} items={tools} center={false} />
     </div>
-  </div>
-</section>
+  </Honesty>
+</Spine>
 
-<!-- SHIPPED -->
-<section class="story-section">
-  <div class="wrap">
-    <Metrics
-      lang={lang}
-      eyebrow={{ en: 'Shipped', ar: 'ما تم تسليمه' }}
-      items={shippedMetrics}
-    />
-    <div class="note reveal" style="margin-top:30px" set:html={honest[lang]}></div>
-  </div>
-</section>
-
-<!-- STACK -->
-<section class="story-section">
-  <div class="wrap center stack" style="max-width:760px;margin-inline:auto">
-    <p class="kicker reveal">{pick(lang, { en: 'Stack', ar: 'المنظومة التقنية' })}</p>
-    <TechRow lang={lang} items={stack} />
-  </div>
-</section>
+<FilmEmbed
+  lang={lang}
+  film="medmac-website.html"
+  title={{ en: 'Medmac website — interactive story film', ar: 'فيلم القصة التفاعلي — موقع ميدماك' }}
+/>
 
 <style>
-  .gauges{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
-  @media(max-width:600px){.gauges{grid-template-columns:repeat(2,1fr)}}
-  .gauge{display:flex;flex-direction:column;align-items:center;gap:12px}
-  .ring{position:relative;width:92px;height:92px;border-radius:50%;display:grid;place-items:center;
-    background:conic-gradient(var(--accent) calc(var(--p)*1%), var(--panel-brd) 0)}
-  .ring::after{content:"";position:absolute;width:68px;height:68px;border-radius:50%;background:var(--win-body)}
-  .ring b{position:relative;z-index:1;font-size:24px;font-weight:800}
-  .gauge span{font-size:12.5px;color:var(--ink-2);text-align:center}
+  .gauges {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+  @media (max-width: 600px) {
+    .gauges {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  .gauge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  .ring {
+    position: relative;
+    width: 92px;
+    height: 92px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: conic-gradient(var(--accent) calc(var(--p) * 1%), var(--panel-brd) 0);
+  }
+  .ring::after {
+    content: '';
+    position: absolute;
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    background: var(--win-body);
+  }
+  .ring b {
+    position: relative;
+    z-index: 1;
+    font-size: 24px;
+    font-weight: 800;
+  }
+  .gauge span {
+    font-size: 12.5px;
+    color: var(--ink-2);
+    text-align: center;
+  }
 </style>

@@ -1,0 +1,39 @@
+---
+/**
+ * The stack as a horizontal tool-rail that assembles left-to-right on scroll
+ * (RTL-mirrored). Replaces the orbit in "the stack" — the orbit stays unique
+ * to "the team". Uses the same branded Tech chips; reveal is reused from
+ * interactions.ts via .reveal.from-start (translate from the start edge).
+ */
+import Tech from './Tech.astro';
+import { pick, type Lang } from '../i18n/utils';
+
+type Item = string | { en: string; ar: string };
+interface Props {
+  lang: Lang;
+  items: Item[];
+}
+const { lang, items } = Astro.props;
+const nameOf = (it: Item): string => (typeof it === 'string' ? it : it.en);
+const displayOf = (it: Item): string => (typeof it === 'string' ? it : it[lang]);
+
+const hint = pick(lang, {
+  en: 'Scroll — the stack assembles, left to right',
+  ar: 'مرّر — تتجمّع المنظومة، أداةً تلو الأخرى',
+});
+---
+
+<div class="stackrail">
+  <div class="stackrail__track" aria-hidden="true">
+    <span class="stackrail__line"></span>
+    {
+      items.map((it, i) => (
+        <span class={`stackrail__tile reveal from-start d${Math.min(i + 1, 5)}`}>
+          <Tech name={nameOf(it)} display={displayOf(it)} />
+        </span>
+      ))
+    }
+  </div>
+  <ul class="sr-only">{items.map((it) => <li>{displayOf(it)}</li>)}</ul>
+  <p class="stackrail__hint muted">{hint}</p>
+</div>

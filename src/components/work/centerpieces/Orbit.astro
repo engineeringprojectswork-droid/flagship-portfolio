@@ -1,0 +1,332 @@
+---
+/** Centerpiece · ai-workflow — "the orbit".
+ *  Three AI tools (Cowork · Claude Design · Claude Code) circle a controller
+ *  hub. The ring rotates with the proof scrub: at --q=0 it's tilted/spun open,
+ *  at --q=1 it settles flat-readable and the win resolves
+ *  "23 tenders → 4 recovered deals". Pure CSS off var(--q) — no JS.
+ *  (Distinct from the my-resume page: this is the COMPANY workflow.) */
+import { pick, type Lang } from '../../../i18n/utils';
+import AssetSlot from '../spine/AssetSlot.astro';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+
+const nodes = [
+  { a: '0deg', txt: 'Cowork', role: { en: 'controller · briefs', ar: 'تحكّم · مهام' } },
+  { a: '120deg', txt: 'Claude Design', role: { en: 'the look — only', ar: 'الشكل — فقط' } },
+  { a: '240deg', txt: 'Claude Code', role: { en: 'build · git · deploy', ar: 'بناء · git · نشر' } },
+];
+---
+
+<div class="proof__grid orb">
+  <div class="orb__copy reveal">
+    <span class="kicker">{pick(lang, { en: 'The proof · one system', ar: 'الإثبات · نظامٌ واحد' })}</span>
+    <h2>{pick(lang, { en: 'Three AI tools, one director.', ar: 'ثلاث أدوات ذكاء، ومُوجِّهٌ واحد.' })}</h2>
+    <p>
+      {
+        pick(lang, {
+          en: 'I sit at the hub and direct the ring — Cowork holds the brief, Claude Design owns the look, Claude Code ships it. Same system that recovered the tenders.',
+          ar: 'أجلس في المركز وأُوجّه الحلقة — Cowork يحمل المهمّة، وClaude Design يتولّى الشكل، وClaude Code يُسلّمه. النظام نفسه الذي استعاد المناقصات.',
+        })
+      }
+    </p>
+
+    <div class="orb__win" aria-hidden="true">
+      <span class="orb__from"><bdi>23 tenders</bdi></span>
+      <span class="orb__arrow">→</span>
+      <span class="orb__to"><bdi>4 recovered deals</bdi></span>
+    </div>
+    <span class="orb__wincap">
+      {pick(lang, { en: '23 RFQs consolidated · 4 live tenders recovered · 3 automations on schedule', ar: '٢٣ طلبًا مُجمَّعًا · ٤ مناقصاتٍ حيّة مُستعادة · ٣ أتمتةٍ مجدولة' })}
+    </span>
+  </div>
+
+  <div class="orb__stage" aria-hidden="true">
+    <span class="orb__sweep"></span>
+    <div class="orb__ring">
+      {
+        nodes.map((n) => (
+          <span class="orb__chip" style={`--a:${n.a}`}>
+            <span class="orb__chipinner">
+              <b><bdi>{n.txt}</bdi></b>
+              <span class="role">{pick(lang, n.role)}</span>
+            </span>
+          </span>
+        ))
+      }
+    </div>
+    <div class="orb__hub">
+      <b>{pick(lang, { en: 'Me', ar: 'أنا' })}</b>
+      <span>{pick(lang, { en: 'controller', ar: 'مُتحكِّم' })}</span>
+    </div>
+    <AssetSlot
+      lang={lang}
+      ratio="16/10"
+      label={{ en: 'Cowork — labelled brief / handoff', ar: 'Cowork — مهمّة / تسليم مُعنون' }}
+    />
+  </div>
+</div>
+
+<style>
+  .orb {
+    align-items: center;
+  }
+  .orb__copy h2 {
+    font-size: clamp(28px, 4vw, 46px);
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    line-height: 1.04;
+    margin: 14px 0 14px;
+  }
+  .orb__copy p {
+    color: var(--ink-2);
+    font-size: 16px;
+    line-height: 1.6;
+    max-width: 400px;
+  }
+
+  /* The win resolves as the scrub completes (--q → 1). */
+  .orb__win {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-top: 28px;
+    font-variant-numeric: tabular-nums;
+    opacity: calc(0.25 + 0.75 * var(--q, 1));
+    transform: translateY(calc((1 - var(--q, 1)) * 14px));
+  }
+  .orb__from,
+  .orb__to {
+    font-size: clamp(22px, 3.2vw, 34px);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+  .orb__from {
+    color: var(--ink-3);
+  }
+  .orb__to {
+    color: var(--accent);
+  }
+  .orb__arrow {
+    color: var(--accent);
+    font-size: clamp(20px, 3vw, 30px);
+    font-weight: 700;
+    transform: translateX(calc((var(--q, 1) - 1) * 10px));
+  }
+  [dir='rtl'] .orb__arrow {
+    display: inline-block;
+    transform: scaleX(-1) translateX(calc((var(--q, 1) - 1) * 10px));
+  }
+  .orb__wincap {
+    display: block;
+    margin-top: 12px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    line-height: 1.5;
+    opacity: calc(0.2 + 0.8 * var(--q, 1));
+  }
+
+  /* ---- The orbit stage ---- */
+  .orb__stage {
+    position: relative;
+    aspect-ratio: 1;
+    width: min(480px, 86%);
+    margin-inline: auto;
+    display: grid;
+    place-items: center;
+  }
+  .orb__sweep {
+    position: absolute;
+    inset: 6%;
+    border-radius: 50%;
+    border: 1px dashed color-mix(in srgb, var(--ink) 14%, transparent);
+    pointer-events: none;
+  }
+  .orb__sweep::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: 50%;
+    background: conic-gradient(
+      from 0deg,
+      color-mix(in srgb, var(--accent) 40%, transparent),
+      transparent 30%
+    );
+    opacity: calc(0.3 + 0.7 * var(--q, 1));
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
+    mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
+    transform: rotate(calc(var(--q, 1) * 360deg));
+  }
+
+  /* Ring spins from -120deg (open) to 0deg (settled-readable) on scrub. */
+  .orb__ring {
+    position: absolute;
+    inset: 0;
+    transform: rotate(calc((1 - var(--q, 1)) * -120deg));
+    will-change: transform;
+  }
+  .orb__chip {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    --R: 196px;
+    transform: translate(-50%, -50%) rotate(var(--a)) translateY(calc(-1 * var(--R)))
+      rotate(calc(-1 * var(--a)));
+    opacity: calc(0.35 + 0.65 * var(--q, 1));
+  }
+  /* counter-rotate inner content so labels stay upright while the ring spins */
+  .orb__chipinner {
+    display: block;
+    width: max-content;
+    max-width: 168px;
+    text-align: center;
+    padding: 12px 16px;
+    border-radius: 14px;
+    background: var(--surface-card);
+    border: 1px solid var(--hair);
+    box-shadow: 0 14px 34px -20px rgba(0, 0, 0, 0.7);
+    transform: rotate(calc((1 - var(--q, 1)) * 120deg));
+  }
+  .orb__chipinner b {
+    display: block;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+  .orb__chipinner .role {
+    display: block;
+    margin-top: 3px;
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+  /* the controller node (Cowork, --a:0) reads as the lead */
+  .orb__chip:first-child .orb__chipinner {
+    border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+    background: color-mix(in srgb, var(--accent) 14%, var(--surface-card));
+  }
+
+  .orb__hub {
+    position: relative;
+    z-index: 3;
+    width: clamp(86px, 16vw, 116px);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: var(--grad);
+    color: #fff;
+    box-shadow: 0 0 0 9px color-mix(in srgb, var(--accent) 12%, transparent),
+      0 24px 60px -16px var(--accent);
+    transform: scale(calc(0.84 + 0.16 * var(--q, 1)));
+  }
+  .orb__hub b {
+    font-size: clamp(20px, 3vw, 26px);
+    font-weight: 800;
+    line-height: 1;
+  }
+  .orb__hub span {
+    margin-top: 4px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  /* real screenshot drops in below the orbit, no layout shift */
+  .orb__stage > .asset-slot {
+    position: absolute;
+    inset-inline: 0;
+    bottom: -14%;
+    width: 64%;
+    margin-inline: auto;
+    opacity: calc(0.15 + 0.85 * var(--q, 1));
+  }
+
+  @media (max-width: 1040px) {
+    .orb__chip {
+      --R: 158px;
+    }
+    .orb__chipinner {
+      max-width: 140px;
+      padding: 10px 13px;
+    }
+  }
+
+  /* Fallbacks: neutralise scrub transforms to the readable end-state. */
+  @media (prefers-reduced-motion: reduce) {
+    .orb__ring {
+      transform: none !important;
+    }
+    .orb__chipinner {
+      transform: none !important;
+    }
+    .orb__sweep::after {
+      transform: none !important;
+    }
+    .orb__hub {
+      transform: none !important;
+    }
+    .orb__win {
+      opacity: 1 !important;
+      transform: none !important;
+    }
+    .orb__arrow {
+      transform: none !important;
+    }
+    [dir='rtl'] .orb__arrow {
+      transform: scaleX(-1) !important;
+    }
+  }
+  @media (max-width: 820px) {
+    .orb__stage {
+      width: min(420px, 100%);
+      margin-top: 30px;
+    }
+    .orb__chip {
+      --R: 138px;
+    }
+    .orb__ring {
+      transform: none !important;
+    }
+    .orb__chipinner {
+      transform: none !important;
+      max-width: 128px;
+    }
+    .orb__sweep::after {
+      transform: none !important;
+    }
+    .orb__hub {
+      transform: none !important;
+    }
+    .orb__win {
+      opacity: 1 !important;
+      transform: none !important;
+    }
+    .orb__arrow {
+      transform: none !important;
+    }
+    [dir='rtl'] .orb__arrow {
+      transform: scaleX(-1) !important;
+    }
+    .orb__stage > .asset-slot {
+      position: static;
+      width: 100%;
+      margin-top: 34px;
+      opacity: 1 !important;
+    }
+  }
+</style>

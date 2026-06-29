@@ -1,0 +1,29 @@
+---
+/**
+ * Section progress rail — a slim fixed vertical index (desktop ≥1180px only,
+ * toggled in lib/home.ts). The active section brightens in accent and its tick
+ * extends. Sits on the reading-start side (mirrors in RTL via inset-inline-end).
+ */
+import { pick, type Lang } from '../i18n/utils';
+
+interface RailItem {
+  id: string;
+  label: { en: string; ar: string };
+}
+interface Props {
+  lang: Lang;
+  items: RailItem[];
+}
+const { lang, items } = Astro.props;
+---
+
+<nav class="railnav" data-rail aria-label={lang === 'ar' ? 'فهرس الأقسام' : 'Section index'}>
+  {
+    items.map((it) => (
+      <a href={`#${it.id}`} data-rail-item={it.id}>
+        <span class="railnav__lbl">{pick(lang, it.label)}</span>
+        <span class="railnav__tick" aria-hidden="true" />
+      </a>
+    ))
+  }
+</nav>
