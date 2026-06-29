@@ -1,155 +1,145 @@
-# Continue — Flagship portfolio redesign (handoff)
+# Continue — Flagship parallax/3D StoryScroll rework (handoff)
 
-Paste this into a new chat to continue. It is self-contained: a fresh session
-with no memory of the prior conversation can pick up from here.
+Paste this into a new chat to continue. It is self-contained: a fresh session with
+no memory of the prior conversation can pick up from here.
 
 ---
 
 ## 0. What & where
 
 - **Project:** `C:\Users\GAMING\Claude\Projects\MY Resume\flagship-rebuild`
-  — an **Astro 5** static, bilingual (EN/AR + RTL) cinematic portfolio for
-  Mohamed Mahmoud ("a whole marketing team, in one person"). Dark-default with
-  a light theme toggle. Live at https://flagship-rebuild.vercel.app/en (also a
-  Netlify deploy exists: https://mohamed-mahmoud-kuwait.netlify.app).
-- **Stack:** Astro 5 + TypeScript, hand-rolled CSS design tokens (NO Tailwind),
-  self-hosted fonts. All CSS lives in ONE file: `src/styles/tokens.css`.
-- **Single source of truth for numbers:** `src/data/profile.ts` + `projects.ts`.
-  Do not invent figures — every number must trace to those files.
+  — an **Astro 5** static, bilingual (EN/AR + RTL) cinematic portfolio for Mohamed
+  Mahmoud ("a whole marketing team, in one person"). Dark-default + light toggle.
+- **Two codebases (don't confuse):** this `flagship-rebuild` is the LIVE Astro site.
+  `C:\Users\GAMING\Downloads\website` is a *separate, older* repo that only hosts the
+  `run-flagship.cmd` launcher + `.claude/launch.json` (`flagship` preview config).
+  A session may open with cwd = `Downloads\website`; **edit flagship-rebuild via
+  absolute paths.**
+- **Git:** this folder is now a git repo (`git init` done as a safety net). History:
+  `Baseline → Phase 0 … Phase 5`, one commit per phase. **Local only — nothing pushed,
+  not deployed.** Roll back any phase with `git -C "<path>" reset`/`revert`.
+- **Real-data rule (career-critical):** every number must trace to `src/data/profile.ts`
+  or `src/data/projects.ts`. Never invent/round/alter figures. Keep the honesty notes
+  verbatim. `my-resume` uses only safe framings — no job-hunt counts.
 
-### Run / preview (IMPORTANT — path has a space)
-The project path contains a space (`MY Resume`), which breaks naive dev launching.
-- From the OTHER repo `C:\Users\GAMING\Downloads\website` there's a launcher:
-  `run-flagship.cmd` → `cd /d "<long path>" && npm run dev -- --port %PORT%`
-  (falls back to 4321 if `%PORT%` unset). `website/.claude/launch.json` has a
-  `flagship` config (`"autoPort": true`) that runs it via `cmd /c`.
-- With the Claude preview tool: `preview_start({name:"flagship"})`. autoPort
-  picks a free port and the cmd forwards `%PORT%` to Astro (must forward, or the
-  browser hits the wrong port → blank page).
-- Build: `npm run build` (→ `dist/`, 20 pages). Deploy (Netlify):
-  `npm run build && npx netlify deploy --prod --dir dist`.
+## 1. What was just done — the parallax/3D StoryScroll rework (Claude Design package)
 
----
+Implemented the full "Claude Design parallax package" (brief: replace the boxed
+self-playing explainer with a page-level scroll story on every work page + home
+upgrades + a 9th story). Shipped in source across 6 phase commits; build is green
+(**22 pages**). Desktop Lighthouse **100/100/100/100**.
 
-## 1. What was just done (all verified in light + dark; `npm run build` passes)
+1. **Foundation** — `lenis` + `gsap` + `@fontsource-variable/jetbrains-mono` installed;
+   design tokens wired once in `tokens.css` (layered surfaces, mono font, motion
+   duration/easing tokens, parallax-depth scale, the **9-domain accent system**).
+2. **Reusable 5-beat spine** + the 2 comp pages (meta-ads, al-maali).
+3. **Spine rolled to the other 6 stories** with bespoke CSS-3D centerpieces.
+4. **Home upgrades** (receipts, stack rail, ghost-metric statements, section rail, 9-card film strip).
+5. **New `/en|ar/work/my-resume`** (the 9th, "Career OS / built in the open" page).
+6. **Perf + a11y + Lighthouse pass** (code-split engine, AA contrast fixes).
 
-The user asked to: change the hero, give each card a meaningful image, turn the
-tech chips into a scroll-linked circular orbit, make the "five hires" line a
-graphic, fix a story "box-in-a-box", and make every dark surface follow light
-mode. Decisions taken: **keep dark as default, polish light mode**; visuals on
-**all 14 cards** (6 roles + 8 projects); **in-code themeable SVG** (no image files).
+## 2. Architecture (how it works)
 
-1. **Light-mode theming** (`src/styles/tokens.css`):
-   - Added theme tokens `--win-body` / `--win-bar` (device windows) and
-     `--mesh-a` / `--mesh-b` (project-card mesh base) to `:root` and
-     `[data-theme="light"]`.
-   - `.device` (the macOS app-window mockups) was PINNED dark; now it follows
-     the theme → crisp white window in light, dark in dark. `.device__bar` uses
-     `--win-bar`, body uses `--win-body`.
-   - `.pcard` / `.mesh` un-pinned → project cards adapt (pastel mesh + dark text
-     in light). `.liveframe` and MedmacWebsite `.ring::after` use `--win-body`.
+### Motion stack — Lenis + GSAP ScrollTrigger, CODE-SPLIT
+- `src/lib/motion.ts` — the core. **GSAP + ScrollTrigger + Lenis are dynamically
+  imported only on desktop with motion enabled** (`loadEngine()`); on mobile (≤820px)
+  or `prefers-reduced-motion`, they NEVER load and the spine/home render GSAP-free
+  static end-states (`renderStoryStatic`/`renderHomeStatic`). This keeps ~132KB off
+  the mobile path. `initMotion()` is async, called by `BaseLayout` `boot()` on load +
+  every `astro:page-load`; rebuilds on debounced resize. `getST()` returns the loaded
+  ScrollTrigger (or null). `[data-px]` depth-parallax is light + transform-only,
+  skipped under reduced-motion/mobile.
+- `src/lib/storyscroll.ts` — the spine driver: pins + scrubs the **Build** and **Proof**
+  beats. `src/lib/home.ts` — the **film strip** pin/scrub + the scroll-computed
+  **section rail**.
+- The old `src/lib/interactions.ts` primitives (`.reveal`, `[data-count]`,
+  `.nav.scrolled`, `.progress`) are unchanged and still drive reveals + count-ups.
 
-2. **Box-in-a-box fix** (`src/components/work/FilmEmbed.astro` + `tokens.css`):
-   - `.cd-film` is now a **frameless transparent** aspect box (was a bordered
-     dark card). Each embedded film (`/public/films/*.html`, `/cartoons/*.html`)
-     draws its OWN rounded card, so the outer frame was a duplicate.
-   - FilmEmbed has a `<script>` that, on iframe load, sets the same-origin film
-     document's `html`/`body` background to transparent → kills the dark gutter
-     so only the film's own card shows (one box), on any theme. The films stay
-     dark by design (cinematic).
+### The reusable spine — `src/components/work/spine/`
+`Spine` (marker `[data-spine]`) wraps the 5 beats a story composes:
+- `Hook` — full-screen badge / headline / hero number; parallax ghost numeral (`[data-px]`),
+  glow drift, staggered `.reveal`.
+- `Brief` — layered context; left copy + a slotted right artifact (device/stat card).
+- `Build` — **pinned + scrubbed**; items reveal one-by-one (`stepBuild`, active at `p≥i/n`)
+  + a progress bar.
+- `Proof` — **pinned**; holds the bespoke centerpiece slot. The engine exposes scrub
+  progress as a CSS var **`--q` (0→1)** on the section; centerpieces read it in CSS.
+- `Honesty` — sourcing note + a colour-wipe **hand-off** teasing the next story's accent.
+- `AssetSlot` — the marked 16:10/16:11 screenshot placeholder (dashed + hatch + glow +
+  `▦ ASSET SLOT`). Pass `src` to fill it with a real image.
 
-3. **6 role-card glyphs** (`src/components/Team.astro` + `tokens.css` `.role__viz`):
-   inline line-art SVGs (`vizzes[]`, `currentColor` = accent) — funnel, growth
-   curve, media frame, dashboard, calendar, automation graph.
+**DOM contract (the JS keys off these):** `[data-spine]`; Build = `[data-build]`
+(+ `data-mult`) › `[data-build-sticky]` › `[data-build-item]` + `[data-build-bar]`;
+Proof = `[data-proof]` (+ `data-mult`, `data-center`) › `[data-proof-sticky]`; depth
+parallax = `[data-px="<speed>"]`; centerpieces read `var(--q)`.
 
-4. **8 project-card emblems** (`src/components/ProjectsGrid.astro` + `tokens.css`
-   `.pcard__emblem`): a frosted corner chip per project, keyed by slug in the
-   `emblem` map — funnel, growth curve, CRM table, content frame, desktop+check,
-   hiring funnel, browser gauge, AI-merge.
+### Centerpieces — `src/components/work/centerpieces/` (CSS-3D, no WebGL)
+One per story, driven by `--q` in CSS. Only **CostFall** (meta-ads) and **Climb**
+(al-maali) also need JS (text/number changes) — handled in `storyscroll.ts`'s
+`makeProof()` by `data-center="cost-fall"|"climb"`. The rest are pure-CSS off `--q`:
+`TabsFan` (crm), `Mosaic` (brand-system), `DeviceRotate` (sheep-app), `Pipeline`
+(hr-system), `BrowserDials` (medmac-website), `Orbit` (ai-workflow), `LaneFlow`
+(my-resume). All RTL-aware (logical props + `<bdi>`; rotateY sign flips) and have
+reduced-motion/mobile fallbacks (`--q=1` end-state).
 
-5. **Scroll-linked tech orbit** (NEW `src/components/TechOrbit.astro`,
-   wired into `src/components/About.astro`, styles `.orbit*` in `tokens.css`,
-   engine in `src/lib/interactions.ts`):
-   - New scroll-scrub primitive: any `[data-scrub]` element gets a live `--p`
-     (0→1) from its scroll position (`initScrub`/`updateScrub`, rAF-throttled,
-     re-queries each frame so View-Transition-safe; reduced-motion → `--p=1`).
-   - The orbit reuses the branded `Tech.astro` pills, positions them around a
-     circle (`--a` angle, `--R` radius), rotates the ring by `calc(--p*90deg)`
-     and reveals pills past per-pill thresholds `--t` → "more scroll, more you
-     see". Center is a gradient layers-hub. (Replaced the old flat `TechRow` in
-     About; `TechRow.astro` still exists and is used on story pages.)
+### Each story = a thin wrapper
+`MetaAds.astro` … `MyResume.astro` build a config from their **existing real `{en,ar}`
+copy + numbers** and compose the beats + their centerpiece + the optional `FilmEmbed`
+tail. `FilmEmbed` is now a collapsed, lazy `<details>` with just the interactive
+`/films/*.html` (cartoon explainer removed).
 
-6. **"Five hires → one person" graphic** (`src/components/Team.astro`
-   `.converge*` in `tokens.css`): replaced the plain centered tagline with a
-   hub-and-spokes — the six role glyphs orbit a glowing gradient **"1"** node
-   with animated dashed spokes, tagline beneath.
+### Design system — `src/styles/tokens.css`
+9-domain accents via `body[data-accent]` (blue/red/green/violet/teal/yellow/indigo/
+orange/resume); the hex palette is also exported as `accentHex` in `projects.ts` (used
+for inline card colours). **Indigo lightened `#5e5ce6`→`#7574ee`** for AA small-text.
+JetBrains Mono Variable + Inter Variable; IBM Plex Sans Arabic trimmed to 3 weights
+(400/600/700). `--ink-3` bumped to an AA-safe shade. Decorative ghost numerals are
+`::before` pseudo-elements (a11y-excluded).
 
-Also: `Downloads/website/run-flagship.cmd` made port-robust (only non-project file touched).
+### Home — `src/pages/[lang]/index.astro` + components
+`Statements` (ghost metric + stat per line), `Metrics` (optional `receipt` sparkline),
+`About` → `StackRail` (replaced the orbit; orbit kept in `Team`'s converge graphic),
+`RailNav` (desktop section index), and `ProjectsGrid` is now the pinned **9-card film
+strip** (`[data-filmstrip]`, stacked-grid fallback on mobile/reduced). `[data-home-motion]`
+on the `#work` section gates the home scenes.
 
----
+## 3. Verification status
+- **Build:** green, 22 pages. **Desktop Lighthouse: 100/100/100/100** across pages.
+- **A11y:** 98–100 (home 100) — all contrast AA after the Phase-5 fixes.
+- **Mobile Lighthouse:** EN home hit **97/100/100/100** on a clean run; the dev box
+  became contention-throttled after ~20 audit runs (EN dropped 97→79 on identical
+  content), so the AR-mobile number couldn't be pinned down — **re-run mobile Lighthouse
+  on a fresh machine.** Arabic mobile sits a few points lower purely from the Arabic
+  webfont payload.
+- **Verified behaviourally** (Claude Preview, dev): spine pins/scrub (build stepping,
+  cost-fall spotlight + un-tilt, climb scrub), film-strip horizontal scrub + progress
+  bar, section rail, EN+AR (RTL mirrors chips/rail/film-strip/3D tilt), light theme,
+  and the mobile/reduced static fallback (all content visible, no pins). Console clean.
 
-## 2. PENDING — the hero (the one thing left)
+## 4. PENDING / next steps (in priority order)
+1. **Real screenshots** for the marked `AssetSlot` placeholders (16:10 / 16:11). Drop a
+   `src` prop on each — search `AssetSlot` usages. This is the main "fill in real media" step.
+2. **Re-run mobile Lighthouse** on a clean machine to confirm mobile 96–100 (EN was 97).
+3. **Review locally**, then **deploy** only on the owner's say-so (Netlify command in
+   `CLAUDE.md` §3: `npm run build && npx --no-install netlify deploy --prod --dir dist`).
+4. **Open decision:** indigo accent lightened `#5e5ce6`→`#7574ee` for AA — keep, or revert
+   and accept the contrast flag.
+5. Optional polish: richer per-centerpiece visuals once real screenshots are in; consider
+   a literal GSAP-pinned Statements (currently 5 stacked screens + ghost, not pinned).
 
-The hero (`src/components/Hero.astro`) is still the **dark aurora** in light mode
-(it's `<canvas id="auroraCanvas">` driven by `src/lib/aurora.ts`, which clears to
-`#000` and ignores the theme; `tokens.css` `.hero{...}` pins light text). It was
-left intentionally because the user is generating a clean light hero IMAGE in
-Claude Design.
+## 5. Preview / build / deploy (IMPORTANT — the path has a space)
+- **Preview (Claude tool):** `preview_start({name:"flagship"})` — uses
+  `Downloads\website\run-flagship.cmd` + `.claude/launch.json` (`autoPort`). The spaced
+  path breaks naive launching and the Windows short-path breaks dev CSS — the launcher
+  handles it. **Animated pages time out `preview_screenshot`** → verify via
+  `preview_eval`/`preview_inspect` (computed styles/DOM) or screenshot static sections.
+  Programmatic scroll needs a dispatched `scroll` event to nudge ScrollTrigger; real
+  wheel scrolling drives it via Lenis.
+- **Build:** `npm run build` → `dist/` (run from the long path). `npm run preview` serves
+  `dist` for Lighthouse. Lighthouse isn't installed; `npx -y lighthouse <url> --preset=desktop`
+  works (Chrome present).
 
-**Next step:** once the user provides the generated hero image, (a) drop it into
-the hero (e.g. `public/img/hero-light.*`), and (b) make the hero theme-aware so
-in light mode it shows the light image/wash instead of the dark aurora — either
-swap the canvas for the image in light mode, or make `aurora.ts` read theme/
-accent from CSS vars. This is the last piece to make light mode finished
-top-to-bottom.
-
-### Hero image prompt (already given to the user — for Claude Design, light theme)
-```text
-A clean, premium abstract hero banner for a high-end personal portfolio,
-light theme. Wide cinematic format, 21:9. Pure white background (#FFFFFF)
-easing into the faintest cool grey (#F5F5F7). In the right two-thirds, a
-soft luminous gradient aurora — smooth volumetric light blooms in Apple
-blue (#2997FF), violet (#A259FF) and warm pink (#FF5E8A), blended like
-gentle northern lights behind frosted glass: airy, low-opacity, so the
-white clearly dominates. A delicate suggestion of five fine gradient
-ribbons converging into one bright point — five roles unified into a
-single person — abstract, never literal. Generous empty negative space
-on the left for a headline. Apple-keynote minimalism, soft high-key
-lighting, a faint film grain, ultra-clean with no harsh edges. Elegant,
-expensive, breathable.
-No text, no words, no logos, no people or faces, no UI elements, no dark
-background.
-```
-Ask Claude Design for a transparent PNG, ~2800px wide (retina).
-
----
-
-## 3. Key context for the next session
-
-- **Theme system:** `[data-theme="light"]` attribute on `<html>` (no
-  prefers-color-scheme). Tokens dark on `:root`, light overrides in the
-  `[data-theme="light"]` block (`tokens.css` ~lines 27–63). Per-page accent via
-  `body[data-accent="..."]` (blue/violet/green/orange/pink/teal). Toggle handler
-  + no-FOUC script in `src/layouts/BaseLayout.astro`.
-- **Palette:** accent `#2997ff` (Apple blue), accent-2 `#a259ff`, signature
-  `--grad` blue→violet→pink. Light bg `#fff`, ink `#1d1d1f`. Dark bg `#000`,
-  ink `#f5f5f7`.
-- **Interactions** (`src/lib/interactions.ts`): `initReveal` (one-shot IO),
-  `initCounters`, `initParallax`, **`initScrub` (new — `[data-scrub]`→`--p`)**,
-  `initScrollChrome`. All re-run on `astro:page-load`, all respect reduced-motion.
-- **There are 6 role cards** (Team.astro) AND **8 project cards** (ProjectsGrid
-  from `projects.ts`). "Eight stories" = projects; the receipts = roles.
-- **Verify visually:** `preview_start({name:"flagship"})`, toggle theme via the
-  nav sun/moon, check: `/en` (hero, roles, converge graphic, orbit, project
-  cards) and `/en/work/meta-ads` (film embeds = single box; the "Meta Ads
-  Manager" device = light window in light mode).
-
----
-
-## 4. Suggested next actions (in order)
-1. Get the generated hero image from the user → wire it in + make hero light-aware (PENDING above).
-2. Re-check RTL (`/ar`, `/ar/work/meta-ads`) for the new orbit/converge/glyph additions.
-3. Optional: commit the session's work; optionally redeploy (Netlify command above).
-4. Optional polish: the live theme-toggle has a brief cross-fade mismatch on the
-   orbit pills (body transitions 0.5s, pills 0.25s) — cosmetic, only on manual
-   toggle; harmonize transition durations if it bothers the user.
+## 6. Non-negotiable rules (unchanged)
+Real data only · honesty notes verbatim · AR/EN parity + correct RTL · don't edit the
+self-contained films (`public/films/*`) · don't move/rename files without confirming ·
+match the Apple-calm look · deploy only when the owner says so.

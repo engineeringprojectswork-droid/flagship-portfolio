@@ -11,8 +11,10 @@ updated as you make progress.
 A **premium, cinematic, bilingual (English + العربية, full RTL) portfolio** for **Mohamed Mahmoud**
 (brand nickname **"Medmac"**) — a Digital Marketing Specialist in **Kuwait**. Apple-keynote
 aesthetic: near-black canvas, gradient accents, an animated "aurora" hero, scroll-reveal motion,
-animated proof metrics, and **8 project "story" pages** that each embed an interactive
-"Claude Design" film.
+animated proof metrics, and **9 project "story" pages** that each tell their story through a
+page-level **parallax StoryScroll spine** (Lenis + GSAP). *(As of the 2026-06-30 rework — see §7.5
+and `continue.md`. The boxed self-playing explainer was removed; the interactive Claude Design film
+survives as a lazy "explore it yourself" tail.)*
 
 **Owner is positioned as "a whole marketing team in one person"** — runs the ads, grows audiences,
 builds the CRM, ships software, and automates with AI.
@@ -125,45 +127,25 @@ Commands: `npm run dev` (4321) · `npm run build` → `dist/` · `npm run previe
    section accent glows, card shine-sweep, hover lifts, and a gradient **shimmer** on the hero +
    statement finale. Fixed a **light-mode hero** contrast bug (headline was dark-on-dark).
    Deployed. All green.
+5. **Parallax/3D StoryScroll rework (2026-06-30) — Claude Design package.** Replaced the boxed
+   explainer with a page-level **5-beat scroll spine** on all stories, added home upgrades, and a
+   **9th** story (`my-resume`). Full detail + the next-session handoff live in **`continue.md`**.
+   In source only (committed per phase; **not deployed** yet).
 
-## 8. ~~ACTIVE / PENDING~~ → ✅ DONE in source (pending local build + deploy)
+## 8. ACTIVE / PENDING (current)
 
-**✅ Completed (this session):** copied the 8 cartoon explainers into `public/cartoons/` (same
-filenames as `public/films/`, so `/cartoons/<film>` mirrors `/films/<film>`), and extended
-`src/components/work/FilmEmbed.astro` to render the **cartoon first** (`/cartoons/<film>`, caption
-"Animated explainer — plays on its own") then the **interactive film** (`/films/<film>`, caption
-"Prefer to explore? Step through it yourself…"), both bilingual + `loading="lazy"`. One component →
-all 8 story pages now show both. Props unchanged, so the 8 work components needed no edits.
-Static-verified: `pick` import resolves, `cd-film/cd-frame/story-film-wrap` exist in tokens.css,
-8/8 cartoon↔film name parity.
+The parallax rework is **done in source** (`npm run build` green, 22 pages). What's left:
 
-**⚠️ NOT yet built/deployed.** The Linux agent sandbox can't build this folder (its `node_modules`
-was installed on Windows → missing `@rollup/rollup-linux-x64-gnu`, plus mounted-FS `EPERM`). This is
-an environment limit, **not a code issue**. **Next:** owner builds/previews on Windows (`npm run dev`
-via the `flagship` launcher, or `npm run build`) to review the two-film layout, then deploys per §3.
-(Saved deps were left untouched — `--no-save`; if local dev ever caches oddly, delete `node_modules/.vite`.)
+1. **Real screenshots** — every centerpiece/card has a clearly-marked `▦ ASSET SLOT` placeholder
+   (`src/components/work/spine/AssetSlot.astro`, 16:10 / 16:11). Pass a real image path as its
+   `src` prop to fill — no layout shift. Search `AssetSlot` usages for the slots.
+2. **Mobile Lighthouse** — verify on a clean machine (desktop is reliably 100/100/100/100; EN mobile
+   hit 97 on a fresh run, but this dev box's mobile numbers were noise-corrupted by repeated audits).
+3. **Deploy** only on the owner's say-so (Netlify command in §3).
+4. **Open decision:** the indigo (Web·Live) accent was lightened from the spec'd `#5e5ce6` to
+   `#7574ee` so it passes AA as small text — confirm keep, or revert and accept the contrast flag.
 
----
-
-**Original brief (reference):** on each of the 8 project story pages, **show BOTH films** — the
-**auto-playing cartoon explainer first**, then that project's **interactive film below it**.
-
-**Asset status:** the 8 cartoon explainers exist only in the **static** site at
-`Flagship Portfolio Site/assets/cartoons/*.html` (meta-ads, al-maali, crm, brand-system, sheep,
-hr-system, medmac-website, ai-workflow). They are **NOT yet in `flagship-rebuild/public/`**.
-
-**Open decision (confirm with owner):** the owner's brief was written for the **static** site
-(`work/*.html`, `story-film-wrap`). But the **live** site is THIS Astro project. The intended
-end-state is almost certainly cartoons on the **live** site. To do it here:
-1. Copy `Flagship Portfolio Site/assets/cartoons/*.html` → `flagship-rebuild/public/cartoons/`.
-2. Extend `src/components/work/FilmEmbed.astro` (or add a `CartoonEmbed`) so each story renders the
-   **cartoon first** (auto-play, caption "Animated explainer — plays on its own") then the
-   **interactive film** (caption "Prefer to explore? Step through it yourself…"), both bilingual,
-   both `loading="lazy"`.
-3. Wire the per-page mapping. **Filename note:** the `sheep-app` page uses `sheep.html` for BOTH
-   the cartoon and the film.
-4. Build, verify each story shows exactly 2 iframes with correct `src`s, EN/AR parity holds, deploy
-   only on owner's say-so.
+**Full architecture + DOM contract + verification status:** see `continue.md` (self-contained handoff).
 
 ## 9. Companion docs
 - `NOTES.md` — the engineering rationale & "what I improved over the original".
