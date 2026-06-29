@@ -17,7 +17,8 @@ import { ensureGsap, prefersReduced } from './motion';
 
 const MOBILE = 820;
 const RAIL_MIN = 1180;
-let railIO: IntersectionObserver | null = null;
+let railBound = false;
+let railEls: HTMLElement[] = [];
 
 /* ---- Signature film strip: vertical scroll → horizontal translate ---- */
 function initFilmStrip(small: boolean, reduced: boolean): void {
@@ -56,47 +57,64 @@ function initFilmStrip(small: boolean, reduced: boolean): void {
   });
 }
 
-/* ---- Section progress rail: active item brightens on scroll (desktop) ---- */
-function initRail(): void {
-  if (railIO) {
-    railIO.disconnect();
-    railIO = null;
+/* ---- Section progress rail: active item brightens on scroll (desktop) ----
+   Deterministic (live getBoundingClientRect), so it is pin-proof: it stays
+   correct even when a target section is pinned/spacer-expanded by GSAP. */
+function updateRail(): void {
+  if (!railEls.length) return;
+  const line = window.innerHeight * 0.4;
+  let activeId: string | null = null;
+  for (const el of railEls) {
+    const r = el.getBoundingClientRect();
+    if (r.top <= line && r.bottom >= line) {
+      activeId = el.id;
+      break;
+    }
   }
+  document.querySelectorAll<HTMLElement>('.railnav a[data-rail-item]').forEach((a) => {
+    if (a.getAttribute('data-rail-item') === activeId) a.setAttribute('data-active', '');
+    else a.removeAttribute('data-active');
+  });
+}
+function initRail(): void {
   const rail = document.querySelector<HTMLElement>('[data-rail]');
-  if (!rail) return;
-  const items = Array.from(rail.querySelectorAll<HTMLElement>('[data-rail-item]'));
-
-  if (window.innerWidth < RAIL_MIN || !('IntersectionObserver' in window)) {
-    rail.style.display = 'none';
+  if (!rail) {
+    railEls = [];
     return;
   }
-  rail.style.display = '';
-
-  const setActive = (id: string) => {
-    items.forEach((a) => {
-      if (a.getAttribute('data-rail-item') === id) a.setAttribute('data-active', '');
-      else a.removeAttribute('data-active');
-    });
-  };
-
-  railIO = new IntersectionObserver(
-    (entries) => entries.forEach((en) => en.isIntersecting && setActive((en.target as HTMLElement).id)),
-    { rootMargin: '-45% 0px -50% 0px' },
-  );
-  items.forEach((a) => {
-    const id = a.getAttribute('data-rail-item');
-    const target = id ? document.getElementById(id) : null;
-    if (target) railIO!.observe(target);
-  });
+  if (window.innerWidth < RAIL_MIN) {
+    rail.style.display = 'none';
+    railEls = [];
+    return;
+  }
+  rail.style.display = 'flex';
+  railEls = Array.from(rail.querySelectorAll<HTMLElement>('[data-rail-item]'))
+    .map((a) => document.getElementById(a.getAttribute('data-rail-item') || ''))
+    .filter((el): el is HTMLElement => !!el);
+  if (!railBound) {
+    railBound = true;
+    let ticking = false;
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (!ticking) {
+          ticking = true;
+          requestAnimationFrame(() => {
+            ticking = false;
+            updateRail();
+          });
+        }
+      },
+      { passive: true },
+    );
+  }
+  updateRail();
   // click-to-jump is handled by the items' native #anchor hrefs
 }
 
 export function initHomeMotion(): void {
   if (!document.querySelector('[data-home-motion]')) {
-    if (railIO) {
-      railIO.disconnect();
-      railIO = null;
-    }
+    railEls = [];
     return;
   }
   const reduced = prefersReduced();

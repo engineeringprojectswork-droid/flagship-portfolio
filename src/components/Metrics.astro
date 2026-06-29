@@ -9,6 +9,9 @@ export interface MetricItem {
   suffix?: string;
   label: { en: string; ar: string };
   sub?: { en: string; ar: string };
+  /** optional SVG path 'd' (viewBox 0 0 220 70) — a real-shape trend line
+   *  drawn behind the number on scroll (home "stat receipts"). */
+  receipt?: string;
 }
 
 interface Props {
@@ -32,6 +35,12 @@ const { lang, items, eyebrow } = Astro.props;
   {
     items.map((m, i) => (
       <div class={`metric reveal${i ? ` d${i}` : ''}`}>
+        {m.receipt && (
+          <svg class="metric__spark" viewBox="0 0 220 70" preserveAspectRatio="none" aria-hidden="true">
+            <path class="area" d={`${m.receipt} L220,70 L0,70 Z`} />
+            <path class="line" pathLength="1" d={m.receipt} />
+          </svg>
+        )}
         <div
           class="metric__num gradient-text tnum"
           data-count={m.count}

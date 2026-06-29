@@ -1,6 +1,13 @@
 ---
-import { projects } from '../data/projects';
+/**
+ * Selected Work — the signature moment: a pinned, horizontally-scrubbed film
+ * strip of the story cards driven by vertical scroll (lib/home.ts). Each card
+ * is colour-coded to its domain accent with a real-screenshot thumbnail slot.
+ * On mobile / reduced-motion it degrades to a stacked card grid.
+ */
+import { projects, accentHex } from '../data/projects';
 import { useTranslations, pick, workPath, type Lang } from '../i18n/utils';
+import AssetSlot from './work/spine/AssetSlot.astro';
 
 interface Props {
   lang: Lang;
@@ -8,56 +15,63 @@ interface Props {
 const { lang } = Astro.props;
 const t = useTranslations(lang);
 
-const heading =
+const n = projects.length;
+const countWord =
   lang === 'ar'
-    ? 'ثماني قصص.<br>كل رقمٍ حقيقي.'
-    : 'Eight stories.<br>Every number is real.';
+    ? ({ 8: 'ثماني', 9: 'تسع', 10: 'عشر' } as Record<number, string>)[n] ?? String(n)
+    : ({ 8: 'Eight', 9: 'Nine', 10: 'Ten' } as Record<number, string>)[n] ?? String(n);
+
+const heading =
+  lang === 'ar' ? `${countWord} قصص.<br>كل رقمٍ حقيقي.` : `${countWord} stories.<br>Every number is real.`;
 const sub =
   lang === 'ar'
-    ? 'افتح أيًّا منها — تروي نفسها بالصور لا بالفقرات.'
-    : 'Open any one — it tells itself in visuals, not paragraphs.';
+    ? 'مرّر — يتحرّك الشريط أفقيًا. افتح أيًّا منها.'
+    : 'Scroll — the strip travels sideways. Open any one.';
 const kicker = lang === 'ar' ? 'أعمالٌ مختارة' : 'Selected work';
-
-/* Per-project line-art emblems (currentColor = card ink; auto-theme). Each
-   reads at a glance: a funnel, a growth curve, a CRM table, a content frame,
-   a desktop app, a hiring funnel, a live browser gauge, an AI-tools merge. */
-const E = 'stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"';
-const emblem: Record<string, string> = {
-  'meta-ads': `<svg viewBox="0 0 64 64" fill="none" ${E}><rect x="11" y="15" width="42" height="8" rx="4"/><rect x="18" y="29" width="28" height="8" rx="4"/><rect x="25" y="43" width="14" height="8" rx="4" fill="currentColor"/></svg>`,
-  'al-maali': `<svg viewBox="0 0 64 64" fill="none" ${E}><path d="M11 47 L25 33 L35 39 L53 17"/><path d="M43 17 H53 V27"/></svg>`,
-  'crm': `<svg viewBox="0 0 64 64" fill="none" ${E}><rect x="11" y="14" width="42" height="36" rx="5"/><path d="M11 24 H53"/><path d="M28 24 V50"/><path d="M34 33 H47"/><path d="M34 41 H47"/></svg>`,
-  'brand-system': `<svg viewBox="0 0 64 64" fill="none" ${E}><path d="M21 13 H43"/><rect x="15" y="19" width="34" height="28" rx="5"/><path d="M29 28 L39 33 L29 38 Z" fill="currentColor" stroke="none"/></svg>`,
-  'sheep-app': `<svg viewBox="0 0 64 64" fill="none" ${E}><rect x="11" y="13" width="42" height="30" rx="5"/><path d="M24 49 H40"/><path d="M32 43 V49"/><path d="M25 28 L30 33 L40 23"/></svg>`,
-  'hr-system': `<svg viewBox="0 0 64 64" fill="none" ${E}><circle cx="18" cy="15" r="4"/><circle cx="32" cy="15" r="4"/><circle cx="46" cy="15" r="4"/><path d="M15 26 H49 L37 40 V50 H27 V40 Z"/></svg>`,
-  'medmac-website': `<svg viewBox="0 0 64 64" fill="none" ${E}><rect x="11" y="14" width="42" height="32" rx="5"/><path d="M11 23 H53"/><circle cx="17" cy="18.5" r="1.4" fill="currentColor" stroke="none"/><circle cx="23" cy="18.5" r="1.4" fill="currentColor" stroke="none"/><path d="M24 39 A9 9 0 0 1 40 39"/><path d="M32 39 L38 32"/></svg>`,
-  'ai-workflow': `<svg viewBox="0 0 64 64" fill="none" ${E}><circle cx="15" cy="16" r="5"/><circle cx="15" cy="32" r="5"/><circle cx="15" cy="48" r="5"/><circle cx="48" cy="32" r="6"/><path d="M20 18 L42 30"/><path d="M21 32 H42"/><path d="M20 46 L42 34"/></svg>`,
-};
 ---
 
-<section class="section" id="work">
+<section class="section work" id="work" data-home-motion>
   <div class="wrap">
     <div class="center stack" style="max-width:760px;margin-inline:auto">
       <p class="kicker reveal">{kicker}</p>
       <h2 class="h-xl reveal d1" set:html={heading}></h2>
       <p class="lead reveal d2">{sub}</p>
     </div>
+  </div>
 
-    <div class="projects" style="margin-top:54px">
-      {
-        projects.map((p, i) => (
-          <a class={`pcard reveal${i % 2 ? ' d1' : ''}`} href={workPath(lang, p.slug)}>
-            <div class="pcard__bg mesh" style={`--accent:${p.cardA};--accent-2:${p.cardB}`} aria-hidden="true" />
-            <span class="pcard__emblem" aria-hidden="true" set:html={emblem[p.slug]} />
-            <span class="pcard__tag">{pick(lang, p.tag)}</span>
-            <h3>{pick(lang, p.title)}</h3>
-            <p>{pick(lang, p.blurb)}</p>
-            <span class="stat">
-              {pick(lang, p.stat)} <span class="muted">{pick(lang, p.statNote)}</span>
-            </span>
-            <span class="arrow">{t('work.open')} →</span>
-          </a>
-        ))
-      }
+  <div class="filmstrip" data-filmstrip>
+    <div class="filmstrip__sticky" data-filmstrip-sticky>
+      <div class="filmstrip__head">
+        <span class="filmstrip__live"><i></i>{lang === 'ar' ? 'مباشر · مرّر للتصفّح ←' : 'Live · scroll to scrub →'}</span>
+        <span class="filmstrip__progress"><i data-filmstrip-bar></i></span>
+      </div>
+      <div class="filmstrip__track" data-filmstrip-track>
+        {
+          projects.map((p, i) => (
+            <a class="fcard" href={workPath(lang, p.slug)} style={`--ca:${accentHex[p.accent]}`}>
+              <span class="fcard__strip" aria-hidden="true" />
+              <div class="fcard__thumb">
+                <AssetSlot
+                  lang={lang}
+                  ratio="16/10"
+                  label={{ en: `${p.title.en} — screenshot`, ar: `${p.title.ar} — لقطة` }}
+                />
+              </div>
+              <div class="fcard__body">
+                <div class="fcard__meta">
+                  <span class="fcard__idx">{String(i + 1).padStart(2, '0')}</span>
+                  <span class="fcard__tag">{pick(lang, p.tag)}</span>
+                </div>
+                <h3>{pick(lang, p.title)}</h3>
+                <p>{pick(lang, p.blurb)}</p>
+                <span class="fcard__stat">
+                  {pick(lang, p.stat)} <span class="muted">{pick(lang, p.statNote)}</span>
+                </span>
+              </div>
+            </a>
+          ))
+        }
+      </div>
     </div>
   </div>
 </section>

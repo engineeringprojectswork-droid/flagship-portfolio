@@ -7,6 +7,7 @@ import ProjectsGrid from '../../components/ProjectsGrid.astro';
 import Team from '../../components/Team.astro';
 import About from '../../components/About.astro';
 import Contact from '../../components/Contact.astro';
+import RailNav from '../../components/RailNav.astro';
 import { useTranslations, type Lang } from '../../i18n/utils';
 import { locales } from '../../i18n/utils';
 
@@ -24,6 +25,7 @@ const metricItems: MetricItem[] = [
     suffix: '+',
     label: { en: 'Followers grown', ar: 'متابع تم بناؤهم' },
     sub: { en: 'Al-Ma’ali · 2021–2025', ar: 'قناة المعالي · ٢٠٢١–٢٠٢٥' },
+    receipt: 'M0,58 C45,55 75,32 115,22 C155,12 190,7 220,5', // the climb
   },
   {
     count: 0.84,
@@ -31,18 +33,29 @@ const metricItems: MetricItem[] = [
     prefix: '$',
     label: { en: 'Cost per WhatsApp lead', ar: 'تكلفة العميل عبر واتساب' },
     sub: { en: 'Meta pilot · 206 leads · 2026', ar: 'تجربة ميتا · ٢٠٦ عميلًا · ٢٠٢٦' },
+    receipt: 'M0,8 C45,11 75,30 115,40 C155,50 190,56 220,58', // cost sliding down
   },
   {
     count: 4,
     label: { en: 'Production systems shipped', ar: 'أنظمة تم إطلاقها' },
     sub: { en: 'AI-assisted, under my direction', ar: 'بمساعدة الذكاء الاصطناعي بإدارتي' },
+    receipt: 'M0,58 L52,58 L52,42 L104,42 L104,26 L156,26 L156,10 L220,10', // stepping up
   },
   {
     count: 4,
     suffix: '+',
     label: { en: 'Years growing channels', ar: 'سنوات في بناء القنوات' },
     sub: { en: 'social & content', ar: 'سوشيال ومحتوى' },
+    receipt: 'M0,52 C70,48 130,28 220,12', // steady rise
   },
+];
+
+const railItems = [
+  { id: 'intro', label: { en: 'Top', ar: 'البداية' } },
+  { id: 'work', label: { en: 'Work', ar: 'الأعمال' } },
+  { id: 'team', label: { en: 'Team', ar: 'الفريق' } },
+  { id: 'about', label: { en: 'About', ar: 'نبذة' } },
+  { id: 'contact', label: { en: 'Contact', ar: 'تواصل' } },
 ];
 ---
 
@@ -54,6 +67,7 @@ const metricItems: MetricItem[] = [
   accent="blue"
   home={true}
 >
+  <RailNav lang={lang} items={railItems} />
   <Hero lang={lang} />
   <Statements lang={lang} />
 

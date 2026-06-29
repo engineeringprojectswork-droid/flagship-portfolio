@@ -1,21 +1,45 @@
 ---
-import type { Lang } from '../i18n/utils';
+import { pick, type Lang } from '../i18n/utils';
 
 interface Props {
   lang: Lang;
 }
 const { lang } = Astro.props;
 
-type Line = { en: string; ar: string; grad?: boolean };
+// Each line earns its screen with a large low-opacity ghost metric + a one-line
+// stat behind it. Every number traces to the real work (profile.ts / the stories).
+type Line = { en: string; ar: string; grad?: boolean; ghost: string; stat: { en: string; ar: string } };
 const lines: Line[] = [
-  { en: 'I run the ads.', ar: 'أُدير الإعلانات.' },
-  { en: 'I grow the audience.', ar: 'أُنمّي الجمهور.' },
-  { en: 'I build the systems.', ar: 'أبني الأنظمة.' },
-  { en: 'I automate the rest with AI.', ar: 'وأؤتمت الباقي بالذكاء الاصطناعي.' },
+  {
+    en: 'I run the ads.',
+    ar: 'أُدير الإعلانات.',
+    ghost: '206',
+    stat: { en: '206 WhatsApp leads · $0.84 each', ar: '٢٠٦ عميل واتساب · ٠٫٨٤$ للواحد' },
+  },
+  {
+    en: 'I grow the audience.',
+    ar: 'أُنمّي الجمهور.',
+    ghost: '1M',
+    stat: { en: '9.2K → 1M+ followers · 2021–2025', ar: '٩٫٢ألف ← مليون+ متابع · ٢٠٢١–٢٠٢٥' },
+  },
+  {
+    en: 'I build the systems.',
+    ar: 'أبني الأنظمة.',
+    ghost: '12',
+    stat: { en: 'a 12-tab CRM · a 15-table desktop app', ar: 'نظام عملاء ١٢ تبويبًا · تطبيق ١٥ جدولًا' },
+  },
+  {
+    en: 'I automate the rest with AI.',
+    ar: 'وأؤتمت الباقي بالذكاء الاصطناعي.',
+    ghost: '142',
+    stat: { en: '142 résumés · 7 scripts · 3 scheduled jobs', ar: '١٤٢ سيرة · ٧ سكربتات · ٣ مهام مجدولة' },
+  },
   {
     en: 'So a business gets a full team’s output —<br>from a single hire.',
     ar: 'ليحصل العمل على إنتاج فريقٍ كامل —<br>من تعيينٍ واحد.',
     grad: true,
+    ghost: '1',
+    stat: { en: 'one person · four production systems shipped', ar: 'شخصٌ واحد · أربعة أنظمة إنتاجية' },
   },
 ];
 ---
@@ -24,7 +48,13 @@ const lines: Line[] = [
   {
     lines.map((l) => (
       <div class="statement">
-        <p class={`reveal${l.grad ? ' gradient-text shimmer' : ''}`} set:html={l[lang]} />
+        <span class="statement__ghost" aria-hidden="true">
+          <bdi>{l.ghost}</bdi>
+        </span>
+        <div class="statement__inner">
+          <p class={`reveal${l.grad ? ' gradient-text shimmer' : ''}`} set:html={l[lang]} />
+          <span class="statement__stat reveal d2">{pick(lang, l.stat)}</span>
+        </div>
       </div>
     ))
   }
