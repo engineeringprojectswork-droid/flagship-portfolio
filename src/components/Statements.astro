@@ -47,10 +47,7 @@ const lines: Line[] = [
 <section class="statements" aria-label={lang === 'ar' ? 'ما الذي أفعله' : 'What I do'}>
   {
     lines.map((l) => (
-      <div class="statement">
-        <span class="statement__ghost" aria-hidden="true">
-          <bdi>{l.ghost}</bdi>
-        </span>
+      <div class="statement" data-ghost={l.ghost}>
         <div class="statement__inner">
           <p class={`reveal${l.grad ? ' gradient-text shimmer' : ''}`} set:html={l[lang]} />
           <span class="statement__stat reveal d2">{pick(lang, l.stat)}</span>

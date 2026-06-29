@@ -1,42 +1,26 @@
 /* =====================================================================
    Home-page motion scenes (Claude Design parallax package).
-   Built on the same Lenis + GSAP ScrollTrigger core as the story spine.
-
-   GSAP-driven (killed + rebuilt each page-load by initMotion):
-     · film strip — pinned; vertical scroll → horizontal scrub of the 9 cards
-   IntersectionObserver-driven (cleaned up here across View Transitions):
-     · section rail — fixed vertical index, active item brightens (desktop ≥1180)
-
-   The stat receipts, stack rail and ghost-metric statements are pure CSS off
-   the existing reveal system — no JS needed here.
-
-   Guarded: no-op without [data-home-motion]; degrades to static under
-   prefers-reduced-motion / small viewports.
+   GSAP-driven film strip (desktop only) + a light scroll-computed section
+   rail. On mobile / reduced-motion, renderHomeStatic() leaves the stacked
+   CSS fallback and never touches GSAP.
    ===================================================================== */
-import { ensureGsap, prefersReduced } from './motion';
+import { getST } from './motion';
 
-const MOBILE = 820;
 const RAIL_MIN = 1180;
 let railBound = false;
 let railEls: HTMLElement[] = [];
 
 /* ---- Signature film strip: vertical scroll → horizontal translate ---- */
-function initFilmStrip(small: boolean, reduced: boolean): void {
+function initFilmStrip(): void {
   const sec = document.querySelector<HTMLElement>('[data-filmstrip]');
   if (!sec) return;
   const sticky = sec.querySelector<HTMLElement>('[data-filmstrip-sticky]');
   const track = sec.querySelector<HTMLElement>('[data-filmstrip-track]');
   const bar = sec.querySelector<HTMLElement>('[data-filmstrip-bar]');
   if (!sticky || !track) return;
+  const ST = getST();
+  if (!ST) return;
 
-  if (reduced || small) {
-    // stacked card grid — clear any leftover scrub transform
-    track.style.transform = 'none';
-    if (bar) bar.style.width = '100%';
-    return;
-  }
-
-  const ST = ensureGsap();
   const rtl = document.documentElement.getAttribute('dir') === 'rtl';
   const extra = Math.max(0, track.scrollWidth - window.innerWidth + 120);
   const dist = extra + window.innerHeight * 0.15;
@@ -48,7 +32,7 @@ function initFilmStrip(small: boolean, reduced: boolean): void {
     pin: sticky,
     scrub: true,
     invalidateOnRefresh: true,
-    onUpdate: (self) => {
+    onUpdate: (self: { progress: number }) => {
       const p = self.progress;
       // RTL mirrors the horizontal direction
       track.style.transform = 'translate3d(' + ((rtl ? 1 : -1) * p * extra).toFixed(1) + 'px,0,0)';
@@ -58,8 +42,7 @@ function initFilmStrip(small: boolean, reduced: boolean): void {
 }
 
 /* ---- Section progress rail: active item brightens on scroll (desktop) ----
-   Deterministic (live getBoundingClientRect), so it is pin-proof: it stays
-   correct even when a target section is pinned/spacer-expanded by GSAP. */
+   Deterministic (live getBoundingClientRect), so it is pin-proof. */
 function updateRail(): void {
   if (!railEls.length) return;
   const line = window.innerHeight * 0.4;
@@ -109,16 +92,27 @@ function initRail(): void {
     );
   }
   updateRail();
-  // click-to-jump is handled by the items' native #anchor hrefs
 }
 
+/** GSAP-free static state (mobile / reduced-motion): stacked grid via CSS. */
+export function renderHomeStatic(): void {
+  if (!document.querySelector('[data-home-motion]')) {
+    railEls = [];
+    return;
+  }
+  const track = document.querySelector<HTMLElement>('[data-filmstrip-track]');
+  if (track) track.style.transform = 'none';
+  const bar = document.querySelector<HTMLElement>('[data-filmstrip-bar]');
+  if (bar) bar.style.width = '100%';
+  initRail(); // hides itself below 1180px (incl. mobile)
+}
+
+/** Desktop: pin + scrub the film strip and run the section rail. */
 export function initHomeMotion(): void {
   if (!document.querySelector('[data-home-motion]')) {
     railEls = [];
     return;
   }
-  const reduced = prefersReduced();
-  const small = window.innerWidth <= MOBILE;
-  initFilmStrip(small, reduced);
+  initFilmStrip();
   initRail();
 }

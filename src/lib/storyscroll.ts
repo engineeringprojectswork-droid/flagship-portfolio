@@ -22,9 +22,8 @@
    prefers-reduced-motion OR viewport <= 820px → no pins; render static end-state.
    All scrub motion is Y-axis; RTL only flips the 3D rotateY sign (cost-fall).
    ===================================================================== */
-import { ensureGsap, prefersReduced, clamp01 } from './motion';
+import { getST, clamp01 } from './motion';
 
-const MOBILE = 820;
 const isRTL = (): boolean => document.documentElement.getAttribute('dir') === 'rtl';
 
 /* ---------- BUILD: stepped item reveal ---------- */
@@ -115,23 +114,31 @@ function proofStatic(sec: HTMLElement): void {
   });
 }
 
+/** GSAP-free static end-state (mobile / reduced-motion). */
+export function renderStoryStatic(): void {
+  if (!document.querySelector('[data-spine]')) return;
+  document.querySelectorAll<HTMLElement>('[data-build]').forEach((sec) => {
+    const items = Array.from(sec.querySelectorAll<HTMLElement>('[data-build-item]'));
+    const bar = sec.querySelector<HTMLElement>('[data-build-bar]');
+    buildStatic(items, bar);
+  });
+  document.querySelectorAll<HTMLElement>('[data-proof]').forEach((sec) => proofStatic(sec));
+}
+
+/** Desktop: pin + scrub the Build and Proof beats (engine already loaded). */
 export function initStoryScroll(): void {
   if (!document.querySelector('[data-spine]')) return;
-  const ST = ensureGsap();
-  const reduced = prefersReduced();
-  const small = window.innerWidth <= MOBILE;
+  const ST = getST();
+  if (!ST) return;
 
   document.querySelectorAll<HTMLElement>('[data-build]').forEach((sec) => {
     const sticky = sec.querySelector<HTMLElement>('[data-build-sticky]') || (sec.firstElementChild as HTMLElement);
     const items = Array.from(sec.querySelectorAll<HTMLElement>('[data-build-item]'));
     const bar = sec.querySelector<HTMLElement>('[data-build-bar]');
-    if (reduced || small) {
-      buildStatic(items, bar);
-      return;
-    }
     const mult = parseFloat(sec.getAttribute('data-mult') || '2.6') || 2.6;
     const dist = (mult - 1) * window.innerHeight;
-    stepBuild(items, bar, 0);
+    // Note: items render readable (CSS default) until the pin engages — the
+    // scrubbed dimming applies via onUpdate, so the at-rest state stays AA.
     ST.create({
       trigger: sec,
       start: 'top top',
@@ -139,20 +146,16 @@ export function initStoryScroll(): void {
       pin: sticky,
       scrub: true,
       invalidateOnRefresh: true,
-      onUpdate: (self) => stepBuild(items, bar, clamp01(self.progress)),
+      onUpdate: (self: { progress: number }) => stepBuild(items, bar, clamp01(self.progress)),
     });
   });
 
   document.querySelectorAll<HTMLElement>('[data-proof]').forEach((sec) => {
     const sticky = sec.querySelector<HTMLElement>('[data-proof-sticky]') || (sec.firstElementChild as HTMLElement);
     const update = makeProof(sec);
-    if (reduced || small) {
-      proofStatic(sec);
-      return;
-    }
     const mult = parseFloat(sec.getAttribute('data-mult') || '2.4') || 2.4;
     const dist = (mult - 1) * window.innerHeight;
-    update(0);
+    // centerpiece renders at its readable CSS default until the pin engages
     ST.create({
       trigger: sec,
       start: 'top top',
@@ -160,7 +163,7 @@ export function initStoryScroll(): void {
       pin: sticky,
       scrub: true,
       invalidateOnRefresh: true,
-      onUpdate: (self) => update(clamp01(self.progress)),
+      onUpdate: (self: { progress: number }) => update(clamp01(self.progress)),
     });
   });
 }

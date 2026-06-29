@@ -7,9 +7,9 @@
 
 /* ---------- Fonts (self-hosted, no external requests) ---------- */
 @import '@fontsource-variable/inter/wght.css';
-@import '@fontsource/ibm-plex-sans-arabic/arabic-300.css';
+/* Arabic — 3 weights only (regular / semibold / bold) to keep AR mobile light;
+   500/300 map to the nearest available weight. */
 @import '@fontsource/ibm-plex-sans-arabic/arabic-400.css';
-@import '@fontsource/ibm-plex-sans-arabic/arabic-500.css';
 @import '@fontsource/ibm-plex-sans-arabic/arabic-600.css';
 @import '@fontsource/ibm-plex-sans-arabic/arabic-700.css';
 /* Mono — spec labels / routes / number-meta (Claude Design parallax package) */
@@ -34,7 +34,7 @@ ul{list-style:none}
   --panel-brd:rgba(255,255,255,.10);
   --ink:#f5f5f7;          /* primary text */
   --ink-2:#a1a1a6;        /* secondary text (Apple gray) */
-  --ink-3:#6e6e73;
+  --ink-3:#82838b;        /* tertiary — AA-contrast-safe on dark surfaces */
   --accent:#2997ff;       /* Apple blue */
   --accent-2:#a259ff;
   --grad: linear-gradient(120deg,#2997ff 0%,#a259ff 50%,#ff5e8a 100%);
@@ -73,7 +73,7 @@ ul{list-style:none}
 [data-theme="light"]{
   --bg:#ffffff;--bg-2:#f5f5f7;--bg-soft:#ececee;
   --panel:rgba(0,0,0,.03);--panel-brd:rgba(0,0,0,.10);
-  --ink:#1d1d1f;--ink-2:#515154;--ink-3:#86868b;
+  --ink:#1d1d1f;--ink-2:#515154;--ink-3:#6c6c74;
   --shadow:0 30px 80px -28px rgba(0,0,0,.22);
   --win-body:#ffffff;--win-bar:#f1f1f3;
   --mesh-a:#ffffff;--mesh-b:#e9ecf3;
@@ -92,7 +92,7 @@ body[data-accent="green"]  {--accent:#30d158;--accent-2:#9bf0b4;--grad:linear-gr
 body[data-accent="violet"] {--accent:#bf5af2;--accent-2:#e0a6ff;--grad:linear-gradient(120deg,#bf5af2,#e0a6ff)}   /* Brand & Content */
 body[data-accent="teal"]   {--accent:#64d2ff;--accent-2:#a5e7ff;--grad:linear-gradient(120deg,#0bb1c4,#64d2ff)}   /* Software */
 body[data-accent="yellow"] {--accent:#ffd60a;--accent-2:#ffe874;--grad:linear-gradient(120deg,#ff9f0a,#ffd60a)}   /* Automation */
-body[data-accent="indigo"] {--accent:#5e5ce6;--accent-2:#9b99ff;--grad:linear-gradient(120deg,#5e5ce6,#9b99ff)}   /* Web · Live */
+body[data-accent="indigo"] {--accent:#7574ee;--accent-2:#9b99ff;--grad:linear-gradient(120deg,#5e5ce6,#9b99ff)}   /* Web · Live (accent lightened from #5e5ce6 for AA small-text contrast) */
 body[data-accent="orange"] {--accent:#ff9f0a;--accent-2:#ffd60a;--grad:linear-gradient(120deg,#ff7a00,#ffd60a)}   /* AI Operating Model */
 /* Career OS — this site: signature multi-stop gradient identity */
 body[data-accent="resume"] {--accent:#2997ff;--accent-2:#bf5af2;--grad:linear-gradient(120deg,#2997ff 0%,#bf5af2 50%,#30d158 100%)}
@@ -247,7 +247,7 @@ h1,h2,h3{line-height:1.05;letter-spacing:-.03em;font-weight:800}
 .metric{padding:clamp(20px,3vw,34px) 16px;text-align:center;border:1px solid var(--panel-brd);border-radius:var(--r);background:var(--panel)}
 .metric__num{font-size:clamp(40px,7vw,76px);font-weight:900;line-height:1;letter-spacing:-.04em}
 .metric__lbl{margin-top:12px;color:var(--ink-2);font-size:clamp(13px,1.5vw,15px);font-weight:500}
-.metric__sub{margin-top:6px;color:var(--ink-3);font-size:12px}
+.metric__sub{margin-top:6px;color:var(--ink-2);font-size:12px}
 
 /* ---------- "Team you replace" cards ---------- */
 .roles{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
@@ -412,7 +412,7 @@ h1,h2,h3{line-height:1.05;letter-spacing:-.03em;font-weight:800}
 .device__bar{height:40px;display:flex;align-items:center;gap:7px;padding:0 14px;border-bottom:1px solid var(--panel-brd);background:var(--win-bar)}
 .device__bar .d{width:11px;height:11px;border-radius:50%}
 .device__bar .r{background:#ff5f57}.device__bar .y{background:#febc2e}.device__bar .g{background:#28c840}
-.device__bar .addr{margin-inline-start:12px;font-size:12px;color:var(--ink-3);background:var(--panel);border-radius:6px;padding:3px 10px}
+.device__bar .addr{margin-inline-start:12px;font-size:12px;color:var(--ink-2);background:var(--panel);border-radius:6px;padding:3px 10px}
 .device__body{padding:0}
 
 /* embedded live site frame */
@@ -444,6 +444,8 @@ h1,h2,h3{line-height:1.05;letter-spacing:-.03em;font-weight:800}
   background:radial-gradient(130% 90% at 50% 0%,transparent 45%,color-mix(in srgb,var(--bg) 70%,transparent) 100%)}
 .beat__ghost{position:absolute;z-index:0;pointer-events:none;font-weight:700;letter-spacing:-.04em;
   color:color-mix(in srgb,var(--accent) 6%,transparent);white-space:nowrap;line-height:.8}
+/* ghost text via pseudo-element → decorative, excluded from a11y contrast */
+.beat__ghost::before{content:attr(data-ghost)}
 @keyframes drift{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(0,-3%,0)}}
 @keyframes cuemove{0%,100%{transform:translateY(0);opacity:.7}50%{transform:translateY(7px);opacity:1}}
 
@@ -519,7 +521,7 @@ h1,h2,h3{line-height:1.05;letter-spacing:-.03em;font-weight:800}
 .handoff[data-next="violet"]{--next:#bf5af2}
 .handoff[data-next="teal"]{--next:#64d2ff}
 .handoff[data-next="yellow"]{--next:#ffd60a}
-.handoff[data-next="indigo"]{--next:#5e5ce6}
+.handoff[data-next="indigo"]{--next:#7574ee}
 .handoff[data-next="orange"]{--next:#ff9f0a}
 .handoff[data-next="resume"]{--next:#bf5af2}
 .handoff__wash{position:absolute;inset:0;z-index:0;pointer-events:none;
@@ -573,12 +575,13 @@ h1,h2,h3{line-height:1.05;letter-spacing:-.03em;font-weight:800}
 
 /* ---- Statements: ghost metric behind each line + a one-line stat ---- */
 .statement{position:relative;min-height:78svh}
-.statement__ghost{position:absolute;z-index:0;inset-inline-end:4%;top:7%;line-height:.8;
+/* ghost metric as a decorative pseudo-element (excluded from a11y contrast) */
+.statement::before{content:attr(data-ghost);position:absolute;z-index:0;inset-inline-end:4%;top:7%;line-height:.8;
   font-weight:700;font-size:clamp(110px,28vw,360px);letter-spacing:-.04em;
-  color:color-mix(in srgb,var(--ink) 5%,transparent);pointer-events:none;
+  color:color-mix(in srgb,var(--ink) 6%,transparent);pointer-events:none;
   direction:ltr;unicode-bidi:isolate}
 .statement__inner{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:20px}
-.statement__stat{font-family:var(--font-mono);font-size:clamp(12px,1.4vw,14px);letter-spacing:.04em;color:var(--ink-3);text-align:center;max-width:42ch}
+.statement__stat{font-family:var(--font-mono);font-size:clamp(12px,1.4vw,14px);letter-spacing:.04em;color:var(--ink-2);text-align:center;max-width:42ch}
 
 /* ---- Stack tool-rail (replaces the orbit in "the stack"; assembles L→R) ---- */
 .stackrail{margin-top:clamp(36px,6vh,72px)}
@@ -624,8 +627,8 @@ h1,h2,h3{line-height:1.05;letter-spacing:-.03em;font-weight:800}
 .fcard__thumb .asset-slot{--accent:var(--ca)}
 .fcard__body{padding:15px 18px 20px;display:flex;flex-direction:column;gap:7px}
 .fcard__meta{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.fcard__idx{font-family:var(--font-mono);font-size:12px;color:var(--ca,var(--accent))}
-.fcard__tag{font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.fcard__idx{font-family:var(--font-mono);font-size:12px;color:var(--ink-2)}
+.fcard__tag{font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2)}
 .fcard h3{font-size:21px;font-weight:700;letter-spacing:-.02em}
 .fcard p{color:var(--ink-2);font-size:14px;line-height:1.45}
 .fcard__stat{margin-top:4px;font-size:13px;font-weight:600;color:var(--ink)}
@@ -649,7 +652,7 @@ h1,h2,h3{line-height:1.05;letter-spacing:-.03em;font-weight:800}
 .contact .links{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-top:30px}
 
 /* ---------- Footer ---------- */
-.footer{border-top:1px solid var(--panel-brd);padding-block:48px;color:var(--ink-3);font-size:13.5px}
+.footer{border-top:1px solid var(--panel-brd);padding-block:48px;color:var(--ink-2);font-size:13.5px}
 .footer .wrap{display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;align-items:center}
 .footer a{color:var(--ink-2)}.footer a:hover{color:var(--ink)}
 

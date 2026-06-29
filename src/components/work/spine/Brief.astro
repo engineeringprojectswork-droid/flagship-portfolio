@@ -15,7 +15,7 @@ const { lang, kicker, heading, body, ghostWord } = Astro.props;
 ---
 
 <section class="beat beat--brief" data-screen="brief">
-  {ghostWord && <span class="beat__ghost" data-px="0.06" aria-hidden="true">{ghostWord}</span>}
+  {ghostWord && <span class="beat__ghost" data-px="0.06" data-ghost={ghostWord} aria-hidden="true"></span>}
   <div class="beat__wrap">
     <div class="brief__grid">
       <div class="brief__col reveal">

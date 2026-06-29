@@ -183,7 +183,7 @@ export const accentHex: Record<Accent, string> = {
   violet: '#bf5af2',
   teal: '#64d2ff',
   yellow: '#ffd60a',
-  indigo: '#5e5ce6',
+  indigo: '#7574ee',
   orange: '#ff9f0a',
   resume: '#bf5af2',
 };

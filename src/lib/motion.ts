@@ -1,60 +1,58 @@
 /* =====================================================================
    Motion core — Lenis smooth-scroll + GSAP ScrollTrigger.
-   Wired ONCE here; the StoryScroll spine (storyscroll.ts) and the home
-   upgrades (home.ts) build their pinned/scrubbed scenes on top.
 
-   · Lenis is a persistent singleton (survives Astro View Transitions);
-     its RAF is driven by gsap.ticker so Lenis + ScrollTrigger share one loop.
-   · prefers-reduced-motion → Lenis never starts, no pins/scrubs are created,
-     and every scene renders its static end-state.
+   GSAP + Lenis are CODE-SPLIT: dynamically imported ONLY on desktop with
+   motion enabled (the only place pins/scrub run). On mobile / reduced-motion
+   they never load — the spine + home render their static end-states with zero
+   GSAP/Lenis cost (protects mobile Lighthouse).
+
    · ScrollTriggers are killed + rebuilt on every astro:page-load (fresh DOM).
+   · The light [data-px] depth parallax has no dependency on GSAP.
    ===================================================================== */
-import Lenis from 'lenis';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { initStoryScroll } from './storyscroll';
-import { initHomeMotion } from './home';
+import { initStoryScroll, renderStoryStatic } from './storyscroll';
+import { initHomeMotion, renderHomeStatic } from './home';
 
 export const prefersReduced = (): boolean =>
   !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches);
 
-let gsapReady = false;
-export function ensureGsap(): typeof ScrollTrigger {
-  if (!gsapReady) {
-    gsap.registerPlugin(ScrollTrigger);
-    gsapReady = true;
-  }
-  return ScrollTrigger;
+const MOBILE = 820;
+const heavyOff = (): boolean => prefersReduced() || window.innerWidth <= MOBILE;
+export const clamp01 = (n: number): number => (n < 0 ? 0 : n > 1 ? 1 : n);
+
+/* ---- lazily-loaded engine ---- */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+let gsap: any = null;
+let ST: any = null;
+let lenis: any = null;
+let engineReady = false;
+
+/** The ScrollTrigger constructor, or null until the engine is loaded. */
+export function getST(): any {
+  return ST;
 }
 
-/* ---- Lenis singleton ---- */
-let lenis: Lenis | null = null;
-let tickerBound = false;
-export function getLenis(): Lenis | null {
-  return lenis;
-}
-export function initLenis(): Lenis | null {
-  if (prefersReduced()) return null;
-  if (lenis) return lenis;
-  ensureGsap();
-  lenis = new Lenis({
-    lerp: 0.1,
-    wheelMultiplier: 1,
-    smoothWheel: true,
-    autoRaf: false, // we drive raf from gsap.ticker
+async function loadEngine(): Promise<void> {
+  if (engineReady) return;
+  const [g, s, L] = await Promise.all([import('gsap'), import('gsap/ScrollTrigger'), import('lenis')]);
+  gsap = g.gsap;
+  ST = s.ScrollTrigger;
+  const Lenis = L.default;
+  gsap.registerPlugin(ST);
+  lenis = new Lenis({ lerp: 0.1, wheelMultiplier: 1, smoothWheel: true, autoRaf: false });
+  lenis.on('scroll', ST.update);
+  gsap.ticker.add((time: number) => {
+    if (lenis) lenis.raf(time * 1000);
   });
-  lenis.on('scroll', ScrollTrigger.update);
-  if (!tickerBound) {
-    tickerBound = true;
-    gsap.ticker.add((time: number) => lenis && lenis.raf(time * 1000));
-    gsap.ticker.lagSmoothing(0);
-  }
-  return lenis;
+  gsap.ticker.lagSmoothing(0);
+  engineReady = true;
+}
+
+export function killTriggers(): void {
+  if (ST) ST.getAll().forEach((t: any) => t.kill());
 }
 
 /* ---- Depth parallax ([data-px] = speed; center-of-element based) ----
-   translateY proportional to the element's distance from viewport centre,
-   so higher data-px reads as "closer". Y-axis only → no RTL mirroring. */
+   Light + transform-only. Skipped entirely under reduced-motion / mobile. */
 let pxBound = false;
 function applyParallax(): void {
   const els = document.querySelectorAll<HTMLElement>('[data-px]');
@@ -67,8 +65,8 @@ function applyParallax(): void {
     el.style.transform = 'translate3d(0,' + (-c * sp).toFixed(1) + 'px,0)';
   });
 }
-export function initParallaxDepth(): void {
-  if (prefersReduced()) {
+function initParallaxDepth(): void {
+  if (heavyOff()) {
     document.querySelectorAll<HTMLElement>('[data-px]').forEach((el) => (el.style.transform = 'none'));
     return;
   }
@@ -93,39 +91,37 @@ export function initParallaxDepth(): void {
   applyParallax();
 }
 
-/* ---- Kill our ScrollTriggers before a rebuild (DOM swap) ---- */
-export function killTriggers(): void {
-  ensureGsap();
-  ScrollTrigger.getAll().forEach((t) => t.kill());
-}
-
-/* ---- clamp helper shared by scenes ---- */
-export const clamp01 = (n: number): number => (n < 0 ? 0 : n > 1 ? 1 : n);
-
+/* ---- Orchestrator — called by BaseLayout boot() on load + page-load ---- */
 let lifecycleBound = false;
 let resizeTimer = 0;
-/* ---- Orchestrator — called by BaseLayout boot() on load + page-load ---- */
-export function initMotion(): void {
-  initLenis();
-  killTriggers(); // remove any triggers from the previous page before re-creating
+export async function initMotion(): Promise<void> {
   initParallaxDepth();
-  initStoryScroll();
-  initHomeMotion();
-  ensureGsap().refresh();
+
+  if (heavyOff()) {
+    // mobile / reduced-motion → static end-state, no GSAP/Lenis loaded
+    killTriggers();
+    renderStoryStatic();
+    renderHomeStatic();
+  } else {
+    await loadEngine();
+    killTriggers();
+    initStoryScroll();
+    initHomeMotion();
+    ST.refresh();
+  }
+
   if (!lifecycleBound) {
     lifecycleBound = true;
-    // late layout shifts (fonts, lazy images) can move pin start/end points
-    window.addEventListener('load', () => ScrollTrigger.refresh());
-    // rebuild on resize so the mobile / reduced-motion pin guards re-evaluate
+    window.addEventListener('load', () => {
+      if (ST) ST.refresh();
+    });
+    // rebuild on resize so the mobile / reduced-motion threshold re-evaluates
     window.addEventListener(
       'resize',
       () => {
         window.clearTimeout(resizeTimer);
         resizeTimer = window.setTimeout(() => {
-          killTriggers();
-          initStoryScroll();
-          initHomeMotion();
-          ScrollTrigger.refresh();
+          void initMotion();
         }, 250);
       },
       { passive: true },
