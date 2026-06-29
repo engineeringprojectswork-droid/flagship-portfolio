@@ -9,7 +9,17 @@
  * Every stat string is verbatim from the vetted flagship copy (see profile.ts).
  */
 
-export type Accent = 'blue' | 'violet' | 'green' | 'orange' | 'pink' | 'teal';
+// 9-domain colour system (Claude Design parallax package). One accent per story.
+export type Accent =
+  | 'blue' // Paid Social
+  | 'red' // Audience Growth
+  | 'green' // Marketing Ops / CRM
+  | 'violet' // Brand & Content
+  | 'teal' // Software
+  | 'yellow' // Automation
+  | 'indigo' // Web · Live
+  | 'orange' // AI Operating Model
+  | 'resume'; // Career OS — this site
 
 export interface ProjectMeta {
   slug: string;
@@ -46,7 +56,7 @@ export const projects: ProjectMeta[] = [
   {
     slug: 'al-maali',
     film: 'al-maali.html',
-    accent: 'pink',
+    accent: 'red',
     cardA: '#ff375f',
     cardB: '#ff7eb6',
     tag: { en: 'Audience Growth', ar: 'نموّ الجمهور' },
@@ -61,7 +71,7 @@ export const projects: ProjectMeta[] = [
   {
     slug: 'crm',
     film: 'crm.html',
-    accent: 'teal',
+    accent: 'green',
     cardA: '#0bb1c4',
     cardB: '#64d2ff',
     tag: { en: 'Marketing Ops', ar: 'عمليات التسويق' },
@@ -76,7 +86,7 @@ export const projects: ProjectMeta[] = [
   {
     slug: 'brand-system',
     film: 'brand-system.html',
-    accent: 'orange',
+    accent: 'violet',
     cardA: '#ff7a00',
     cardB: '#ffd60a',
     tag: { en: 'Brand & Content', ar: 'الهوية والمحتوى' },
@@ -91,7 +101,7 @@ export const projects: ProjectMeta[] = [
   {
     slug: 'sheep-app',
     film: 'sheep.html',
-    accent: 'green',
+    accent: 'teal',
     cardA: '#1ea64a',
     cardB: '#9bf0b4',
     tag: { en: 'Software', ar: 'برمجيات' },
@@ -106,7 +116,7 @@ export const projects: ProjectMeta[] = [
   {
     slug: 'hr-system',
     film: 'hr-system.html',
-    accent: 'violet',
+    accent: 'yellow',
     cardA: '#7b2fff',
     cardB: '#d18cff',
     tag: { en: 'Automation', ar: 'الأتمتة' },
@@ -121,7 +131,7 @@ export const projects: ProjectMeta[] = [
   {
     slug: 'medmac-website',
     film: 'medmac-website.html',
-    accent: 'blue',
+    accent: 'indigo',
     cardA: '#2997ff',
     cardB: '#a259ff',
     tag: { en: 'Web · Live', ar: 'ويب · مباشر' },
@@ -136,7 +146,7 @@ export const projects: ProjectMeta[] = [
   {
     slug: 'ai-workflow',
     film: 'ai-workflow.html',
-    accent: 'violet',
+    accent: 'orange',
     cardA: '#a259ff',
     cardB: '#ff5e8a',
     tag: { en: 'AI Operating Model', ar: 'نموذج تشغيل بالذكاء الاصطناعي' },

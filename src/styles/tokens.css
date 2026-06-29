@@ -12,6 +12,8 @@
 @import '@fontsource/ibm-plex-sans-arabic/arabic-500.css';
 @import '@fontsource/ibm-plex-sans-arabic/arabic-600.css';
 @import '@fontsource/ibm-plex-sans-arabic/arabic-700.css';
+/* Mono — spec labels / routes / number-meta (Claude Design parallax package) */
+@import '@fontsource-variable/jetbrains-mono/wght.css';
 
 /* ---------- Reset ---------- */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -49,6 +51,23 @@ ul{list-style:none}
   --win-bar:#08080a;    /* device title bar */
   --mesh-a:#161616;     /* project-card mesh base (start) */
   --mesh-b:#000000;     /* project-card mesh base (end) */
+
+  /* ----- Claude Design parallax package: wired once, reused everywhere ----- */
+  --font-mono:"JetBrains Mono Variable",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  /* Layered surfaces (theme-aware; dark cinematic by default) */
+  --surface-base:#08080a;   /* page / hook backdrop */
+  --surface-raised:#0e0e11; /* cards, panels, story articles */
+  --surface-card:#15151a;   /* chips, inner wells, number tiles */
+  --hair:rgba(255,255,255,.10);
+  /* Duration tokens */
+  --dur-micro:120ms; --dur-base:420ms; --dur-reveal:700ms; --dur-count:1200ms;
+  /* Easing tokens */
+  --ease-expo:cubic-bezier(.16,1,.3,1);   /* beat reveals, hero text-in */
+  --ease-quint:cubic-bezier(.83,0,.17,1); /* pinned scrubs, 3D tilts */
+  --ease-back:cubic-bezier(.34,1.4,.64,1);/* count-up settle */
+  --ease-std:cubic-bezier(.4,0,.2,1);     /* hovers, chips */
+  /* Parallax depth scale (data-px multipliers) */
+  --px-far:.04; --px-mid:.08; --px-content:0; --px-near:.12; --px-float:.16;
   color-scheme: dark;
 }
 [data-theme="light"]{
@@ -58,16 +77,25 @@ ul{list-style:none}
   --shadow:0 30px 80px -28px rgba(0,0,0,.22);
   --win-body:#ffffff;--win-bar:#f1f1f3;
   --mesh-a:#ffffff;--mesh-b:#e9ecf3;
+  /* spine surfaces follow the light theme */
+  --surface-base:#f5f5f7;--surface-raised:#ffffff;--surface-card:#eef0f4;
+  --hair:rgba(0,0,0,.10);
   color-scheme: light;
 }
 
-/* Per-project accent (set via data-accent on <body>) */
-body[data-accent="blue"]   {--accent:#2997ff;--accent-2:#5ac8fa;--grad:linear-gradient(120deg,#2997ff,#5ac8fa)}
-body[data-accent="violet"] {--accent:#a259ff;--accent-2:#d18cff;--grad:linear-gradient(120deg,#7b2fff,#d18cff)}
-body[data-accent="green"]  {--accent:#30d158;--accent-2:#9bf0b4;--grad:linear-gradient(120deg,#1ea64a,#9bf0b4)}
-body[data-accent="orange"] {--accent:#ff9f0a;--accent-2:#ffd60a;--grad:linear-gradient(120deg,#ff7a00,#ffd60a)}
-body[data-accent="pink"]   {--accent:#ff375f;--accent-2:#ff7eb6;--grad:linear-gradient(120deg,#ff375f,#ff7eb6)}
-body[data-accent="teal"]   {--accent:#40e0d0;--accent-2:#64d2ff;--grad:linear-gradient(120deg,#0bb1c4,#64d2ff)}
+/* 9-domain accent system (Claude Design parallax package).
+   One accent per work story — re-binds --accent / --accent-2 / --grad, which the
+   whole page reads (kicker, buttons, glows, mesh, spine, centerpieces). */
+body[data-accent="blue"]   {--accent:#2997ff;--accent-2:#64d2ff;--grad:linear-gradient(120deg,#2997ff,#64d2ff)}   /* Paid Social */
+body[data-accent="red"]    {--accent:#ff453a;--accent-2:#ff8a80;--grad:linear-gradient(120deg,#ff453a,#ff8a80)}   /* Audience Growth */
+body[data-accent="green"]  {--accent:#30d158;--accent-2:#9bf0b4;--grad:linear-gradient(120deg,#1ea64a,#30d158)}   /* Marketing Ops / CRM */
+body[data-accent="violet"] {--accent:#bf5af2;--accent-2:#e0a6ff;--grad:linear-gradient(120deg,#bf5af2,#e0a6ff)}   /* Brand & Content */
+body[data-accent="teal"]   {--accent:#64d2ff;--accent-2:#a5e7ff;--grad:linear-gradient(120deg,#0bb1c4,#64d2ff)}   /* Software */
+body[data-accent="yellow"] {--accent:#ffd60a;--accent-2:#ffe874;--grad:linear-gradient(120deg,#ff9f0a,#ffd60a)}   /* Automation */
+body[data-accent="indigo"] {--accent:#5e5ce6;--accent-2:#9b99ff;--grad:linear-gradient(120deg,#5e5ce6,#9b99ff)}   /* Web · Live */
+body[data-accent="orange"] {--accent:#ff9f0a;--accent-2:#ffd60a;--grad:linear-gradient(120deg,#ff7a00,#ffd60a)}   /* AI Operating Model */
+/* Career OS — this site: signature multi-stop gradient identity */
+body[data-accent="resume"] {--accent:#2997ff;--accent-2:#bf5af2;--grad:linear-gradient(120deg,#2997ff 0%,#bf5af2 50%,#30d158 100%)}
 
 body{
   background:var(--bg);
@@ -90,8 +118,10 @@ body{
 [dir="rtl"] .skip-link{left:auto;right:8px}
 
 /* ---------- Type scale ---------- */
-.kicker{font-size:clamp(13px,1.4vw,15px);font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
-[dir="rtl"] .kicker{letter-spacing:.02em}
+.kicker{font-family:var(--font-mono);font-size:clamp(12px,1.3vw,14px);font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+[dir="rtl"] .kicker{font-family:var(--font-mono);letter-spacing:.04em}
+/* Mono utility — spec labels, routes, hero-number captions */
+.mono{font-family:var(--font-mono);letter-spacing:.04em}
 h1,h2,h3{line-height:1.05;letter-spacing:-.03em;font-weight:800}
 [dir="rtl"] h1,[dir="rtl"] h2,[dir="rtl"] h3{letter-spacing:0;line-height:1.2}
 .display{font-size:clamp(44px,10.5vw,150px);font-weight:900;line-height:.95}
@@ -157,6 +187,9 @@ h1,h2,h3{line-height:1.05;letter-spacing:-.03em;font-weight:800}
 .btn--primary:hover{transform:translateY(-2px) scale(1.02);box-shadow:0 14px 40px -10px rgba(255,255,255,.3)}
 .btn--accent{background:var(--grad);color:#fff}
 .btn--accent:hover{transform:translateY(-2px) scale(1.02);box-shadow:0 14px 50px -12px var(--accent)}
+/* yellow/teal gradients are too light for white button text in light mode */
+[data-theme="light"] body[data-accent="yellow"] .btn--accent,
+[data-theme="light"] body[data-accent="teal"]   .btn--accent{color:#1d1d1f}
 .btn--ghost{border:1px solid var(--panel-brd);color:var(--ink)}
 .btn--ghost:hover{border-color:var(--accent);transform:translateY(-2px)}
 .btn-row{display:flex;gap:14px;flex-wrap:wrap}

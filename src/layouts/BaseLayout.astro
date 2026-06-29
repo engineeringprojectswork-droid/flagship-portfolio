@@ -152,10 +152,12 @@ const graph = [personSchema, ...(Array.isArray(jsonLd) ? jsonLd : jsonLd ? [json
 
     <script>
       import { initInteractions } from '../lib/interactions';
+      import { initMotion } from '../lib/motion';
       import { initAurora } from '../lib/aurora';
 
       function boot() {
         initInteractions();
+        initMotion();
         initAurora();
         const isLight = document.documentElement.getAttribute('data-theme') === 'light';
         document
