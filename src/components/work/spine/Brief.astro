@@ -1,0 +1,32 @@
+---
+/** Beat 2 · Brief — layered-depth context. Left column = copy; right column =
+ *  a slotted artifact (device / stat card / screenshot) on a foreground layer. */
+import { pick, type Lang } from '../../../i18n/utils';
+
+interface Props {
+  lang: Lang;
+  kicker: { en: string; ar: string };
+  heading: { en: string; ar: string };
+  body: { en: string; ar: string }; // HTML
+  /** faint oversized word drifting behind the beat (parallax) */
+  ghostWord?: string;
+}
+const { lang, kicker, heading, body, ghostWord } = Astro.props;
+---
+
+<section class="beat beat--brief" data-screen="brief">
+  {ghostWord && <span class="beat__ghost" data-px="0.06" aria-hidden="true">{ghostWord}</span>}
+  <div class="beat__wrap">
+    <div class="brief__grid">
+      <div class="brief__col reveal">
+        <span class="kicker">{pick(lang, kicker)}</span>
+        <h2>{pick(lang, heading)}</h2>
+        <p set:html={pick(lang, body)}></p>
+        <slot name="aside" />
+      </div>
+      <div class="brief__col reveal d2">
+        <div class="brief__art" data-px="0.04"><slot /></div>
+      </div>
+    </div>
+  </div>
+</section>

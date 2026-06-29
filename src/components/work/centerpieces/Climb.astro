@@ -1,0 +1,144 @@
+---
+/** Centerpiece · al-maali — "the climb" 9.2K → 1M+.
+ *  The follower number scrubs up (eased) while a vertical track fills and the
+ *  four platform chips parallax past at different depths. JS in
+ *  lib/storyscroll.ts (data-climb-num / data-climb-fill / data-chip). */
+import { pick, type Lang } from '../../../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+
+const chips = [
+  { txt: 'TikTok · 0→33K', depth: '0.55', pos: 'inset-inline-start:14%;top:16%', accent: false },
+  { txt: 'IG · 3K→50K', depth: '0.95', pos: 'inset-inline-end:6%;top:30%', accent: false },
+  { txt: 'YouTube · 0→43K', depth: '0.72', pos: 'inset-inline-start:10%;bottom:24%', accent: false },
+  { txt: 'Facebook · 9.2K→1M', depth: '1.15', pos: 'inset-inline-end:12%;bottom:16%', accent: true },
+];
+---
+
+<div class="proof__grid climb">
+  <div class="climb__copy reveal">
+    <span class="kicker">{pick(lang, { en: 'The climb', ar: 'الصعود' })}</span>
+    <h2>{pick(lang, { en: '9.2K → a million.', ar: '٩٫٢ ألف ← مليون.' })}</h2>
+    <p>
+      {
+        pick(lang, {
+          en: 'Four years, four platforms — Facebook carried the headline climb past a million followers.',
+          ar: 'أربع سنوات، أربع منصات — وحمل فيسبوك الصعود الأبرز إلى ما بعد المليون متابع.',
+        })
+      }
+    </p>
+  </div>
+
+  <div class="climb__stage" aria-hidden="true">
+    <span class="climb__track"><i data-climb-fill></i></span>
+    <div class="climb__center">
+      <b data-climb-num>1M+</b>
+      <span class="climb__cap">{pick(lang, { en: 'Facebook followers', ar: 'متابعو فيسبوك' })}</span>
+    </div>
+    {
+      chips.map((c) => (
+        <span class={`climb__chip${c.accent ? ' is-accent' : ''}`} data-chip data-depth={c.depth} style={c.pos}>
+          <bdi>{c.txt}</bdi>
+        </span>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .climb {
+    align-items: center;
+  }
+  .climb__copy h2 {
+    font-size: clamp(28px, 4vw, 46px);
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    line-height: 1.04;
+    margin: 14px 0 14px;
+  }
+  .climb__copy p {
+    color: var(--ink-2);
+    font-size: 16px;
+    line-height: 1.6;
+    max-width: 380px;
+  }
+  .climb__stage {
+    position: relative;
+    height: min(62vh, 520px);
+    min-height: 360px;
+  }
+  .climb__track {
+    position: absolute;
+    inset-inline-start: 8%;
+    top: 6%;
+    bottom: 6%;
+    width: 2px;
+    background: color-mix(in srgb, var(--ink) 10%, transparent);
+    overflow: hidden;
+    border-radius: 2px;
+  }
+  .climb__track i {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    height: 8%;
+    background: linear-gradient(var(--accent-2), var(--accent));
+    border-radius: 2px;
+  }
+  .climb__center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 6px;
+  }
+  .climb__center b {
+    font-size: clamp(58px, 11vw, 148px);
+    font-weight: 600;
+    line-height: 0.9;
+    letter-spacing: -0.04em;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+    direction: ltr;
+    unicode-bidi: isolate;
+  }
+  .climb__cap {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .climb__chip {
+    position: absolute;
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: 12px;
+    padding: 7px 11px;
+    border-radius: 9px;
+    background: var(--surface-card);
+    border: 1px solid var(--hair);
+    color: var(--ink-2);
+    white-space: nowrap;
+  }
+  .climb__chip.is-accent {
+    border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+    color: var(--ink);
+    background: color-mix(in srgb, var(--accent) 14%, var(--surface-card));
+  }
+  @media (max-width: 820px) {
+    .climb__stage {
+      min-height: 320px;
+    }
+    .climb__chip {
+      opacity: 1 !important;
+      transform: none !important;
+    }
+  }
+</style>

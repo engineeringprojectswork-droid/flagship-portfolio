@@ -1,0 +1,41 @@
+---
+/** Beat 5 · Honesty + next — the sourcing/credit note, then a parallax
+ *  colour-wipe hand-off that teases the NEXT story's domain colour. */
+import { pick, workPath, useTranslations, type Lang } from '../../../i18n/utils';
+import { projects, neighbours } from '../../../data/projects';
+
+interface Props {
+  lang: Lang;
+  slug: string;
+  kicker: { en: string; ar: string };
+  note: { en: string; ar: string }; // HTML
+}
+const { lang, slug, kicker, note } = Astro.props;
+const t = useTranslations(lang);
+
+const { next } = neighbours(slug);
+const nextNo = String(projects.findIndex((p) => p.slug === next.slug) + 1).padStart(2, '0');
+const nextEyebrow = `${t('work.next')} · ${nextNo} · ${pick(lang, next.tag)}`;
+---
+
+<section class="beat beat--honesty" data-screen="honesty">
+  <div class="sourcing reveal">
+    <span class="kicker">{pick(lang, kicker)}</span>
+    <p class="sourcing__quote" set:html={pick(lang, note)}></p>
+    <slot name="tools" />
+  </div>
+
+  <a class="handoff reveal" href={workPath(lang, next.slug)} data-next={next.accent}>
+    <span class="handoff__wash" aria-hidden="true"></span>
+    <span class="handoff__row">
+      <span>
+        <span class="handoff__eyebrow">{nextEyebrow}</span>
+        <span class="handoff__label">{pick(lang, next.title)}</span>
+      </span>
+      <span class="handoff__num">
+        {pick(lang, next.stat)}
+        <span class="handoff__arrow" aria-hidden="true">→</span>
+      </span>
+    </span>
+  </a>
+</section>

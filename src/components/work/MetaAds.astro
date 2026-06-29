@@ -1,5 +1,11 @@
 ---
-import StoryHero from './StoryHero.astro';
+import Spine from './spine/Spine.astro';
+import Hook from './spine/Hook.astro';
+import Brief from './spine/Brief.astro';
+import Build from './spine/Build.astro';
+import Proof from './spine/Proof.astro';
+import Honesty from './spine/Honesty.astro';
+import CostFall from './centerpieces/CostFall.astro';
 import FilmEmbed from './FilmEmbed.astro';
 import Metrics, { type MetricItem } from '../Metrics.astro';
 import TechRow from '../TechRow.astro';
@@ -16,35 +22,36 @@ const funnel = [
   { w: '26%', d: 'd2', count: 206, label: { en: 'WhatsApp leads', ar: 'عملاء واتساب' } },
 ];
 
-const feats = [
+// Beat 3 · Build — "what I ran" items, revealed one at a time on scrub.
+const buildItems = [
   {
-    ic: '◎',
-    h: { en: 'Click-to-WhatsApp lead ads', ar: 'إعلانات تواصل عبر واتساب' },
-    p: {
+    n: '01',
+    title: { en: 'Click-to-WhatsApp lead ads', ar: 'إعلانات تواصل عبر واتساب' },
+    body: {
       en: 'Campaign structure built around the one action that matters here: starting a chat.',
       ar: 'هيكل حملات مبنيّ حول الإجراء الأهم هنا: بدء محادثة.',
     },
   },
   {
-    ic: '⚲',
-    h: { en: 'Audience & placement analysis', ar: 'تحليل الجمهور والمواضع' },
-    p: {
+    n: '02',
+    title: { en: 'Audience & placement analysis', ar: 'تحليل الجمهور والمواضع' },
+    body: {
       en: 'From Meta CSV exports: IG Stories cheapest, Feed costliest, buyers skewing male 25–54.',
       ar: 'من تصدير ميتا: ستوري إنستغرام الأرخص، والفيد الأغلى، والمشترون ذكور ٢٥–٥٤ غالبًا.',
     },
   },
   {
-    ic: '▤',
-    h: { en: 'A 30-day campaign plan (v2.0)', ar: 'خطة حملة ٣٠ يومًا (الإصدار ٢)' },
-    p: {
+    n: '03',
+    title: { en: 'A 30-day campaign plan (v2.0)', ar: 'خطة حملة ٣٠ يومًا (الإصدار ٢)' },
+    body: {
       en: "$500 / 30-day budget, 3 ad sets, 80/20 FB/IG split — grounded in the account's real prior-year data.",
       ar: 'ميزانية ٥٠٠$ لـ٣٠ يومًا، و٣ مجموعات إعلانية، وتقسيم ٨٠/٢٠ فيسبوك/إنستغرام — مبنية على بيانات الحساب الفعلية للعام السابق.',
     },
   },
   {
-    ic: '↘',
-    h: { en: 'Cost-per-lead optimization', ar: 'تحسين تكلفة العميل' },
-    p: {
+    n: '04',
+    title: { en: 'Cost-per-lead optimization', ar: 'تحسين تكلفة العميل' },
+    body: {
       en: "Cut waste (flagged the account's worst ad at $6.25/call) and pushed the best campaign to $0.50/lead.",
       ar: 'قلّصت الهدر (رصدت أسوأ إعلان بـ٦٫٢٥$ للمكالمة) ودفعت أفضل حملة إلى ٠٫٥٠$ للعميل.',
     },
@@ -52,19 +59,9 @@ const feats = [
 ];
 
 const primaryMetrics: MetricItem[] = [
-  {
-    count: 0.84,
-    decimals: 2,
-    prefix: '$',
-    label: { en: 'Cost per WhatsApp lead', ar: 'تكلفة العميل عبر واتساب' },
-  },
+  { count: 0.84, decimals: 2, prefix: '$', label: { en: 'Cost per WhatsApp lead', ar: 'تكلفة العميل عبر واتساب' } },
   { count: 206, label: { en: 'Leads / conversations', ar: 'عملاء / محادثات' } },
-  {
-    count: 172.78,
-    decimals: 2,
-    prefix: '$',
-    label: { en: 'Total ad spend', ar: 'إجمالي الإنفاق' },
-  },
+  { count: 172.78, decimals: 2, prefix: '$', label: { en: 'Total ad spend', ar: 'إجمالي الإنفاق' } },
   {
     count: 0.5,
     decimals: 2,
@@ -90,146 +87,116 @@ const tools = [
   { en: 'Bilingual CRM link', ar: 'ربط بنظام العملاء' },
 ];
 
+// Verbatim honesty note (lead-in moved to the beat kicker to avoid duplication).
 const note = {
-  en: "<b>Straight about the numbers:</b> The figures above are the measured 2026 pilot (1 May–3 Jun), read from the live CRM. I generate the leads — the company's engineer prices and closes — so I report leads, not closed revenue. Across an earlier 2024–2025 run my ad export self-reports ~793K impressions and 214 calls at ~$3.12 each; combined that's roughly 878K impressions and 420+ leads.",
-  ar: '<b>بصراحة عن الأرقام:</b> الأرقام أعلاه هي تجربة ٢٠٢٦ المُقاسة (١ مايو–٣ يونيو) من نظام العملاء الحيّ. أنا أُولّد العملاء المحتملين — ومهندس الشركة يُسعّر ويُغلق — لذا أُبلّغ عن العملاء لا عن الإيرادات المُغلقة. وفي فترة سابقة ٢٠٢٤–٢٠٢٥ يذكر تصدير إعلاناتي ذاتيًا نحو ٧٩٣ ألف ظهور و٢١٤ مكالمة بنحو ٣٫١٢$ للواحدة؛ ومجتمعةً نحو ٨٧٨ ألف ظهور و٤٢٠+ عميلًا.',
+  en: "The figures above are the measured 2026 pilot (1 May–3 Jun), read from the live CRM. I generate the leads — the company's engineer prices and closes — so I report leads, not closed revenue. Across an earlier 2024–2025 run my ad export self-reports ~793K impressions and 214 calls at ~$3.12 each; combined that's roughly 878K impressions and 420+ leads.",
+  ar: 'الأرقام أعلاه هي تجربة ٢٠٢٦ المُقاسة (١ مايو–٣ يونيو) من نظام العملاء الحيّ. أنا أُولّد العملاء المحتملين — ومهندس الشركة يُسعّر ويُغلق — لذا أُبلّغ عن العملاء لا عن الإيرادات المُغلقة. وفي فترة سابقة ٢٠٢٤–٢٠٢٥ يذكر تصدير إعلاناتي ذاتيًا نحو ٧٩٣ ألف ظهور و٢١٤ مكالمة بنحو ٣٫١٢$ للواحدة؛ ومجتمعةً نحو ٨٧٨ ألف ظهور و٤٢٠+ عميلًا.',
 };
 ---
 
-<StoryHero
-  lang={lang}
-  badge={{ en: 'Paid Social · Meta Ads', ar: 'الإعلانات المدفوعة · ميتا' }}
-  headline={{
-    en: 'Leads under<br><span class="gradient-text">a dollar.</span>',
-    ar: 'عملاء بأقلّ<br><span class="gradient-text">من دولار.</span>',
-  }}
-  headlineStyle="font-size:clamp(40px,8vw,110px)"
-  lead={{
-    en: 'A measured Meta pilot for a B2B industrial supplier: I turned $172.78 of spend into 206 WhatsApp conversations — at about <b style="color:var(--ink)">$0.84 each</b>.',
-    ar: 'تجربة ميتا مُقاسة لمورّد صناعي B2B: حوّلت إنفاقًا قدره ١٧٢٫٧٨$ إلى ٢٠٦ محادثة واتساب — بنحو <b style="color:var(--ink)">٠٫٨٤$ للواحدة</b>.',
-  }}
-/>
+<Spine lang={lang}>
+  <Hook
+    lang={lang}
+    badge={{ en: 'Paid Social · Meta Ads', ar: 'الإعلانات المدفوعة · ميتا' }}
+    headline={{
+      en: 'Leads under<br><span class="gradient-text">a dollar.</span>',
+      ar: 'عملاء بأقلّ<br><span class="gradient-text">من دولار.</span>',
+    }}
+    lead={{
+      en: 'A measured Meta pilot for a B2B industrial supplier: I turned $172.78 of spend into 206 WhatsApp conversations — at about <b>$0.84 each</b>.',
+      ar: 'تجربة ميتا مُقاسة لمورّد صناعي B2B: حوّلت إنفاقًا قدره ١٧٢٫٧٨$ إلى ٢٠٦ محادثة واتساب — بنحو <b>٠٫٨٤$ للواحدة</b>.',
+    }}
+    heroNumber="$0.84"
+    heroCaption={{ en: 'cost per<br>WhatsApp lead', ar: 'تكلفة كل<br>عميل واتساب' }}
+    ghost="$"
+  />
 
-<FilmEmbed
-  lang={lang}
-  film="meta-ads.html"
-  title={{ en: 'Meta ads — interactive story film', ar: 'Meta ads — interactive story film' }}
-/>
-
-<!-- THE BRIEF -->
-<section class="story-section">
-  <div class="wrap two-col">
-    <div class="stack">
-      <p class="kicker reveal">{pick(lang, { en: 'The brief', ar: 'المهمة' })}</p>
-      <h2 class="h-lg reveal d1">
-        {pick(lang, {
-          en: 'Industrial products. A WhatsApp-first market.',
-          ar: 'منتجات صناعية. وسوقٌ يبدأ من واتساب.',
-        })}
-      </h2>
-      <p class="lead reveal d2">
-        {pick(lang, {
-          en: 'Misting fans, access equipment, scaffolding — sold B2B in Kuwait, where buyers want to chat, not fill forms. The job: get qualified WhatsApp conversations as cheaply as possible, and prove every dinar.',
-          ar: 'مراوح رذاذ، ومعدات وصول، وسقالات — تُباع B2B في الكويت، حيث يفضّل المشترون المحادثة لا تعبئة النماذج. المطلوب: محادثات واتساب مؤهّلة بأقل تكلفة ممكنة، مع إثبات كل دينار.',
-        })}
-      </p>
+  <Brief
+    lang={lang}
+    kicker={{ en: 'The brief', ar: 'المهمة' }}
+    heading={{ en: 'Industrial products. A WhatsApp-first market.', ar: 'منتجات صناعية. وسوقٌ يبدأ من واتساب.' }}
+    body={{
+      en: 'Misting fans, access equipment, scaffolding — sold B2B in Kuwait, where buyers want to chat, not fill forms. The job: get qualified WhatsApp conversations as cheaply as possible, and prove every dinar.',
+      ar: 'مراوح رذاذ، ومعدات وصول، وسقالات — تُباع B2B في الكويت، حيث يفضّل المشترون المحادثة لا تعبئة النماذج. المطلوب: محادثات واتساب مؤهّلة بأقل تكلفة ممكنة، مع إثبات كل دينار.',
+    }}
+    ghostWord="WhatsApp"
+  >
+    <div slot="aside" style="margin-top:22px">
+      <TechRow lang={lang} items={['Meta Ads', 'WhatsApp', 'Click-to-WhatsApp']} center={false} />
     </div>
-    <div class="reveal d1">
-      <div class="device">
-        <div class="device__bar">
-          <span class="d r"></span><span class="d y"></span><span class="d g"></span>
-          <span class="addr">Meta Ads Manager</span>
+    <div class="device">
+      <div class="device__bar">
+        <span class="d r"></span><span class="d y"></span><span class="d g"></span>
+        <span class="addr">Meta Ads Manager</span>
+      </div>
+      <div class="device__body" style="padding:26px">
+        <div class="funnel">
+          {
+            funnel.map((f) => (
+              <div class={`fbar reveal${f.d ? ` ${f.d}` : ''}`} style={`--w:${f.w}`}>
+                <span>{pick(lang, f.label)}</span>
+                <b class="tnum" data-count={f.count} data-duration="1700">
+                  0
+                </b>
+              </div>
+            ))
+          }
         </div>
-        <div class="device__body" style="padding:26px">
-          <div class="funnel">
-            {
-              funnel.map((f) => (
-                <div class={`fbar reveal${f.d ? ` ${f.d}` : ''}`} style={`--w:${f.w}`}>
-                  <span>{pick(lang, f.label)}</span>
-                  <b class="tnum" data-count={f.count} data-duration="1700">
-                    0
-                  </b>
-                </div>
-              ))
-            }
-          </div>
-          <p class="muted" style="font-size:12.5px;margin-top:16px">
-            {pick(lang, {
+        <p class="muted" style="font-size:12.5px;margin-top:16px">
+          {
+            pick(lang, {
               en: '2026 pilot · 1 May – 3 Jun · sourced from the live CRM',
               ar: 'تجربة ٢٠٢٦ · ١ مايو – ٣ يونيو · من نظام العملاء الحيّ',
-            })}
-          </p>
-        </div>
-      </div>
-      <div class="reveal d2" style="margin-top:18px">
-        <TechRow lang={lang} items={['Meta Ads', 'WhatsApp', 'Click-to-WhatsApp']} />
+            })
+          }
+        </p>
       </div>
     </div>
-  </div>
-</section>
+  </Brief>
 
-<!-- WHAT I RAN -->
-<section class="story-section">
-  <div class="wrap">
-    <div class="center stack" style="max-width:720px;margin-inline:auto">
-      <p class="kicker reveal">{pick(lang, { en: 'What I ran', ar: 'ما الذي أدرته' })}</p>
-      <h2 class="h-xl reveal d1">{pick(lang, { en: 'Owned end-to-end.', ar: 'أُدير من الألف إلى الياء.' })}</h2>
-    </div>
-    <div class="feat-list" style="max-width:880px;margin:46px auto 0">
-      {
-        feats.map((f, i) => (
-          <div class={`feat reveal${i ? ` d${i}` : ''}`}>
-            <div class="ic" aria-hidden="true">{f.ic}</div>
-            <div>
-              <h4>{f.h[lang]}</h4>
-              <p>{f.p[lang]}</p>
-            </div>
-          </div>
-        ))
-      }
-    </div>
-  </div>
-</section>
+  <Build
+    lang={lang}
+    kicker={{ en: 'What I ran', ar: 'ما الذي أدرته' }}
+    heading={{ en: 'Owned end-to-end.', ar: 'أُدير من الألف إلى الياء.' }}
+    mult={2.6}
+    items={buildItems}
+  />
 
-<!-- THE NUMBERS -->
-<section class="story-section section-glow">
-  <div class="wrap">
-    <Metrics
-      lang={lang}
-      eyebrow={{ en: 'The numbers · 2026 pilot', ar: 'الأرقام · تجربة ٢٠٢٦' }}
-      items={primaryMetrics}
-    />
-    <div class="metrics" style="margin-top:18px">
-      {
-        secondaryMetrics.map((m, i) => (
-          <div class={`metric reveal${i ? ` d${i}` : ''}`}>
-            <div
-              class="metric__num tnum"
-              data-count={m.count}
-              data-decimals={m.decimals}
-              data-prefix={m.prefix}
-              data-suffix={m.suffix}
-            >
-              {m.text}
-            </div>
-            <div class="metric__lbl">
-              {typeof m.label === 'string' ? m.label : pick(lang, m.label)}
-            </div>
-          </div>
-        ))
-      }
-    </div>
-    <div class="note reveal" style="margin-top:30px" set:html={note[lang]}></div>
-  </div>
-</section>
+  <Proof lang={lang} center="cost-fall" mult={2.4}>
+    <CostFall lang={lang} />
+  </Proof>
 
-<!-- TOOLS -->
-<section class="story-section">
-  <div class="wrap center stack" style="max-width:760px;margin-inline:auto">
-    <p class="kicker reveal">{pick(lang, { en: 'Tools', ar: 'الأدوات' })}</p>
-    <TechRow lang={lang} items={tools} />
-  </div>
-</section>
+  <section class="story-section section-glow proof-numbers">
+    <div class="wrap">
+      <Metrics lang={lang} eyebrow={{ en: 'The numbers · 2026 pilot', ar: 'الأرقام · تجربة ٢٠٢٦' }} items={primaryMetrics} />
+      <div class="metrics" style="margin-top:18px">
+        {
+          secondaryMetrics.map((m, i) => (
+            <div class={`metric reveal${i ? ` d${i}` : ''}`}>
+              <div class="metric__num tnum" data-count={m.count} data-decimals={m.decimals} data-prefix={m.prefix} data-suffix={m.suffix}>
+                {m.text}
+              </div>
+              <div class="metric__lbl">{typeof m.label === 'string' ? m.label : pick(lang, m.label)}</div>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <Honesty
+    lang={lang}
+    slug="meta-ads"
+    kicker={{ en: 'Straight about the numbers', ar: 'بصراحة عن الأرقام' }}
+    note={note}
+  >
+    <div slot="tools" style="margin-top:22px">
+      <TechRow lang={lang} items={tools} center={false} />
+    </div>
+  </Honesty>
+</Spine>
+
+<FilmEmbed lang={lang} film="meta-ads.html" title={{ en: 'Meta ads — interactive story film', ar: 'فيلم القصة التفاعلي — ميتا' }} />
 
 <style>
   .funnel {

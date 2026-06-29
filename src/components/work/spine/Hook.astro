@@ -1,0 +1,45 @@
+---
+/** Beat 1 · Hook — pinned-feel full-screen: badge, headline, hero number,
+ *  parallax ghost numeral + glow drift. Reveals stagger in. */
+import { pick, homePath, useTranslations, type Lang } from '../../../i18n/utils';
+
+interface Props {
+  lang: Lang;
+  badge: { en: string; ar: string };
+  headline: { en: string; ar: string }; // HTML
+  lead: { en: string; ar: string }; // HTML
+  /** big hero number, displayed LTR e.g. "$0.84" — omit to hide the block */
+  heroNumber?: string;
+  /** two-line mono caption beside the hero number (HTML) */
+  heroCaption?: { en: string; ar: string };
+  /** ghost numeral/glyph that parallaxes behind the hook, e.g. "$" "1M" */
+  ghost: string;
+}
+const { lang, badge, headline, lead, heroNumber, heroCaption, ghost } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<section class="beat beat--hook" data-screen="hook">
+  <span class="beat__glow" data-px="0.05" aria-hidden="true"></span>
+  <span class="beat__ghost" data-px="0.12" aria-hidden="true">{ghost}</span>
+  <span class="beat__vignette" aria-hidden="true"></span>
+
+  <div class="hook__content">
+    <span class="hook__eyebrow reveal"><i class="d"></i>{pick(lang, badge)}</span>
+    <h1 class="hook__title reveal d1" set:html={pick(lang, headline)}></h1>
+    {
+      heroNumber && (
+        <div class="hook__num reveal d2">
+          <b>{heroNumber}</b>
+          {heroCaption && <span class="cap" set:html={pick(lang, heroCaption)} />}
+        </div>
+      )
+    }
+    <p class="hook__lead reveal d3" set:html={pick(lang, lead)}></p>
+    <a class="hook__back reveal d3" href={homePath(lang) + '#work'}>
+      <span aria-hidden="true">{lang === 'ar' ? '→' : '←'}</span>{t('work.all')}
+    </a>
+  </div>
+
+  <div class="hook__cue" aria-hidden="true"><span>{t('hero.scroll')}</span><i></i></div>
+</section>

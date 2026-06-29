@@ -1,0 +1,22 @@
+---
+/** Beat 4 · Proof — PINNED centerpiece. The slot holds the bespoke CSS-3D
+ *  moment (cost-fall, climb, tabs-fan, …). lib/storyscroll.ts exposes scrub
+ *  progress as --q on this section (CSS centerpieces read it) and runs the
+ *  cost-fall / climb JS. data-center selects the bespoke updater. */
+import type { Lang } from '../../../i18n/utils';
+
+interface Props {
+  lang: Lang;
+  /** pin length multiplier (default 2.4) */
+  mult?: number;
+  /** centerpiece type — 'cost-fall' | 'climb' | css-only types */
+  center: string;
+}
+const { mult = 2.4, center } = Astro.props;
+---
+
+<section class="beat beat--proof" data-proof data-mult={mult.toString()} data-center={center}>
+  <div class="beat__sticky proof__sticky" data-proof-sticky>
+    <div class="beat__wrap"><slot /></div>
+  </div>
+</section>

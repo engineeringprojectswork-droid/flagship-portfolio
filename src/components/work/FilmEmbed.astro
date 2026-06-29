@@ -1,9 +1,16 @@
 ---
+/**
+ * Optional "explore it yourself" tail — the interactive Claude Design film,
+ * de-emphasized in a collapsed <details> at the end of the story spine.
+ * The auto-playing cartoon explainer was retired in favour of the 5-beat
+ * page-level spine; this preserves the interactive film as a real artifact.
+ * Collapsed by default → the lazy iframe doesn't load until opened.
+ */
 import { pick, type Lang } from '../../i18n/utils';
 
 interface Props {
   lang: Lang;
-  /** filename used in BOTH /public/cartoons and /public/films, e.g. "sheep.html" */
+  /** filename in /public/films, e.g. "meta-ads.html" */
   film: string;
   /** accessible iframe title for the interactive film */
   title: { en: string; ar: string };
@@ -13,51 +20,95 @@ const { lang, film, title } = Astro.props;
 
 <section class="story-film-wrap">
   <div class="wrap">
-    <!-- Cartoon explainer (auto-plays on its own) -->
-    <div class="cd-film">
-      <iframe
-        class="cd-frame"
-        src={`/cartoons/${film}`}
-        title={pick(lang, { en: 'Animated explainer', ar: 'شرح متحرّك' })}
-        loading="lazy"
-        allow="autoplay"
-      ></iframe>
-    </div>
-    <p class="muted center" style="font-size:12.5px;margin-top:12px">
-      {
-        pick(lang, {
-          en: 'Animated explainer — plays on its own · crafted in Claude Design',
-          ar: 'شرحٌ متحرّك — يعمل تلقائيًا · صُمّم في Claude Design',
-        })
-      }
-    </p>
-
-    <!-- Interactive story film (click / arrow driven) -->
-    <div class="cd-film" style="margin-top:20px">
-      <iframe
-        class="cd-frame"
-        src={`/films/${film}`}
-        title={title[lang]}
-        loading="lazy"
-        allow="autoplay"
-      ></iframe>
-    </div>
-    <p class="muted center" style="font-size:12.5px;margin-top:12px">
-      {
-        pick(lang, {
-          en: 'Prefer to explore? Step through it yourself — click or use the arrows',
-          ar: 'تفضّل الاستكشاف؟ تنقّل بنفسك — انقر أو استخدم الأسهم',
-        })
-      }
-    </p>
+    <details class="film-explore">
+      <summary>
+        <span class="film-explore__cue mono">{pick(lang, { en: 'Bonus', ar: 'إضافة' })}</span>
+        {
+          pick(lang, {
+            en: 'Prefer to explore it yourself? Open the interactive film',
+            ar: 'تفضّل الاستكشاف بنفسك؟ افتح الفيلم التفاعلي',
+          })
+        }
+        <span class="film-explore__chev" aria-hidden="true">＋</span>
+      </summary>
+      <div class="cd-film">
+        <iframe
+          class="cd-frame"
+          src={`/films/${film}`}
+          title={pick(lang, title)}
+          loading="lazy"
+          allow="autoplay"></iframe>
+      </div>
+      <p class="muted center" style="font-size:12.5px;margin-top:12px">
+        {
+          pick(lang, {
+            en: 'Click or use the arrows to step through · crafted in Claude Design',
+            ar: 'انقر أو استخدم الأسهم للتنقّل · صُمّم في Claude Design',
+          })
+        }
+      </p>
+    </details>
   </div>
 </section>
 
+<style>
+  .film-explore {
+    max-width: 1040px;
+    margin-inline: auto;
+    border: 1px solid var(--hair);
+    border-radius: 16px;
+    background: var(--surface-raised);
+    overflow: hidden;
+  }
+  .film-explore > summary {
+    list-style: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px 22px;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--ink-2);
+    transition: color 0.25s, background 0.25s;
+  }
+  .film-explore > summary::-webkit-details-marker {
+    display: none;
+  }
+  .film-explore > summary:hover {
+    color: var(--ink);
+    background: color-mix(in srgb, var(--accent) 5%, transparent);
+  }
+  .film-explore__cue {
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+    border-radius: 100px;
+    padding: 4px 10px;
+  }
+  .film-explore__chev {
+    margin-inline-start: auto;
+    font-size: 20px;
+    color: var(--ink-3);
+    transition: transform 0.3s var(--ease);
+  }
+  .film-explore[open] .film-explore__chev {
+    transform: rotate(45deg);
+  }
+  .film-explore .cd-film {
+    margin: 0 18px;
+  }
+  .film-explore p {
+    padding-bottom: 18px;
+  }
+</style>
+
 <script>
-  /* The embedded films draw their OWN rounded, shadowed card; their document
-     body paints a full-bleed dark fill that, on a light page, reads as a second
-     hard-edged box around that card. Films are same-origin, so neutralise that
-     body fill to transparent — leaving just the film's own card floating. */
+  /* The embedded films draw their OWN rounded card; their document body paints a
+     full-bleed dark fill that reads as a second hard-edged box on a light page.
+     Films are same-origin → neutralise that body fill to transparent. */
   function clearFilmGutter(frame: HTMLIFrameElement) {
     try {
       const d = frame.contentDocument;
@@ -70,7 +121,7 @@ const { lang, film, title } = Astro.props;
   }
   function initFilmFrames() {
     document.querySelectorAll<HTMLIFrameElement>('iframe.cd-frame').forEach((f) => {
-      clearFilmGutter(f); // handles already-cached frames
+      clearFilmGutter(f);
       f.addEventListener('load', () => clearFilmGutter(f));
     });
   }

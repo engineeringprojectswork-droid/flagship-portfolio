@@ -1,0 +1,15 @@
+---
+/**
+ * StoryScroll spine wrapper — marks the page so lib/storyscroll.ts wires the
+ * pinned/scrubbed beats. Stories compose Hook · Brief · Build · Proof · Honesty
+ * inside it (plus their bespoke centerpiece + numbers).
+ */
+import type { Lang } from '../../../i18n/utils';
+interface Props {
+  lang: Lang;
+}
+---
+
+<div class="spine" data-spine>
+  <slot />
+</div>

@@ -1,5 +1,11 @@
 ---
-import StoryHero from './StoryHero.astro';
+import Spine from './spine/Spine.astro';
+import Hook from './spine/Hook.astro';
+import Brief from './spine/Brief.astro';
+import Build from './spine/Build.astro';
+import Proof from './spine/Proof.astro';
+import Honesty from './spine/Honesty.astro';
+import Climb from './centerpieces/Climb.astro';
 import FilmEmbed from './FilmEmbed.astro';
 import TechRow from '../TechRow.astro';
 import { pick, type Lang } from '../../i18n/utils';
@@ -16,27 +22,27 @@ const grows = [
   { pf: 'YouTube', from: '0', count: 43000, format: 'abbr', suffix: undefined, grad: false, d: 'd3' },
 ];
 
-const feats = [
+const buildItems = [
   {
-    ic: '▦',
-    h: { en: 'Cross-platform strategy', ar: 'استراتيجية متعددة المنصات' },
-    p: {
+    n: '01',
+    title: { en: 'Cross-platform strategy', ar: 'استراتيجية متعددة المنصات' },
+    body: {
       en: 'One content engine adapted to Facebook, Instagram, TikTok and YouTube — each with its own format and rhythm.',
       ar: 'محرّك محتوى واحد مُكيَّف لفيسبوك وإنستغرام وتيك‑توك ويوتيوب — لكلٍّ صيغته وإيقاعه.',
     },
   },
   {
-    ic: '▤',
-    h: { en: 'Calendar & consistency', ar: 'تقويم وانتظام' },
-    p: {
+    n: '02',
+    title: { en: 'Calendar & consistency', ar: 'تقويم وانتظام' },
+    body: {
       en: 'A publishing calendar that kept output steady for years, not bursts.',
       ar: 'تقويم نشرٍ حافظ على إنتاجٍ ثابتٍ لسنوات، لا دفعاتٍ متقطّعة.',
     },
   },
   {
-    ic: '↗',
-    h: { en: 'Per-platform optimization', ar: 'تحسين لكل منصة' },
-    p: {
+    n: '03',
+    title: { en: 'Per-platform optimization', ar: 'تحسين لكل منصة' },
+    body: {
       en: 'Hooks, lengths, captions and posting times tuned to what each platform rewards.',
       ar: 'مقدّمات وأطوال وتعليقات وأوقات نشرٍ مضبوطة على ما تكافئ عليه كل منصة.',
     },
@@ -50,127 +56,123 @@ const metricTiles = [
   { count: 43000, format: 'abbr', suffix: undefined, grad: false, lbl: 'YouTube', sub: '0 →', d: 'd3' },
 ];
 
-const figuresNote = {
-  en: '<b>On these figures:</b> These are public-channel follower counts, self-reported from the channels I ran (2021–2025; the project concluded in 2025). A million followers on Facebook is publicly verifiable — most marketers never reach it.',
-  ar: '<b>حول هذه الأرقام:</b> هذه أعداد متابعين على قنواتٍ عامة، مُبلَّغ عنها ذاتيًا من القنوات التي أدرتها (٢٠٢١–٢٠٢٥؛ انتهى المشروع في ٢٠٢٥). مليون متابع على فيسبوك قابلٌ للتحقّق علنًا — ومعظم المسوّقين لا يبلغونه.',
+const note = {
+  en: 'These are public-channel follower counts, self-reported from the channels I ran (2021–2025; the project concluded in 2025). A million followers on Facebook is publicly verifiable — most marketers never reach it.',
+  ar: 'هذه أعداد متابعين على قنواتٍ عامة، مُبلَّغ عنها ذاتيًا من القنوات التي أدرتها (٢٠٢١–٢٠٢٥؛ انتهى المشروع في ٢٠٢٥). مليون متابع على فيسبوك قابلٌ للتحقّق علنًا — ومعظم المسوّقين لا يبلغونه.',
 };
 ---
 
-<StoryHero
-  lang={lang}
-  badge={{ en: 'Audience Growth · 2021–2025', ar: 'نموّ الجمهور · ٢٠٢١–٢٠٢٥' }}
-  headlineStyle="font-size:clamp(44px,9vw,140px)"
-  headline={{
-    en: '<span class="gradient-text">0 → 1M+</span>',
-    ar: '<span class="gradient-text">0 → 1M+</span>',
-  }}
-  lead={{
-    en: 'I grew an Islamic satellite channel’s Facebook from <b style="color:var(--ink)">9.2K to over a million</b> followers — and built three more platforms from near zero.',
-    ar: 'نمّيت فيسبوك قناة فضائية إسلامية من <b style="color:var(--ink)">٩٫٢ ألف إلى أكثر من مليون</b> متابع — وبنيت ثلاث منصات أخرى من الصفر تقريبًا.',
-  }}
-/>
+<Spine lang={lang}>
+  <Hook
+    lang={lang}
+    badge={{ en: 'Audience Growth · 2021–2025', ar: 'نموّ الجمهور · ٢٠٢١–٢٠٢٥' }}
+    headline={{
+      en: '<span class="gradient-text">0 → 1M+</span>',
+      ar: '<span class="gradient-text">0 → 1M+</span>',
+    }}
+    lead={{
+      en: 'I grew an Islamic satellite channel’s Facebook from <b>9.2K to over a million</b> followers — and built three more platforms from near zero.',
+      ar: 'نمّيت فيسبوك قناة فضائية إسلامية من <b>٩٫٢ ألف إلى أكثر من مليون</b> متابع — وبنيت ثلاث منصات أخرى من الصفر تقريبًا.',
+    }}
+    ghost="1M"
+  />
 
-<FilmEmbed
-  lang={lang}
-  film="al-maali.html"
-  title={{ en: 'Interactive story film', ar: 'Interactive story film' }}
-/>
-
-<!-- THE CHANNEL -->
-<section class="story-section">
-  <div class="wrap two-col">
-    <div class="stack">
-      <p class="kicker reveal">{pick(lang, { en: 'The channel', ar: 'القناة' })}</p>
-      <h2 class="h-lg reveal d1">{pick(lang, { en: 'Al‑Ma’ali Satellite Channel', ar: 'قناة المعالي الفضائية' })}</h2>
-      <p class="lead reveal d2">
-        {pick(lang, {
-          en: 'An Islamic broadcast network. For ~4 years I owned its social presence end-to-end — strategy, calendar, and per-platform optimization — turning broadcast clips into millions of views a month.',
-          ar: 'شبكة بثٍّ إسلامية. لنحو ٤ سنوات تولّيت حضورها الاجتماعي بالكامل — الاستراتيجية والتقويم والتحسين لكل منصة — محوّلًا مقاطع البثّ إلى ملايين المشاهدات شهريًا.',
-        })}
-      </p>
+  <Brief
+    lang={lang}
+    kicker={{ en: 'The channel', ar: 'القناة' }}
+    heading={{ en: 'Al‑Ma’ali Satellite Channel', ar: 'قناة المعالي الفضائية' }}
+    body={{
+      en: 'An Islamic broadcast network. For ~4 years I owned its social presence end-to-end — strategy, calendar, and per-platform optimization — turning broadcast clips into millions of views a month.',
+      ar: 'شبكة بثٍّ إسلامية. لنحو ٤ سنوات تولّيت حضورها الاجتماعي بالكامل — الاستراتيجية والتقويم والتحسين لكل منصة — محوّلًا مقاطع البثّ إلى ملايين المشاهدات شهريًا.',
+    }}
+    ghostWord="Al‑Ma’ali"
+  >
+    <div class="grows">
+      {
+        grows.map((g) => (
+          <div class={`grow reveal${g.d ? ` ${g.d}` : ''}`}>
+            <span class="pf">{g.pf}</span>
+            <span class="from">{g.from}</span>
+            <span class={`to tnum${g.grad ? ' gradient-text' : ''}`} data-count={g.count} data-format={g.format} data-suffix={g.suffix}>
+              0
+            </span>
+          </div>
+        ))
+      }
     </div>
-    <div class="reveal d1">
-      <div class="grows">
+  </Brief>
+
+  <Build
+    lang={lang}
+    kicker={{ en: 'What I owned', ar: 'ما الذي تولّيته' }}
+    heading={{ en: 'The whole social function.', ar: 'وظيفة السوشيال كاملة.' }}
+    mult={2.4}
+    items={buildItems}
+  />
+
+  <Proof lang={lang} center="climb" mult={2.6}>
+    <Climb lang={lang} />
+  </Proof>
+
+  <section class="story-section section-glow proof-numbers">
+    <div class="wrap">
+      <div class="eyebrow-row reveal">
+        <span class="kicker">{pick(lang, { en: 'The growth', ar: 'النمو' })}</span>
+        <span class="ln"></span>
+      </div>
+      <div class="metrics">
         {
-          grows.map((g) => (
-            <div class={`grow reveal${g.d ? ` ${g.d}` : ''}`}>
-              <span class="pf">{g.pf}</span>
-              <span class="from">{g.from}</span>
-              <span
-                class={`to tnum${g.grad ? ' gradient-text' : ''}`}
-                data-count={g.count}
-                data-format={g.format}
-                data-suffix={g.suffix}
-              >
+          metricTiles.map((m) => (
+            <div class={`metric reveal${m.d ? ` ${m.d}` : ''}`}>
+              <div class={`metric__num tnum${m.grad ? ' gradient-text' : ''}`} data-count={m.count} data-format={m.format} data-suffix={m.suffix}>
                 0
-              </span>
+              </div>
+              <div class="metric__lbl">{m.lbl}</div>
+              <div class="metric__sub">{m.sub}</div>
             </div>
           ))
         }
       </div>
+      <div class="reveal" style="margin-top:34px">
+        <TechRow lang={lang} items={['Facebook', 'Instagram', 'TikTok', 'YouTube']} />
+      </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- WHAT I OWNED -->
-<section class="story-section">
-  <div class="wrap">
-    <div class="center stack" style="max-width:720px;margin-inline:auto">
-      <p class="kicker reveal">{pick(lang, { en: 'What I owned', ar: 'ما الذي تولّيته' })}</p>
-      <h2 class="h-xl reveal d1">{pick(lang, { en: 'The whole social function.', ar: 'وظيفة السوشيال كاملة.' })}</h2>
-    </div>
-    <div class="feat-list" style="max-width:880px;margin:46px auto 0">
-      {
-        feats.map((f, i) => (
-          <div class={`feat reveal${i ? ` d${i}` : ''}`}>
-            <div class="ic" aria-hidden="true">{f.ic}</div>
-            <div>
-              <h4>{f.h[lang]}</h4>
-              <p>{f.p[lang]}</p>
-            </div>
-          </div>
-        ))
-      }
-    </div>
-  </div>
-</section>
+  <Honesty lang={lang} slug="al-maali" kicker={{ en: 'On these figures', ar: 'حول هذه الأرقام' }} note={note} />
+</Spine>
 
-<!-- THE GROWTH -->
-<section class="story-section section-glow">
-  <div class="wrap">
-    <div class="eyebrow-row reveal">
-      <span class="kicker">{pick(lang, { en: 'The growth', ar: 'النمو' })}</span>
-      <span class="ln"></span>
-    </div>
-    <div class="metrics">
-      {
-        metricTiles.map((m) => (
-          <div class={`metric reveal${m.d ? ` ${m.d}` : ''}`}>
-            <div
-              class={`metric__num tnum${m.grad ? ' gradient-text' : ''}`}
-              data-count={m.count}
-              data-format={m.format}
-              data-suffix={m.suffix}
-            >
-              0
-            </div>
-            <div class="metric__lbl">{m.lbl}</div>
-            <div class="metric__sub">{m.sub}</div>
-          </div>
-        ))
-      }
-    </div>
-    <div class="reveal" style="margin-top:34px">
-      <TechRow lang={lang} items={['Facebook', 'Instagram', 'TikTok', 'YouTube']} />
-    </div>
-    <div class="note reveal" style="margin-top:30px" set:html={figuresNote[lang]}></div>
-  </div>
-</section>
+<FilmEmbed lang={lang} film="al-maali.html" title={{ en: 'Al‑Ma’ali — interactive story film', ar: 'فيلم القصة التفاعلي — المعالي' }} />
 
 <style>
-  .grows{display:grid;gap:12px}
-  .grow{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:14px;padding:16px 18px;border:1px solid var(--panel-brd);border-radius:14px;background:var(--panel)}
-  .grow .pf{font-weight:600;color:var(--ink-2);font-size:14px}
-  .grow .from{color:var(--ink-3);font-size:14px;text-decoration:line-through}
-  .grow .to{font-size:24px;font-weight:800;min-width:84px;text-align:end}
+  .grows {
+    display: grid;
+    gap: 12px;
+  }
+  .grow {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 18px;
+    border: 1px solid var(--panel-brd);
+    border-radius: 14px;
+    background: var(--panel);
+  }
+  .grow .pf {
+    font-weight: 600;
+    color: var(--ink-2);
+    font-size: 14px;
+  }
+  .grow .from {
+    color: var(--ink-3);
+    font-size: 14px;
+    text-decoration: line-through;
+  }
+  .grow .to {
+    font-size: 24px;
+    font-weight: 800;
+    min-width: 84px;
+    text-align: end;
+  }
 </style>
