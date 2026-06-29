@@ -1,0 +1,187 @@
+---
+import '../styles/tokens.css';
+import { ClientRouter } from 'astro:transitions';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import { profile } from '../data/profile';
+import { useTranslations, dir, mirrorPath, type Lang } from '../i18n/utils';
+import type { Accent } from '../data/projects';
+
+interface Props {
+  lang: Lang;
+  title: string;
+  description: string;
+  /** path of THIS page, e.g. "/en" or "/en/work/meta-ads" */
+  path: string;
+  accent?: Accent;
+  home?: boolean;
+  ogImage?: string;
+  footerNote?: string;
+  /** extra schema.org node(s) merged into the JSON-LD graph */
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+}
+
+const {
+  lang,
+  title,
+  description,
+  path,
+  accent = 'blue',
+  home = false,
+  ogImage,
+  footerNote,
+  jsonLd,
+} = Astro.props;
+
+const t = useTranslations(lang);
+const direction = dir(lang);
+
+const site = Astro.site ?? new URL('https://mohamed-mahmoud-kuwait.netlify.app');
+const canonical = new URL(path, site).href;
+const enUrl = new URL(mirrorPath(path, 'en'), site).href;
+const arUrl = new URL(mirrorPath(path, 'ar'), site).href;
+const ogUrl = new URL(ogImage ?? `/og/${lang}.png`, site).href;
+
+const personSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: profile.name.en,
+  alternateName: [profile.name.ar, profile.nickname],
+  jobTitle: profile.title.en,
+  description: profile.tagline.en,
+  url: new URL(`/${lang}`, site).href,
+  image: ogUrl,
+  email: `mailto:${profile.contact.email}`,
+  telephone: profile.contact.phone,
+  nationality: { '@type': 'Country', name: 'Egypt' },
+  knowsLanguage: ['Arabic', 'English'],
+  address: { '@type': 'PostalAddress', addressCountry: 'KW', addressLocality: 'Kuwait' },
+  sameAs: [profile.contact.linkedin, profile.contact.whatsapp],
+  alumniOf: { '@type': 'CollegeOrUniversity', name: profile.education[0].org.en },
+  hasCredential: profile.certifications.map((c) => ({
+    '@type': 'EducationalOccupationalCredential',
+    name: c.name.en,
+    credentialCategory: 'certification',
+    recognizedBy: { '@type': 'Organization', name: c.org },
+  })),
+};
+
+const graph = [personSchema, ...(Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [])];
+---
+
+<!doctype html>
+<html lang={lang} dir={direction}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+
+    <!-- hreflang -->
+    <link rel="alternate" hreflang="en" href={enUrl} />
+    <link rel="alternate" hreflang="ar" href={arUrl} />
+    <link rel="alternate" hreflang="x-default" href={enUrl} />
+
+    <meta name="theme-color" content="#000000" />
+    <meta name="color-scheme" content="dark light" />
+
+    <!-- icons -->
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%232997ff'/%3E%3Cstop offset='.5' stop-color='%23a259ff'/%3E%3Cstop offset='1' stop-color='%23ff5e8a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='15' fill='black'/%3E%3Ctext x='50%25' y='52%25' font-family='Inter,Arial' font-size='30' font-weight='800' fill='url(%23g)' text-anchor='middle' dominant-baseline='middle'%3EMM%3C/text%3E%3C/svg%3E"
+    />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="profile" />
+    <meta property="og:site_name" content={profile.name.en} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content={lang === 'ar' ? 'ar_KW' : 'en_US'} />
+    <meta property="og:locale:alternate" content={lang === 'ar' ? 'en_US' : 'ar_KW'} />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogUrl} />
+
+    <script type="application/ld+json" set:html={JSON.stringify(graph)} is:inline />
+
+    <!-- No flash of wrong theme: dark is default, honour an explicit light choice. -->
+    <script is:inline>
+      (() => {
+        document.documentElement.classList.add('js');
+        const apply = () => {
+          try {
+            const root = document.documentElement;
+            if (localStorage.getItem('mm-theme') === 'light')
+              root.setAttribute('data-theme', 'light');
+            else root.removeAttribute('data-theme');
+            localStorage.setItem('mm-lang', root.getAttribute('lang') || 'en');
+          } catch (e) {
+            /* ignore */
+          }
+        };
+        apply();
+        document.addEventListener('astro:after-swap', apply);
+      })();
+    </script>
+
+    <ClientRouter />
+  </head>
+
+  <body data-accent={accent}>
+    <a href="#main" class="skip-link">{t('a11y.skip')}</a>
+    <div class="progress" aria-hidden="true"></div>
+
+    <Nav lang={lang} home={home} />
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <Footer lang={lang} note={footerNote} />
+
+    <script>
+      import { initInteractions } from '../lib/interactions';
+      import { initAurora } from '../lib/aurora';
+
+      function boot() {
+        initInteractions();
+        initAurora();
+        const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+        document
+          .querySelectorAll('[data-theme-btn]')
+          .forEach((b) => (b.textContent = isLight ? '☾' : '☀'));
+      }
+      boot();
+      document.addEventListener('astro:page-load', boot);
+
+      // Theme toggle — delegated once on document (survives View Transitions).
+      document.addEventListener('click', (e) => {
+        const btn = (e.target as HTMLElement).closest('[data-theme-btn]');
+        if (!btn) return;
+        const root = document.documentElement;
+        const goLight = root.getAttribute('data-theme') !== 'light';
+        if (goLight) root.setAttribute('data-theme', 'light');
+        else root.removeAttribute('data-theme');
+        try {
+          localStorage.setItem('mm-theme', goLight ? 'light' : 'dark');
+        } catch (err) {
+          /* ignore */
+        }
+        document
+          .querySelectorAll('[data-theme-btn]')
+          .forEach((b) => (b.textContent = goLight ? '☾' : '☀'));
+      });
+    </script>
+  </body>
+</html>

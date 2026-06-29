@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SYSTEM 6 — HR automation</title>
+<style>
+/* ============================================================
+   SYSTEM 6 — HR automation · animated explainer
+   Self-contained. No external libs / fonts. SVG + CSS + JS.
+   Accent: #a259ff
+   ============================================================ */
+
+:root{
+  --bg:#0a0a0c;
+  --ink:#ffffff;
+  --acc:#a259ff;
+  --acc-soft:rgba(162,89,255,.16);
+  --acc-line:rgba(162,89,255,.42);
+  --acc-glow:0 0 42px rgba(162,89,255,.40);
+  --paper:#ececf2;
+  --paper-2:#d8d8e2;
+  --line:#c3c3d0;
+  --surface:rgba(255,255,255,.045);
+  --stroke:rgba(255,255,255,.09);
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  --ar:"SF Arabic","Geeza Pro",system-ui,"Segoe UI","Tahoma",sans-serif;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:#050506;
+  color:var(--ink);
+  font-family:var(--sans);
+  display:grid;
+  place-items:center;
+  padding:clamp(10px,3vw,40px);
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+
+.wrap{width:100%;max-width:1120px}
+
+/* ---- The 16:9 film frame ---------------------------------- */
+.film{
+  position:relative;
+  width:100%;
+  aspect-ratio:16/9;
+  border-radius:16px;
+  overflow:hidden;
+  background:
+    radial-gradient(140% 120% at 50% 8%, #12121a 0%, var(--bg) 46%, #08080a 100%);
+  border:1px solid rgba(255,255,255,.07);
+  box-shadow:0 40px 90px -30px rgba(0,0,0,.8), 0 2px 0 0 rgba(255,255,255,.04) inset;
+  container-type:size;
+  isolation:isolate;
+}
+/* breathing violet ambience */
+.film::before{
+  content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(60% 55% at 50% 42%, rgba(162,89,255,.10), transparent 70%);
+  animation:amb 9s ease-in-out infinite;
+}
+@keyframes amb{0%,100%{opacity:.55;transform:scale(1)}50%{opacity:1;transform:scale(1.06)}}
+
+/* bottom scrim for caption legibility */
+.film::after{
+  content:"";position:absolute;left:0;right:0;bottom:0;height:42%;z-index:5;pointer-events:none;
+  background:linear-gradient(to top, rgba(8,8,10,.92) 6%, rgba(8,8,10,.55) 42%, transparent 100%);
+}
+
+.vignette{position:absolute;inset:0;z-index:4;pointer-events:none;
+  background:radial-gradient(125% 105% at 50% 38%, transparent 52%, rgba(0,0,0,.6) 100%);}
+.grain{position:absolute;inset:0;z-index:8;pointer-events:none;opacity:.045;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+
+/* corner mark */
+.mark{position:absolute;top:5.6%;left:5%;z-index:7;display:flex;align-items:baseline;gap:.6em;
+  font-family:var(--mono);font-size:clamp(8px,1.55cqmin,12px);letter-spacing:.26em;text-transform:uppercase;
+  color:rgba(255,255,255,.42);opacity:0;transition:opacity .6s ease;}
+.mark b{color:var(--acc);font-weight:700}
+.mark span{color:rgba(255,255,255,.30)}
+.film.show-mark .mark{opacity:1}
+
+/* progress segments */
+.prog{position:absolute;top:6%;left:50%;transform:translateX(-50%);z-index:7;display:flex;gap:5px;}
+.prog i{display:block;width:clamp(16px,4cqmin,30px);height:3px;border-radius:3px;background:rgba(255,255,255,.14);overflow:hidden;}
+.prog i b{display:block;height:100%;width:0;background:var(--acc);box-shadow:0 0 8px rgba(162,89,255,.7);}
+
+/* ---- Stage & scenes --------------------------------------- */
+.stage{position:absolute;inset:0;z-index:2}
+.scene{position:absolute;inset:0;display:grid;place-items:center;opacity:0;
+  transform:scale(1.015);transition:opacity .55s ease, transform .7s cubic-bezier(.2,.7,.2,1);pointer-events:none;}
+.scene.is-on{opacity:1;transform:none}
+
+/* ---- Captions --------------------------------------------- */
+.cap{position:absolute;left:0;right:0;bottom:7.5%;z-index:6;display:flex;flex-direction:column;align-items:center;
+  gap:.42em;text-align:center;padding:0 7%;pointer-events:none;}
+.cap.hide{opacity:0}
+.cap__kick{font-family:var(--mono);font-size:clamp(8px,1.85cqmin,14px);letter-spacing:.30em;text-transform:uppercase;
+  color:var(--acc);display:flex;align-items:center;gap:.7em;}
+.cap__kick em{color:rgba(255,255,255,.34);font-style:normal;letter-spacing:.16em}
+.cap__en{font-weight:760;font-size:clamp(17px,5.3cqmin,44px);line-height:1.04;letter-spacing:-.012em;
+  color:#fff;text-wrap:balance;max-width:18ch;}
+.cap__ar{font-family:var(--ar);font-weight:500;font-size:clamp(12px,3cqmin,23px);line-height:1.5;
+  color:rgba(255,255,255,.6);direction:rtl;text-wrap:balance;max-width:24ch;}
+/* caption entrance (replayed by toggling .show) */
+.cap .cap__kick,.cap .cap__en,.cap .cap__ar{opacity:0;transform:translateY(15px);}
+.cap.show .cap__kick{animation:capIn .55s cubic-bezier(.2,.7,.2,1) .00s forwards}
+.cap.show .cap__en{animation:capIn .6s cubic-bezier(.2,.7,.2,1) .07s forwards}
+.cap.show .cap__ar{animation:capIn .6s cubic-bezier(.2,.7,.2,1) .15s forwards}
+@keyframes capIn{to{opacity:1;transform:none}}
+
+/* ======================== INTRO ============================ */
+.intro{display:flex;flex-direction:column;align-items:center;gap:clamp(6px,1.4cqmin,14px);position:relative;}
+.intro__glow{position:absolute;width:60cqmin;height:60cqmin;border-radius:50%;
+  background:radial-gradient(circle,rgba(162,89,255,.22),transparent 62%);filter:blur(6px);z-index:-1;
+  opacity:0;}
+.scene--intro.is-on .intro__glow{animation:glowIn 1.2s ease forwards}
+@keyframes glowIn{to{opacity:1}}
+.intro__title{display:flex;gap:.28em;font-weight:800;letter-spacing:-.02em;line-height:.92;
+  font-size:clamp(34px,15cqmin,150px);}
+.intro__title span{display:inline-block;opacity:0;transform:translateY(34px);filter:blur(8px);}
+.intro__title .six{color:var(--acc);text-shadow:0 0 38px rgba(162,89,255,.5)}
+.scene--intro.is-on .intro__title span{animation:titleUp .9s cubic-bezier(.16,.84,.3,1) forwards}
+.scene--intro.is-on .intro__title span:nth-child(2){animation-delay:.12s}
+@keyframes titleUp{to{opacity:1;transform:none;filter:blur(0)}}
+.intro__sub{font-family:var(--mono);font-size:clamp(10px,2.5cqmin,21px);letter-spacing:.42em;text-transform:uppercase;
+  color:rgba(255,255,255,.74);opacity:0;}
+.scene--intro.is-on .intro__sub{animation:fadeUp .8s ease .45s forwards}
+.intro__line{width:0;height:2px;border-radius:2px;background:linear-gradient(90deg,transparent,var(--acc),transparent);
+  margin-top:.3em;}
+.scene--intro.is-on .intro__line{animation:lineDraw .9s cubic-bezier(.2,.7,.2,1) .55s forwards}
+@keyframes lineDraw{to{width:42cqmin}}
+.intro__ar{font-family:var(--ar);direction:rtl;font-size:clamp(10px,2.5cqmin,20px);color:rgba(255,255,255,.5);
+  opacity:0;margin-top:.1em;}
+.scene--intro.is-on .intro__ar{animation:fadeUp .8s ease .7s forwards}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+/* ===================== SHARED PIECES ======================= */
+/* résumé paper */
+.paper{position:absolute;width:clamp(46px,11cqmin,108px);aspect-ratio:3/4;border-radius:clamp(3px,.9cqmin,7px);
+  background:linear-gradient(160deg,var(--paper),var(--paper-2));padding:11% 12%;
+  box-shadow:0 6px 16px -6px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.5) inset;
+  display:flex;flex-direction:column;gap:9%;transform-origin:center;will-change:transform;}
+.paper__pic{width:30%;aspect-ratio:1;border-radius:50%;background:var(--acc);opacity:.85;flex:none}
+.paper__bar{height:11%;width:64%;border-radius:2px;background:#33333f}
+.paper__ln{height:8%;width:100%;border-radius:2px;background:var(--line)}
+.paper__ln.s{width:62%}
+.paper.is-dup{box-shadow:0 6px 16px -6px rgba(0,0,0,.6), 0 0 0 1.5px var(--acc), 0 0 18px rgba(162,89,255,.55);
+  animation:dupPulse 1.1s ease-in-out infinite;}
+@keyframes dupPulse{0%,100%{box-shadow:0 6px 16px -6px rgba(0,0,0,.6),0 0 0 1.5px var(--acc),0 0 16px rgba(162,89,255,.4)}
+  50%{box-shadow:0 6px 16px -6px rgba(0,0,0,.6),0 0 0 1.5px var(--acc),0 0 26px rgba(162,89,255,.75)}}
+.paper__dup{position:absolute;top:-7%;right:-7%;font-family:var(--mono);font-size:clamp(6px,1.4cqmin,11px);
+  font-weight:700;letter-spacing:.08em;color:#fff;background:var(--acc);border-radius:4px;padding:.18em .42em;
+  box-shadow:0 2px 8px rgba(162,89,255,.6)}
+
+/* ======================= SCENE 1 =========================== */
+.s1-srcs{position:absolute;top:15%;left:0;right:0;display:flex;justify-content:center;
+  gap:clamp(14px,7cqmin,80px);z-index:3;}
+.src{display:flex;flex-direction:column;align-items:center;gap:.6em;opacity:0;}
+.scene.is-on .src{animation:srcIn .6s cubic-bezier(.2,.7,.2,1) forwards}
+.scene.is-on .src:nth-child(2){animation-delay:.1s}
+.scene.is-on .src:nth-child(3){animation-delay:.2s}
+@keyframes srcIn{from{opacity:0;transform:translateY(-18px)}to{opacity:1;transform:none}}
+.src__ic{width:clamp(34px,8.5cqmin,72px);height:clamp(34px,8.5cqmin,72px);border-radius:22%;
+  display:grid;place-items:center;background:var(--surface);border:1px solid var(--stroke);
+  box-shadow:0 6px 20px -8px rgba(0,0,0,.7);position:relative;}
+.src__ic svg{width:52%;height:52%;stroke:#fff;stroke-width:1.7;fill:none;stroke-linecap:round;stroke-linejoin:round;opacity:.92}
+.src__ic::after{content:"";position:absolute;bottom:-3px;width:60%;height:2px;border-radius:2px;background:var(--acc);
+  opacity:0;animation:none}
+.scene.is-on .src__ic::after{animation:srcGlow 2.6s ease-in-out infinite}
+@keyframes srcGlow{0%,100%{opacity:.25}50%{opacity:.9}}
+.src__lbl{font-family:var(--mono);font-size:clamp(9px,1.95cqmin,15px);letter-spacing:.04em;color:rgba(255,255,255,.82)}
+.src__ar{font-family:var(--ar);direction:rtl;font-size:clamp(8px,1.7cqmin,13px);color:rgba(255,255,255,.4);margin-top:-.35em}
+
+.s1-fall{position:absolute;inset:0;z-index:2}
+
+.s1-floor{position:absolute;left:50%;bottom:13%;transform:translateX(-50%);width:62%;height:2px;border-radius:2px;
+  background:linear-gradient(90deg,transparent,rgba(162,89,255,.5),transparent);opacity:0;z-index:2}
+.scene.is-on .s1-floor{animation:fadeUp .6s ease .3s forwards}
+
+/* ======================= SCENE 2 — THE MACHINE ============ */
+.s2-wrap{position:absolute;inset:0;display:grid;place-items:center;z-index:2}
+.s2-flow{position:absolute;inset:0;z-index:4;pointer-events:none}
+.s2 .paper{width:clamp(32px,7.6cqmin,68px)}
+.core{position:relative;width:clamp(150px,38cqmin,400px);border-radius:clamp(12px,2.6cqmin,24px);
+  background:linear-gradient(165deg,rgba(255,255,255,.075),rgba(255,255,255,.02));
+  border:1px solid var(--stroke);box-shadow:0 26px 64px -26px rgba(0,0,0,.85),0 0 0 1px rgba(162,89,255,.08) inset;
+  padding:clamp(12px,3cqmin,26px) clamp(13px,3.2cqmin,28px);overflow:hidden;opacity:0;transform:scale(.9)}
+.scene.is-on .core{animation:popIn .7s cubic-bezier(.2,.8,.25,1) .1s forwards}
+@keyframes popIn{to{opacity:1;transform:none}}
+.core__scan{position:absolute;top:0;bottom:0;left:-40%;width:36%;pointer-events:none;
+  background:linear-gradient(90deg,transparent,rgba(162,89,255,.18),transparent)}
+.core__top{display:flex;align-items:center;justify-content:space-between;gap:1em;
+  margin-bottom:clamp(10px,2.4cqmin,18px);position:relative;z-index:2}
+.core__title{display:flex;align-items:center;gap:.5em;font-weight:700;font-size:clamp(12px,2.5cqmin,20px);letter-spacing:-.01em}
+.core__dot{width:.55em;height:.55em;border-radius:50%;background:var(--acc);box-shadow:0 0 10px var(--acc)}
+.core__ar{font-family:var(--ar);direction:rtl;font-size:clamp(9px,1.7cqmin,13px);color:rgba(255,255,255,.42)}
+.mrow{position:relative;z-index:2;margin-top:clamp(9px,2cqmin,16px)}
+.mrow__head{display:flex;align-items:baseline;gap:.5em;margin-bottom:.55em}
+.mrow__n{font-weight:800;font-size:clamp(16px,3.6cqmin,32px);color:var(--acc);font-variant-numeric:tabular-nums;min-width:1.3ch;text-align:right}
+.mrow__t{font-size:clamp(11px,2.1cqmin,16px);color:#fff;font-weight:600}
+.mrow__ar{font-family:var(--ar);direction:rtl;font-size:clamp(8px,1.5cqmin,12px);color:rgba(255,255,255,.38);margin-left:auto}
+.tiles{display:flex;gap:clamp(3px,.8cqmin,6px)}
+.tile{height:clamp(9px,1.9cqmin,15px);flex:1 1 0;min-width:5px;border-radius:3px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.07)}
+.tiles.j3 .tile{flex:0 0 auto;width:17%}
+.tile.lit{background:var(--acc);box-shadow:0 0 10px rgba(162,89,255,.7);border-color:transparent}
+
+/* ======================= SCENE 3 — THE DAY =============== */
+.s3-wrap{position:absolute;inset:0}
+.s3-sun,.s3-moon{position:absolute;top:58%;transform:translateY(-50%);width:clamp(20px,5cqmin,40px);height:clamp(20px,5cqmin,40px);z-index:2}
+.s3-sun{left:2.5%}.s3-moon{right:2.5%}
+.s3-sun svg{width:100%;height:100%;stroke:var(--acc);stroke-width:1.6;fill:none;stroke-linecap:round;filter:drop-shadow(0 0 8px rgba(162,89,255,.6))}
+.s3-moon svg{width:78%;height:78%;margin:11%;fill:rgba(255,255,255,.5)}
+.s3-track{position:absolute;left:11%;right:11%;top:58%;height:4px;border-radius:4px;background:rgba(255,255,255,.12);z-index:3}
+.s3-fill{position:absolute;left:0;top:0;height:100%;width:0;border-radius:4px;background:linear-gradient(90deg,rgba(162,89,255,.5),var(--acc));box-shadow:0 0 14px rgba(162,89,255,.6)}
+.s3-dot{position:absolute;top:50%;left:6%;width:clamp(13px,2.7cqmin,20px);height:clamp(13px,2.7cqmin,20px);border-radius:50%;background:#fff;transform:translate(-50%,-50%);box-shadow:0 0 0 5px rgba(162,89,255,.22),0 0 22px rgba(162,89,255,.95);z-index:6}
+.pin{position:absolute;top:-58%;bottom:0;transform:translateX(-50%);z-index:4;width:0}
+.pin__node{position:absolute;top:100%;left:50%;transform:translate(-50%,-50%);width:clamp(11px,2.2cqmin,16px);height:clamp(11px,2.2cqmin,16px);border-radius:50%;background:rgba(255,255,255,.18);border:2px solid rgba(255,255,255,.34);transition:all .4s ease}
+.pin.lit .pin__node{background:var(--acc);border-color:#fff;box-shadow:0 0 0 5px rgba(162,89,255,.22),0 0 18px rgba(162,89,255,.85)}
+.pin__stem{position:absolute;left:50%;bottom:0;width:2px;height:34%;transform:translateX(-50%);background:linear-gradient(to top,rgba(162,89,255,.7),transparent);opacity:0}
+.pin.lit .pin__stem{animation:fadeUp .5s ease .05s forwards}
+.pin__card{position:absolute;bottom:40%;left:50%;transform:translate(-50%,12px);white-space:nowrap;text-align:center;
+  background:linear-gradient(165deg,rgba(255,255,255,.09),rgba(255,255,255,.025));border:1px solid var(--stroke);
+  border-radius:13px;padding:.5em .85em;opacity:0;box-shadow:0 18px 44px -22px rgba(0,0,0,.85)}
+.pin.lit .pin__card{animation:pinPop .6s cubic-bezier(.2,.8,.25,1) forwards}
+@keyframes pinPop{to{opacity:1;transform:translate(-50%,0)}}
+.pin__time{font-weight:800;font-size:clamp(14px,3.1cqmin,27px);letter-spacing:-.01em;color:#fff}
+.pin__lbl{font-family:var(--mono);font-size:clamp(8px,1.6cqmin,12px);letter-spacing:.16em;text-transform:uppercase;color:var(--acc);margin-top:.25em}
+.pin__ar{font-family:var(--ar);direction:rtl;font-size:clamp(8px,1.5cqmin,12px);color:rgba(255,255,255,.45);margin-top:.25em}
+
+/* ======================= SCENE 4 — THE FUNNEL ============ */
+.s4-wrap{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(7px,1.7cqmin,15px)}
+.s4-dots{position:absolute;inset:0;z-index:2;pointer-events:none}
+.fdot{position:absolute;width:clamp(6px,1.3cqmin,10px);height:clamp(6px,1.3cqmin,10px);border-radius:50%;background:var(--acc);box-shadow:0 0 8px rgba(162,89,255,.7)}
+.fdot.peel{background:rgba(255,255,255,.45);box-shadow:none}
+.funnel{display:flex;flex-direction:column;align-items:center;gap:clamp(6px,1.5cqmin,13px);width:80%;z-index:3}
+.band{position:relative;height:clamp(34px,8cqmin,68px);border-radius:13px;display:flex;align-items:center;justify-content:center;gap:.7em;
+  background:linear-gradient(165deg,rgba(255,255,255,.08),rgba(255,255,255,.025));border:1px solid var(--stroke);
+  transform:scaleX(0);transform-origin:center;opacity:0}
+.band.show{animation:bandIn .7s cubic-bezier(.2,.8,.25,1) forwards}
+@keyframes bandIn{to{transform:scaleX(1);opacity:1}}
+.b1{width:100%}.b2{width:74%}.b3{width:52%}
+.band__n{font-weight:800;font-size:clamp(16px,4cqmin,40px);font-variant-numeric:tabular-nums;color:#fff;letter-spacing:-.02em}
+.band__t{font-family:var(--mono);font-size:clamp(8px,1.7cqmin,14px);letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.62)}
+.band__ar{font-family:var(--ar);direction:rtl;font-size:clamp(8px,1.5cqmin,13px);color:rgba(255,255,255,.4)}
+.band.hero{background:linear-gradient(165deg,rgba(162,89,255,.92),rgba(132,56,224,.82));border-color:transparent}
+.band.hero .band__t{color:rgba(255,255,255,.88)}
+.band.hero .band__ar{color:rgba(255,255,255,.7)}
+.band.hero.pulse{animation:bandIn .7s cubic-bezier(.2,.8,.25,1) forwards,heroPulse 2.1s ease-in-out 1s infinite}
+@keyframes heroPulse{0%,100%{box-shadow:0 0 0 1px rgba(162,89,255,.5),0 18px 50px -16px rgba(162,89,255,.6)}50%{box-shadow:0 0 0 1px rgba(162,89,255,.75),0 20px 66px -10px rgba(162,89,255,.98)}}
+.shortlist{display:flex;gap:clamp(4px,1.2cqmin,10px);z-index:4}
+.chip{width:clamp(20px,4.8cqmin,40px);height:clamp(26px,6.2cqmin,52px);border-radius:8px;position:relative;opacity:0;transform:translateY(12px) scale(.82);
+  background:linear-gradient(160deg,var(--paper),var(--paper-2));display:flex;align-items:flex-end;justify-content:center;box-shadow:0 8px 20px -8px rgba(0,0,0,.6)}
+.chip.show{animation:chipIn .5s cubic-bezier(.2,.8,.25,1) forwards}
+@keyframes chipIn{to{opacity:1;transform:none}}
+.chip b{position:absolute;top:-7px;left:-7px;width:clamp(14px,2.9cqmin,21px);height:clamp(14px,2.9cqmin,21px);border-radius:50%;
+  background:var(--acc);color:#fff;font-size:clamp(8px,1.6cqmin,12px);font-weight:700;display:grid;place-items:center;box-shadow:0 0 10px rgba(162,89,255,.7)}
+.chip__pic{width:42%;height:26%;margin-bottom:20%;border-radius:50%;background:var(--acc);opacity:.7}
+
+/* ===================== STATIC FALLBACK ==================== */
+.static{display:none;width:100%;max-width:1120px;color:#fff}
+.static__head{display:flex;align-items:baseline;flex-wrap:wrap;gap:.7em;margin-bottom:16px}
+.static__head b{font-size:clamp(22px,4.5vw,36px);font-weight:800;letter-spacing:-.02em}
+.static__head b i{color:var(--acc);font-style:normal}
+.static__head span{font-family:var(--mono);letter-spacing:.22em;text-transform:uppercase;font-size:11px;color:rgba(255,255,255,.45)}
+.static__head em{font-family:var(--ar);direction:rtl;font-style:normal;font-size:14px;color:rgba(255,255,255,.5)}
+.sgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.sp{background:radial-gradient(120% 120% at 50% 0%,#13131c,#0a0a0c);border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;padding:clamp(16px,2.4vw,26px);position:relative;overflow:hidden}
+.sp::after{content:"";position:absolute;left:0;top:0;width:3px;height:100%;background:var(--acc);opacity:.85}
+.sp__k{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--acc);margin-bottom:.9em}
+.sp__en{font-weight:760;font-size:clamp(16px,2.2vw,24px);line-height:1.14;margin-bottom:.5em}
+.sp__ar{font-family:var(--ar);direction:rtl;font-size:clamp(12px,1.6vw,16px);color:rgba(255,255,255,.55);margin-bottom:1.1em}
+.sp__fig{font-family:var(--mono);font-size:clamp(11px,1.5vw,14px);color:#fff;background:rgba(162,89,255,.14);
+  border:1px solid rgba(162,89,255,.32);border-radius:999px;padding:.42em .9em;display:inline-block}
+
+@media (prefers-reduced-motion: reduce){
+  .film{display:none!important}
+  .static{display:block}
+}
+@media (max-width:560px){
+  .film{aspect-ratio:4/5}
+  .sgrid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ===================== THE FILM ===================== -->
+  <div class="film" id="film" role="img"
+       aria-label="SYSTEM 6 — HR automation. Résumés from three channels are sorted and de-duplicated by 7 scripts and 3 scheduled jobs running on a daily schedule (08:30 intake, every 5h confirm, 19:30 archive); a funnel of 142 parsed to 100 deduped to 8 shortlisted.">
+    <div class="vignette"></div>
+
+    <div class="mark"><b>SYSTEM 6</b><span>HR automation</span></div>
+    <div class="prog" id="prog"><i><b></b></i><i><b></b></i><i><b></b></i><i><b></b></i></div>
+
+    <div class="stage" id="stage">
+
+      <!-- INTRO -->
+      <section class="scene scene--intro is-on" data-scene="intro" data-screen-label="Intro">
+        <div class="intro">
+          <div class="intro__glow"></div>
+          <h1 class="intro__title"><span>SYSTEM</span><span class="six">6</span></h1>
+          <div class="intro__sub">HR automation</div>
+          <div class="intro__line"></div>
+          <div class="intro__ar" dir="rtl" lang="ar">النظام 6 — أتمتة التوظيف</div>
+        </div>
+      </section>
+
+      <!-- SCENE 1 · THE FLOOD -->
+      <section class="scene s1" data-scene="s1" data-screen-label="The flood">
+        <div class="s1-srcs">
+          <div class="src">
+            <div class="src__ic"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12.5" rx="2.2"/><path d="M3.5 7.5l8.5 6 8.5-6"/></svg></div>
+            <div class="src__lbl">Gmail</div>
+          </div>
+          <div class="src">
+            <div class="src__ic"><svg viewBox="0 0 24 24"><path d="M5 4.5h14a1.5 1.5 0 0 1 1.5 1.5v8a1.5 1.5 0 0 1-1.5 1.5H10l-4 3.5v-3.5H5A1.5 1.5 0 0 1 3.5 14V6A1.5 1.5 0 0 1 5 4.5z"/></svg></div>
+            <div class="src__lbl">WhatsApp</div>
+          </div>
+          <div class="src">
+            <div class="src__ic"><svg viewBox="0 0 24 24"><path d="M3.5 6.5h5l2 2h9.5a1 1 0 0 1 1 1V18a1 1 0 0 1-1 1h-16a1 1 0 0 1-1-1V7.5a1 1 0 0 1 1-1z"/></svg></div>
+            <div class="src__lbl">Folder<span class="src__ar" dir="rtl"> · مجلّد</span></div>
+          </div>
+        </div>
+        <div class="s1-fall"></div>
+        <div class="s1-floor"></div>
+      </section>
+
+      <!-- SCENE 2 · THE MACHINE -->
+      <section class="scene s2" data-scene="s2" data-screen-label="The machine">
+        <div class="s2-wrap">
+          <div class="core">
+            <div class="core__scan"></div>
+            <div class="core__top">
+              <div class="core__title"><span class="core__dot"></span>The engine</div>
+              <div class="core__ar" dir="rtl" lang="ar">المحرّك</div>
+            </div>
+            <div class="mrow">
+              <div class="mrow__head"><span class="mrow__n" data-n="scripts">0</span><span class="mrow__t">scripts</span><span class="mrow__ar" dir="rtl" lang="ar">٦٧ نصوص برمجية</span></div>
+              <div class="tiles" data-tiles="7"></div>
+            </div>
+            <div class="mrow">
+              <div class="mrow__head"><span class="mrow__n" data-n="jobs">0</span><span class="mrow__t">scheduled jobs</span><span class="mrow__ar" dir="rtl" lang="ar">٣ مهام مجدولة</span></div>
+              <div class="tiles j3" data-tiles="3"></div>
+            </div>
+          </div>
+        </div>
+        <div class="s2-flow"></div>
+      </section>
+      <!-- SCENE 3 · THE DAY -->
+      <section class="scene s3" data-scene="s3" data-screen-label="The day">
+        <div class="s3-wrap">
+          <div class="s3-sun"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.4"/><path d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/></svg></div>
+          <div class="s3-moon"><svg viewBox="0 0 24 24"><path d="M20 14.6A8 8 0 0 1 9.4 4 7 7 0 1 0 20 14.6z"/></svg></div>
+          <div class="s3-track">
+            <div class="s3-fill"></div>
+            <div class="pin" style="left:14%"><div class="pin__card"><div class="pin__time">08:30</div><div class="pin__lbl">intake</div><div class="pin__ar" dir="rtl" lang="ar">٨:٣٠ — استلام</div></div><div class="pin__stem"></div><div class="pin__node"></div></div>
+            <div class="pin" style="left:50%"><div class="pin__card"><div class="pin__time">every 5h</div><div class="pin__lbl">confirm</div><div class="pin__ar" dir="rtl" lang="ar">كل ٥ ساعات — تأكيد</div></div><div class="pin__stem"></div><div class="pin__node"></div></div>
+            <div class="pin" style="left:86%"><div class="pin__card"><div class="pin__time">19:30</div><div class="pin__lbl">archive</div><div class="pin__ar" dir="rtl" lang="ar">١٩:٣٠ — أرشفة</div></div><div class="pin__stem"></div><div class="pin__node"></div></div>
+            <div class="s3-dot"></div>
+          </div>
+        </div>
+      </section>
+      <!-- SCENE 4 · THE FUNNEL -->
+      <section class="scene s4" data-scene="s4" data-screen-label="The funnel">
+        <div class="s4-wrap">
+          <div class="s4-dots"></div>
+          <div class="funnel">
+            <div class="band b1"><span class="band__n" data-n="142">0</span><span class="band__t">parsed</span><span class="band__ar" dir="rtl" lang="ar">١٤٢ مُحلّل</span></div>
+            <div class="band b2"><span class="band__n" data-n="100">0</span><span class="band__t">deduped</span><span class="band__ar" dir="rtl" lang="ar">١٠٠ بعد إزالة التكرار</span></div>
+            <div class="band b3 hero"><span class="band__n" data-n="8">0</span><span class="band__t">shortlisted</span><span class="band__ar" dir="rtl" lang="ar">٨ في القائمة المختصرة</span></div>
+          </div>
+          <div class="shortlist"></div>
+        </div>
+      </section>
+
+    </div><!-- /stage -->
+
+    <!-- captions -->
+    <div class="cap hide" id="cap">
+      <div class="cap__kick"></div>
+      <div class="cap__en"></div>
+      <div class="cap__ar" dir="rtl" lang="ar"></div>
+    </div>
+
+    <div class="grain"></div>
+  </div><!-- /film -->
+
+  <!-- ===== reduced-motion static fallback ===== -->
+  <div class="static" aria-hidden="true">
+    <div class="static__head"><b>SYSTEM <i>6</i></b><span>HR automation</span><em dir="rtl" lang="ar">النظام ٦ — أتمتة التوظيف</em></div>
+    <div class="sgrid">
+      <div class="sp"><div class="sp__k">01 · The flood</div><div class="sp__en">Three channels. Duplicates. Wrong rankings.</div><div class="sp__ar" dir="rtl" lang="ar">ثلاث قنوات. نسخ مكرّرة. ترتيب خاطئ.</div><span class="sp__fig">Gmail · WhatsApp · Folder</span></div>
+      <div class="sp"><div class="sp__k">02 · The machine</div><div class="sp__en">Hiring on autopilot.</div><div class="sp__ar" dir="rtl" lang="ar">التوظيف على الطيّار الآلي.</div><span class="sp__fig">7 scripts + 3 scheduled jobs</span></div>
+      <div class="sp"><div class="sp__k">03 · The day</div><div class="sp__en">Runs whether I’m there or not.</div><div class="sp__ar" dir="rtl" lang="ar">يعمل سواء كنتُ موجودًا أم لا.</div><span class="sp__fig">08:30 intake · every 5h confirm · 19:30 archive</span></div>
+      <div class="sp"><div class="sp__k">04 · Read, don’t match</div><div class="sp__en">Read-verified scoring; never message without approval.</div><div class="sp__ar" dir="rtl" lang="ar">تقييم مُتحقَّق بالقراءة، ولا مراسلة دون موافقة.</div><span class="sp__fig">142 parsed → 100 deduped → 8 shortlisted</span></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var RM = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  var film  = document.getElementById('film');
+  var stage = document.getElementById('stage');
+  var capEl = document.getElementById('cap');
+  var kick  = capEl.querySelector('.cap__kick');
+  var capEn = capEl.querySelector('.cap__en');
+  var capAr = capEl.querySelector('.cap__ar');
+  var progBars = Array.prototype.slice.call(document.querySelectorAll('.prog i'));
+
+  var scenes = {
+    intro: document.querySelector('[data-scene="intro"]'),
+    s1: document.querySelector('[data-scene="s1"]'),
+    s2: document.querySelector('[data-scene="s2"]'),
+    s3: document.querySelector('[data-scene="s3"]'),
+    s4: document.querySelector('[data-scene="s4"]')
+  };
+
+  /* ---- timing (ms) ---- */
+  var SEQ = [['intro',2600],['s1',7000],['s2',7200],['s3',7200],['s4',9000]];
+  var DUR = {}, SCENE_INDEX = {s1:0,s2:1,s3:2,s4:3};
+  var acc = 0, steps = SEQ.map(function(p){var o={id:p[0],at:acc,dur:p[1]};DUR[p[0]]=p[1];acc+=p[1];return o;});
+  var TOTAL = acc;
+
+  /* ---- captions [kicker, EN, AR] ---- */
+  var CAP = {
+    s1:['01 · The flood · الطوفان','Three channels. Duplicates. Wrong rankings.','ثلاث قنوات. نسخ مكرّرة. ترتيب خاطئ.'],
+    s2:['02 · The machine · الآلة','Hiring on autopilot.','التوظيف على الطيّار الآلي.'],
+    s3:['03 · The day · اليوم','Runs whether I’m there or not.','يعمل سواء كنتُ موجودًا أم لا.'],
+    s4:['04 · Read, don’t match · اقرأ، لا تطابِق','Read-verified scoring; never message without approval.','تقييم مُتحقَّق بالقراءة، ولا مراسلة دون موافقة.']
+  };
+
+  /* ---- easings ---- */
+  function easeOutCubic(p){return 1-Math.pow(1-p,3);}
+  function easeInOutCubic(p){return p<.5?4*p*p*p:1-Math.pow(-2*p+2,3)/2;}
+
+  /* ---- timers + tweens (cleared each scene) ---- */
+  var timers=[], rafs=[];
+  function after(ms,fn){var t=setTimeout(fn,ms);timers.push(t);return t;}
+  function clearTimers(){timers.forEach(clearTimeout);timers=[];rafs.forEach(cancelAnimationFrame);rafs=[];}
+  function tween(dur,onU,ease,onDone){
+    ease=ease||easeOutCubic;var t0=performance.now();
+    function step(now){var p=Math.min(1,(now-t0)/dur);onU(ease(p),p);
+      if(p<1){rafs.push(requestAnimationFrame(step));}else if(onDone){onDone();}}
+    rafs.push(requestAnimationFrame(step));
+  }
+  function countTo(el,to,dur,delay){
+    if(!el)return;el.textContent='0';
+    after(delay||0,function(){tween(dur,function(e){el.textContent=Math.round(e*to);},easeOutCubic);});
+  }
+  function mkPaper(dup){
+    var p=document.createElement('div');p.className='paper';
+    p.innerHTML='<div class="paper__pic"></div><div class="paper__bar"></div><div class="paper__ln"></div><div class="paper__ln s"></div>';
+    if(dup){p.classList.add('is-dup');p.insertAdjacentHTML('beforeend','<span class="paper__dup">DUP</span>');}
+    return p;
+  }
+
+  /* ---- scene + caption + progress ---- */
+  function setScene(id){for(var k in scenes){if(scenes[k])scenes[k].classList.toggle('is-on',k===id);}}
+  function setCap(c){
+    if(!c){capEl.classList.add('hide');return;}
+    kick.textContent=c[0];capEn.textContent=c[1];capAr.textContent=c[2];
+    capEl.classList.remove('hide');
+    capEl.classList.remove('show');void capEl.offsetWidth;capEl.classList.add('show');
+  }
+  function progReset(){progBars.forEach(function(b){var f=b.firstElementChild;f.style.transition='none';f.style.width='0%';});}
+  function progSet(i,dur){
+    progBars.forEach(function(bar,j){var f=bar.firstElementChild;
+      if(j<i){f.style.transition='none';f.style.width='100%';}
+      else if(j===i){f.style.transition='none';f.style.width='0%';void bar.offsetWidth;
+        f.style.transition='width '+dur+'ms linear';f.style.width='100%';}
+      else{f.style.transition='none';f.style.width='0%';}
+    });
+  }
+
+  /* ======================= RUNNERS ======================= */
+  var RUN = {};
+
+  /* SCENE 1 — flood of résumés */
+  RUN.s1 = function(){
+    var layer = scenes.s1.querySelector('.s1-fall');
+    layer.innerHTML='';
+    var H = stage.clientHeight||stage.offsetHeight||600;
+    var srcX=[31,50,69];      // % horizontal of the three sources
+    var N=18;
+    for(var k=0;k<N;k++){(function(k){
+      after(140+k*150,function(){
+        var si=k%3;
+        var pileX=50+(Math.random()*48-24);
+        var pileY=44+Math.random()*26;          // 44–70%
+        var rot=Math.random()*26-13;
+        var p=document.createElement('div');
+        p.className='paper';
+        p.innerHTML='<div class="paper__pic"></div><div class="paper__bar"></div><div class="paper__ln"></div><div class="paper__ln s"></div>';
+        var dup = (k%4===1);
+        if(dup){p.classList.add('is-dup');p.insertAdjacentHTML('beforeend','<span class="paper__dup">DUP</span>');}
+        p.style.left=pileX+'%';p.style.top=pileY+'%';
+        layer.appendChild(p);
+        p.animate(
+          [{transform:'translate('+(srcX[si]-pileX)+'cqw,'+(-H*0.62)+'px) rotate('+(rot-26)+'deg)',opacity:0},
+           {opacity:1,offset:.18},
+           {transform:'translate(0,0) rotate('+rot+'deg)',opacity:1}],
+          {duration:880,easing:'cubic-bezier(.32,.78,.32,1)',fill:'both'}
+        );
+      });
+    })(k);}
+  };
+
+  /* SCENE 2 — the machine: ingest, 7 scripts + 3 jobs, de-dupe, clean output */
+  RUN.s2 = function(){
+    var s = scenes.s2;
+    s.querySelectorAll('.tiles').forEach(function(t){
+      t.innerHTML='';var n=+t.getAttribute('data-tiles');
+      for(var i=0;i<n;i++){var d=document.createElement('span');d.className='tile';t.appendChild(d);}
+    });
+    var scriptsEl=s.querySelector('[data-n="scripts"]'), jobsEl=s.querySelector('[data-n="jobs"]');
+    if(scriptsEl)scriptsEl.textContent='0'; if(jobsEl)jobsEl.textContent='0';
+    var t7=s.querySelectorAll('.tiles:not(.j3) .tile');
+    for(var i=0;i<7;i++){(function(i){after(560+i*150,function(){if(t7[i])t7[i].classList.add('lit');if(scriptsEl)scriptsEl.textContent=i+1;});})(i);}
+    var t3=s.querySelectorAll('.tiles.j3 .tile');
+    for(var j=0;j<3;j++){(function(j){after(1760+j*240,function(){if(t3[j])t3[j].classList.add('lit');if(jobsEl)jobsEl.textContent=j+1;});})(j);}
+    var scan=s.querySelector('.core__scan');
+    if(scan)scan.animate([{transform:'translateX(0)'},{transform:'translateX(380%)'}],{duration:2200,iterations:Infinity,easing:'ease-in-out'});
+    var flow=s.querySelector('.s2-flow'); if(!flow)return; flow.innerHTML='';
+    function feed(dup){var p=mkPaper(dup);p.style.left='50%';p.style.top='44%';flow.appendChild(p);return p;}
+    [0,1,2,3,4,5].forEach(function(i){
+      after(300+i*250,function(){
+        var p=feed(false);
+        p.animate([
+          {transform:'translate(-60cqw,'+((i%3-1)*10)+'cqh) rotate('+(-22+i*5)+'deg) scale(1)',opacity:0},
+          {opacity:1,offset:.25},
+          {transform:'translate(-13cqw,0) rotate(-4deg) scale(1)',opacity:1,offset:.66},
+          {transform:'translate(0,0) rotate(0deg) scale(.16)',opacity:0}
+        ],{duration:1300,easing:'cubic-bezier(.4,.5,.2,1)',fill:'forwards'});
+      });
+    });
+    [0,1].forEach(function(i){
+      after(1500+i*760,function(){
+        var p=feed(true);
+        p.animate([
+          {transform:'translate(-13cqw,0) rotate(-4deg) scale(1)',opacity:0},
+          {opacity:1,offset:.22},
+          {transform:'translate(3cqw,20cqh) rotate(26deg) scale(.6)',opacity:0}
+        ],{duration:1100,easing:'cubic-bezier(.5,.2,.4,1)',fill:'forwards'});
+      });
+    });
+    [68,75,82,89].forEach(function(sp,i){
+      after(1950+i*300,function(){
+        var p=feed(false); p.style.left=sp+'%';
+        var dx=50-sp;
+        p.animate([
+          {transform:'translate('+dx+'cqw,0) scale(.2)',opacity:0},
+          {opacity:1,offset:.3},
+          {transform:'translate(0,0) scale(1)',opacity:1}
+        ],{duration:900,easing:'cubic-bezier(.2,.8,.25,1)',fill:'forwards'});
+      });
+    });
+  };
+
+  /* SCENE 3 — the day: sweep dot lights 08:30 / every 5h / 19:30 */
+  RUN.s3 = function(){
+    var s=scenes.s3;
+    var dot=s.querySelector('.s3-dot'), fill=s.querySelector('.s3-fill');
+    var pins=Array.prototype.slice.call(s.querySelectorAll('.pin'));
+    pins.forEach(function(p){p.classList.remove('lit');});
+    if(dot)dot.style.left='6%'; if(fill)fill.style.width='0%';
+    var at=[14,50,86], done=[false,false,false], x0=6, x1=94;
+    after(450,function(){
+      tween(4700,function(e){
+        var x=x0+(x1-x0)*e;
+        if(dot)dot.style.left=x+'%'; if(fill)fill.style.width=x+'%';
+        for(var i=0;i<3;i++){ if(!done[i] && x>=at[i]){done[i]=true; if(pins[i])pins[i].classList.add('lit');} }
+      },easeInOutCubic);
+    });
+  };
+
+  /* SCENE 4 — funnel: 142 parsed -> 100 deduped -> 8 shortlisted */
+  RUN.s4 = function(){
+    var s=scenes.s4;
+    var bands=Array.prototype.slice.call(s.querySelectorAll('.band'));
+    bands.forEach(function(b){b.classList.remove('show','pulse');});
+    after(150,function(){bands[0]&&bands[0].classList.add('show');});
+    after(720,function(){bands[1]&&bands[1].classList.add('show');});
+    after(1280,function(){bands[2]&&bands[2].classList.add('show','pulse');});
+    countTo(s.querySelector('[data-n="142"]'),142,1300,260);
+    countTo(s.querySelector('[data-n="100"]'),100,1300,820);
+    countTo(s.querySelector('[data-n="8"]'),8,1100,1420);
+    var dl=s.querySelector('.s4-dots'); if(dl){dl.innerHTML='';
+      for(var i=0;i<24;i++){(function(i){
+        after(260+i*130,function(){
+          var d=document.createElement('span'); d.className='fdot';
+          var sx=43+Math.random()*14; d.style.left=sx+'%'; d.style.top='13%';
+          dl.appendChild(d);
+          if(i%5===3){ d.classList.add('peel');
+            d.animate([{transform:'translate(0,0)',opacity:0},{opacity:1,offset:.2},{transform:'translate('+((sx<50?-1:1)*26)+'cqw,16cqh)',opacity:0}],{duration:1000,easing:'ease-in',fill:'forwards'});
+          } else {
+            d.animate([{transform:'translate(0,0) scale(1)',opacity:0},{opacity:1,offset:.15},{transform:'translate('+((50-sx)*0.5)+'cqw,40cqh) scale(.7)',opacity:1,offset:.85},{transform:'translate(0,46cqh) scale(.4)',opacity:0}],{duration:1500,easing:'cubic-bezier(.4,.3,.2,1)',fill:'forwards'});
+          }
+        });
+      })(i);}
+    }
+    var sl=s.querySelector('.shortlist'); if(sl){sl.innerHTML='';
+      for(var c=1;c<=8;c++){var ch=document.createElement('span');ch.className='chip';ch.innerHTML='<b>'+c+'</b><span class="chip__pic"></span>';sl.appendChild(ch);}
+      var chips=sl.querySelectorAll('.chip');
+      chips.forEach(function(ch,i){after(2700+i*120,function(){ch.classList.add('show');});});
+    }
+  };
+
+  /* ======================= ENGINE ======================= */
+  function enter(id){
+    clearTimers();
+    setScene(id);
+    film.classList.toggle('show-mark', id!=='intro');
+    setCap(CAP[id]||null);
+    var si=SCENE_INDEX[id];
+    if(si===undefined) progReset(); else progSet(si,DUR[id]);
+    if(RUN[id]) RUN[id]();
+  }
+
+  var startT=null, fired=-1, running=false;
+  function master(now){
+    if(startT===null) startT=now;
+    var t=now-startT;
+    if(t>=TOTAL){startT=now;t=0;fired=-1;}
+    while(fired+1<steps.length && t>=steps[fired+1].at){fired++;enter(steps[fired].id);}
+    requestAnimationFrame(master);
+  }
+  function start(){if(running||RM.matches)return;running=true;startT=null;fired=-1;requestAnimationFrame(master);}
+
+  if(RM.addEventListener) RM.addEventListener('change',function(){if(!RM.matches)start();});
+  start();
+})();
+</script>
+</body>
+</html>

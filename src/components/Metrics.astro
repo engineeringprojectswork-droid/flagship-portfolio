@@ -1,0 +1,50 @@
+---
+import { pick, type Lang } from '../i18n/utils';
+
+export interface MetricItem {
+  count: number;
+  format?: 'abbr';
+  decimals?: number;
+  prefix?: string;
+  suffix?: string;
+  label: { en: string; ar: string };
+  sub?: { en: string; ar: string };
+}
+
+interface Props {
+  lang: Lang;
+  items: MetricItem[];
+  /** optional eyebrow label above the grid */
+  eyebrow?: { en: string; ar: string };
+}
+const { lang, items, eyebrow } = Astro.props;
+---
+
+{
+  eyebrow && (
+    <div class="eyebrow-row reveal">
+      <span class="kicker">{pick(lang, eyebrow)}</span>
+      <span class="ln" />
+    </div>
+  )
+}
+<div class="metrics">
+  {
+    items.map((m, i) => (
+      <div class={`metric reveal${i ? ` d${i}` : ''}`}>
+        <div
+          class="metric__num gradient-text tnum"
+          data-count={m.count}
+          data-format={m.format}
+          data-decimals={m.decimals}
+          data-prefix={m.prefix}
+          data-suffix={m.suffix}
+        >
+          {(m.prefix ?? '') + '0'}
+        </div>
+        <div class="metric__lbl">{pick(lang, m.label)}</div>
+        {m.sub && <div class="metric__sub">{pick(lang, m.sub)}</div>}
+      </div>
+    ))
+  }
+</div>

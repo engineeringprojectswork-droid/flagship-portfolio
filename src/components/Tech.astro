@@ -1,0 +1,28 @@
+---
+import { resolveTech } from '../lib/icons';
+
+interface Props {
+  /** raw tech/brand name — also used to resolve the icon */
+  name: string;
+  /** display label override (e.g. localized) */
+  display?: string;
+}
+const { name, display } = Astro.props;
+const icon = resolveTech(name);
+const label = display ?? name;
+const fill = icon.on ?? icon.hex;
+const svg = icon.inner
+  ? `<svg viewBox="0 0 24 24" fill="${fill}" width="16" height="16">${icon.inner}</svg>`
+  : null;
+---
+
+<span class="tech" style={`--tc:${icon.hex}`}>
+  <span class="tech__ic" aria-hidden="true">
+    {svg ? (
+      <Fragment set:html={svg} />
+    ) : (
+      <span class="tech__mono" style={`color:${fill}`}>{icon.mono}</span>
+    )}
+  </span>
+  <span class="tech__lbl">{label}</span>
+</span>

@@ -1,0 +1,59 @@
+---
+import TechOrbit from './TechOrbit.astro';
+import type { Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+
+const kicker = lang === 'ar' ? 'نبذة' : 'About';
+const h2 =
+  lang === 'ar'
+    ? 'مُسوّقٌ يبني الآلة التي تقف خلف التسويق.'
+    : 'A marketer who builds the machine behind the marketing.';
+const lead =
+  lang === 'ar'
+    ? '~٤ سنوات في بناء القنوات الاجتماعية، و~سنة كمسوّقٍ وحيد في شركة صناعية B2B بالكويت. بكالوريوس في الذكاء الاصطناعي — مُطبَّق على إعلاناتٍ وأنظمةٍ وبرمجياتٍ حقيقية.'
+    : '~4 years growing social channels, ~1 year as the sole marketer at a B2B industrial firm in Kuwait. A BSc in Artificial Intelligence — applied to real ads, real systems, real software.';
+const note =
+  lang === 'ar'
+    ? '<b>كيف أحافظ على مصداقيتي:</b> أنا أُولّد العملاء المحتملين — والمبيعات تُغلق الصفقات. وبرمجياتي مبنية بمواصفاتي وبمساعدة الذكاء الاصطناعي تحت إدارتي ومراجعتي. ولا أنشر رقمًا لا أستطيع توثيقه.'
+    : '<b>How I stay credible:</b> I generate leads — sales closes them. My software is spec-driven and AI-assisted, built and reviewed under my direction. And I never publish a number I can’t source.';
+
+const chips = [
+  'Meta Ads',
+  'CRM / Marketing Ops',
+  'Brand & Video',
+  'Python',
+  'Astro / Web',
+  'AI Automation',
+  { en: 'Bilingual AR/EN', ar: 'ثنائي اللغة' },
+];
+const stackKicker = lang === 'ar' ? 'المنظومة' : 'The stack';
+const stackLead =
+  lang === 'ar'
+    ? 'الأدوات التي يدور حولها العمل — كلها في شخصٍ واحد.'
+    : 'The tools the work orbits around — all in one person.';
+---
+
+<section class="section" id="about">
+  <div class="wrap two-col">
+    <div class="stack">
+      <p class="kicker reveal">{kicker}</p>
+      <h2 class="h-lg reveal d1">{h2}</h2>
+      <p class="lead reveal d2">{lead}</p>
+    </div>
+    <div class="stack reveal d1">
+      <div class="note" set:html={note}></div>
+    </div>
+  </div>
+
+  <div class="wrap" style="margin-top:clamp(46px,8vh,100px)">
+    <div class="center stack" style="max-width:640px;margin-inline:auto">
+      <p class="kicker reveal">{stackKicker}</p>
+      <p class="lead reveal d1">{stackLead}</p>
+    </div>
+    <TechOrbit lang={lang} items={chips} />
+  </div>
+</section>

@@ -1,0 +1,63 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Pager from '../../../components/work/Pager.astro';
+import { getProject, projectSlugs } from '../../../data/projects';
+import { profile } from '../../../data/profile';
+import { pick, workPath, locales, type Lang } from '../../../i18n/utils';
+
+// One self-contained component per story. Slugs must match src/data/projects.ts.
+import MetaAds from '../../../components/work/MetaAds.astro';
+import AlMaali from '../../../components/work/AlMaali.astro';
+import Crm from '../../../components/work/Crm.astro';
+import BrandSystem from '../../../components/work/BrandSystem.astro';
+import SheepApp from '../../../components/work/SheepApp.astro';
+import HrSystem from '../../../components/work/HrSystem.astro';
+import MedmacWebsite from '../../../components/work/MedmacWebsite.astro';
+import AiWorkflow from '../../../components/work/AiWorkflow.astro';
+
+const components: Record<string, typeof SheepApp> = {
+  'meta-ads': MetaAds,
+  'al-maali': AlMaali,
+  crm: Crm,
+  'brand-system': BrandSystem,
+  'sheep-app': SheepApp,
+  'hr-system': HrSystem,
+  'medmac-website': MedmacWebsite,
+  'ai-workflow': AiWorkflow,
+};
+
+export function getStaticPaths() {
+  return locales.flatMap((lang) =>
+    projectSlugs.map((slug) => ({ params: { lang, slug } }))
+  );
+}
+
+const { lang, slug } = Astro.params as { lang: Lang; slug: string };
+const project = getProject(slug)!;
+const Story = components[slug];
+
+const title = `${pick(lang, project.title)} — ${pick(lang, profile.name)}`;
+const description = pick(lang, project.blurb);
+
+const creativeWork = {
+  '@context': 'https://schema.org',
+  '@type': 'CreativeWork',
+  name: pick(lang, project.title),
+  abstract: pick(lang, project.blurb),
+  inLanguage: lang === 'ar' ? 'ar' : 'en',
+  author: { '@type': 'Person', name: profile.name.en },
+  url: new URL(workPath(lang, slug), Astro.site ?? 'https://mohamed-mahmoud-kuwait.netlify.app').href,
+};
+---
+
+<BaseLayout
+  lang={lang}
+  title={title}
+  description={description}
+  path={workPath(lang, slug)}
+  accent={project.accent}
+  jsonLd={creativeWork}
+>
+  <Story lang={lang} />
+  <Pager lang={lang} slug={slug} />
+</BaseLayout>

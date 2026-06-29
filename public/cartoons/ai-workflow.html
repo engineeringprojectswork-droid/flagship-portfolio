@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SYSTEM 8 — One person, three AI tools</title>
+<style>
+  :root{
+    --bg:#0a0a0c;
+    --panel:#141419;
+    --panel2:#1b1b22;
+    --line:rgba(255,255,255,.10);
+    --ink:#ffffff;
+    --ink2:rgba(255,255,255,.60);
+    --ink3:rgba(255,255,255,.32);
+    --v:#a259ff;
+    --p:#ff5e8a;
+    --ease:cubic-bezier(.22,.61,.36,1);
+    --io:cubic-bezier(.65,0,.35,1);
+    --spring:cubic-bezier(.34,1.5,.5,1);
+    --font:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,"Helvetica Neue",Arial,"Noto Sans","Noto Sans Arabic","Geeza Pro",Tahoma,sans-serif;
+  }
+  *{box-sizing:border-box;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+  html,body{margin:0;height:100%;background:var(--bg);font-family:var(--font);}
+  body{display:grid;place-items:center;min-height:100%;padding:clamp(10px,3vw,30px);}
+
+  .frame{
+    position:relative;
+    width:min(94vw, calc(90vh * 16 / 9));
+    aspect-ratio:16/9;
+    border-radius:16px;
+    overflow:hidden;
+    background:var(--bg);
+    box-shadow:0 40px 100px -40px rgba(0,0,0,.85), 0 0 0 1px rgba(255,255,255,.055);
+  }
+  @media (max-width:680px){
+    .frame{ width:94vw; aspect-ratio:4/5; }
+  }
+
+  .stage{
+    position:absolute; inset:0;
+    container-type:size;
+    background:
+      radial-gradient(120% 90% at 50% -10%, rgba(255,255,255,.04), transparent 60%),
+      var(--bg);
+  }
+  .bg-glow{
+    position:absolute; inset:0; pointer-events:none;
+    background:radial-gradient(46% 46% at 50% 40%, rgba(162,89,255,.13), transparent 72%);
+    opacity:.9;
+    animation:glowDrift 16s ease-in-out infinite;
+  }
+  @keyframes glowDrift{
+    0%,100%{ transform:translate(-3%,-2%) scale(1); }
+    50%{ transform:translate(4%,3%) scale(1.08); }
+  }
+  /* subtle cinematic vignette */
+  .vig{ position:absolute; inset:0; pointer-events:none;
+    box-shadow:inset 0 0 18cqmin 6cqmin rgba(0,0,0,.55); }
+
+  /* ---------- SCENES ---------- */
+  .scene{
+    position:absolute; inset:0;
+    opacity:0; visibility:hidden;
+    transition:opacity .6s var(--ease), visibility .6s;
+  }
+  .scene.active{ opacity:1; visibility:visible; }
+
+  .art{ position:absolute; inset:0; }
+  .art svg{ width:100%; height:100%; display:block; }
+  .art-center{ display:grid; place-items:center; padding-bottom:14cqh; }
+
+  /* ---------- CAPTIONS (lower third) ---------- */
+  .cap{
+    position:absolute; left:7%; right:7%; bottom:9.5cqh;
+    text-align:center;
+  }
+  .kicker{
+    display:flex; gap:.9em; justify-content:center; align-items:center;
+    font-size:2.05cqmin; font-weight:700; letter-spacing:.34em;
+    text-transform:uppercase; margin-bottom:2.6cqmin;
+    background:linear-gradient(100deg,var(--v),var(--p));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .kicker .ar{ font-weight:600; letter-spacing:0; color:var(--ink3);
+    background:none;-webkit-background-clip:border-box;background-clip:border-box; }
+  .cap-en{ font-size:4.5cqmin; font-weight:600; line-height:1.12;
+    letter-spacing:-.012em; color:var(--ink); max-width:88%; margin:0 auto;
+    text-wrap:balance; }
+  .cap-ar{ font-size:3.25cqmin; font-weight:500; line-height:1.5; color:var(--ink2);
+    margin-top:1.9cqmin; direction:rtl; }
+
+  .scene.active .kicker{ animation:capRise .7s var(--ease) .05s both; }
+  .scene.active .cap-en{ animation:capRise .75s var(--ease) .16s both; }
+  .scene.active .cap-ar{ animation:capRise .8s var(--ease) .28s both; }
+  @keyframes capRise{ from{opacity:0;transform:translateY(1.6cqmin);} to{opacity:1;transform:none;} }
+
+  /* ---------- PROGRESS DOTS ---------- */
+  .dots{ position:absolute; left:0; right:0; bottom:3.4cqmin;
+    display:flex; gap:1.15cqmin; justify-content:center; }
+  .dots .dot-i{ width:1.05cqmin; height:1.05cqmin; border-radius:50%;
+    background:rgba(255,255,255,.18); transition:.45s var(--ease); }
+  .dots .dot-i.on{ width:3.4cqmin; border-radius:1cqmin;
+    background:linear-gradient(100deg,var(--v),var(--p)); }
+
+  /* ======================================================= TITLE */
+  .title-wrap{ display:grid; justify-items:center; gap:3.4cqmin; }
+  .t-mark{ position:relative; width:18cqmin; height:18cqmin; }
+  .t-mark .ring{ position:absolute; inset:0; }
+  .scene.active .t-mark .ring circle{ animation:ringDraw 1.1s var(--ease) .1s both; }
+  .scene.active .t-mark{ animation:ringSpin 22s linear infinite; }
+  @keyframes ringDraw{ from{stroke-dashoffset:330;} to{stroke-dashoffset:0;} }
+  @keyframes ringSpin{ to{ transform:rotate(360deg); } }
+  .t-mark .dot{ position:absolute; width:2.4cqmin; height:2.4cqmin; border-radius:50%;
+    background:linear-gradient(100deg,var(--v),var(--p)); left:50%; top:50%;
+    box-shadow:0 0 2.2cqmin rgba(255,94,138,.55); }
+  .t-mark .d1{ transform:translate(-50%,-50%) translate(0,-5.4cqmin); }
+  .t-mark .d2{ transform:translate(-50%,-50%) translate(4.7cqmin,2.7cqmin); }
+  .t-mark .d3{ transform:translate(-50%,-50%) translate(-4.7cqmin,2.7cqmin); }
+  .scene.active .d1{ animation:dotPop .55s var(--spring) .45s both; }
+  .scene.active .d2{ animation:dotPop .55s var(--spring) .6s both; }
+  .scene.active .d3{ animation:dotPop .55s var(--spring) .75s both; }
+  @keyframes dotPop{ from{opacity:0; transform:translate(-50%,-50%) scale(.2);}
+    /* each overrides its translate in inline rule above via composition */ }
+  .t-word{ font-size:9.6cqmin; font-weight:800; letter-spacing:-.02em; color:var(--ink); }
+  .scene.active .t-word{ animation:wordRise .8s var(--ease) .5s both; }
+  @keyframes wordRise{ from{opacity:0; transform:translateY(2.2cqmin);} to{opacity:1; transform:none;} }
+
+  /* ======================================================= generic svg helpers */
+  .tb{ transform-box:fill-box; transform-origin:center; }
+
+  /* ======================================================= SPRAWL */
+  .s-sprawl.active .winL{ animation:slideInL .9s var(--ease) .05s both; }
+  .s-sprawl.active .winR{ animation:slideInR .9s var(--ease) .05s both; }
+  @keyframes slideInL{ from{opacity:0; transform:translateX(-70px);} to{opacity:1; transform:none;} }
+  @keyframes slideInR{ from{opacity:0; transform:translateX(70px);} to{opacity:1; transform:none;} }
+  .s-sprawl.active .winContent{ animation:fadeUp .7s var(--ease) .5s both; }
+  @keyframes fadeUp{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;} }
+
+  .thread{ opacity:0; }
+  .s-sprawl.active .thread{ animation:threadLife 4.7s var(--io) forwards; }
+  @keyframes threadLife{
+    0%{ stroke-dashoffset:300; opacity:1; }
+    8%{ opacity:1; }
+    26%{ stroke-dashoffset:0; }
+    58%{ stroke-dashoffset:0; opacity:1; }
+    64%{ opacity:0; }
+    100%{ stroke-dashoffset:0; opacity:0; }
+  }
+  .stub{ opacity:0; }
+  .s-sprawl.active .stubL{ animation:stubL 4.7s var(--ease) forwards; }
+  .s-sprawl.active .stubR{ animation:stubR 4.7s var(--ease) forwards; }
+  @keyframes stubL{ 0%,58%{opacity:0;transform:translateX(0);} 62%{opacity:1;transform:translateX(8px);}
+    78%{transform:translateX(-30px);} 100%{opacity:1;transform:translateX(-24px);} }
+  @keyframes stubR{ 0%,58%{opacity:0;transform:translateX(0);} 62%{opacity:1;transform:translateX(-8px);}
+    78%{transform:translateX(30px);} 100%{opacity:1;transform:translateX(24px);} }
+  .s-node{ opacity:0; }
+  .s-sprawl.active .s-node{ animation:nodeLife 4.7s var(--ease) forwards; }
+  @keyframes nodeLife{
+    0%,16%{opacity:0; transform:translateY(0) scale(0);}
+    26%{opacity:1; transform:translateY(0) scale(1);}
+    56%{opacity:1; transform:translateY(0) scale(1);}
+    66%{opacity:0; transform:translateY(78px) scale(.6) rotate(18deg);}
+    100%{opacity:0; transform:translateY(78px) scale(.6) rotate(18deg);}
+  }
+
+  /* ======================================================= MODEL */
+  .s-model.active .m-pop{ animation:popUp .7s var(--spring) both; }
+  .s-model.active .m-cowork{ animation-delay:.15s; }
+  .s-model.active .m-design{ animation-delay:.85s; }
+  .s-model.active .m-code{ animation-delay:1.0s; }
+  @keyframes popUp{ from{opacity:0; transform:translateY(14px) scale(.9);} to{opacity:1; transform:none;} }
+  .s-model.active .m-conn{ animation:drawConn .8s var(--ease) .35s both; }
+  @keyframes drawConn{ from{stroke-dashoffset:240;} to{stroke-dashoffset:0;} }
+  .m-arms{ transform-box:view-box; transform-origin:800px 232px; }
+  .s-model.active .m-arms{ animation:baton 2.8s ease-in-out infinite; }
+  @keyframes baton{ 0%,100%{transform:rotate(-5deg);} 50%{transform:rotate(5deg);} }
+  .m-tag{ opacity:0; }
+  .s-model.active .tagA{ animation:tagA 1.7s var(--io) .9s infinite; }
+  .s-model.active .tagB{ animation:tagB 1.9s var(--io) 1.2s infinite; }
+  .s-model.active .tagC{ animation:tagC 1.9s var(--io) 1.5s infinite; }
+  @keyframes tagA{ 0%{opacity:0;transform:translate(0,-92px);} 18%{opacity:1;} 82%{opacity:1;} 100%{opacity:0;transform:translate(0,0);} }
+  @keyframes tagB{ 0%{opacity:0;transform:translate(0,0);} 18%{opacity:1;} 82%{opacity:1;} 100%{opacity:0;transform:translate(-205px,80px);} }
+  @keyframes tagC{ 0%{opacity:0;transform:translate(0,0);} 18%{opacity:1;} 82%{opacity:1;} 100%{opacity:0;transform:translate(215px,80px);} }
+
+  /* ======================================================= LOOP */
+  .s-loop.active .l-ring{ animation:ringDraw2 1s var(--ease) both; }
+  @keyframes ringDraw2{ from{stroke-dashoffset:1100;} to{stroke-dashoffset:0;} }
+  .s-loop.active .l-node{ animation:popUp .6s var(--spring) both; }
+  .s-loop.active .l-brief{ animation-delay:.35s; }
+  .s-loop.active .l-build{ animation-delay:.5s; }
+  .s-loop.active .l-verify{ animation-delay:.65s; }
+  .l-arc{ transform-box:fill-box; transform-origin:center; opacity:0; }
+  .s-loop.active .l-arc{ animation:arcIn .5s ease .9s forwards, arcSpin 2.6s linear 1.1s infinite; }
+  @keyframes arcIn{ to{opacity:1;} }
+  @keyframes arcSpin{ to{ transform:rotate(360deg); } }
+  .l-halo{ transform-box:fill-box; transform-origin:center; opacity:0; }
+  .s-loop.active .h1{ animation:halo 2.6s ease-in-out 1.1s infinite; }
+  .s-loop.active .h2{ animation:halo 2.6s ease-in-out calc(1.1s + .866s) infinite; }
+  .s-loop.active .h3{ animation:halo 2.6s ease-in-out calc(1.1s + 1.733s) infinite; }
+  @keyframes halo{ 0%,72%,100%{opacity:0; transform:scale(.8);} 12%{opacity:.85; transform:scale(1.18);} 24%{opacity:0;transform:scale(1.3);} }
+  .live-dot{ transform-box:fill-box; transform-origin:center; }
+  .s-loop.active .live-dot{ animation:livePulse 1.4s ease-in-out infinite; }
+  @keyframes livePulse{ 0%,100%{opacity:.4; transform:scale(.85);} 50%{opacity:1; transform:scale(1.25);} }
+
+  /* ======================================================= WIN */
+  .paper > rect.pg{ /* glassy paper body styled inline */ }
+  .paperInner{ opacity:0; }
+  .s-win.active .paperInner{ animation:paperIn .5s var(--spring) both; animation-delay:var(--d); }
+  @keyframes paperIn{ from{opacity:0; transform:translateY(34px) scale(.85);} to{opacity:1; transform:none;} }
+  .s-win.active .rescue{ animation:rescueMove 1.05s var(--spring) 2.7s both; }
+  @keyframes rescueMove{ from{transform:translate(var(--fx),var(--fy)) rotate(var(--fr));}
+    to{transform:translate(var(--tx),var(--ty)) rotate(0deg);} }
+  .resGlow{ opacity:0; }
+  .s-win.active .resGlow{ animation:resGlow 1.4s ease 3.0s both; }
+  @keyframes resGlow{ from{opacity:0;} 40%{opacity:.9;} to{opacity:.55;} }
+  .winLate{ opacity:0; }
+  .s-win.active .winLate{ animation:fadeUp .7s var(--ease) 3.25s both; }
+  .s-win.active .counterWrap{ animation:popUp .7s var(--spring) .1s both; }
+  .s-win.active .pileLabel{ animation:fadeUp .6s var(--ease) .2s both; }
+
+  /* ======================================================= END */
+  .end-wrap{ display:grid; justify-items:center; gap:3cqmin; text-align:center; }
+  .end-sys{ font-size:2.2cqmin; font-weight:700; letter-spacing:.34em; color:var(--ink3); }
+  .scene.active .end-sys{ animation:capRise .7s var(--ease) both; }
+  .end-row{ display:flex; align-items:flex-end; gap:5.5cqmin; }
+  .end-num{ font-size:15cqmin; font-weight:800; line-height:.9; letter-spacing:-.03em;
+    background:linear-gradient(120deg,var(--v),var(--p)); -webkit-background-clip:text;
+    background-clip:text; color:transparent; }
+  .end-num.sm{ font-size:9cqmin; color:transparent; }
+  .end-lab{ font-size:2.6cqmin; font-weight:600; color:var(--ink2); padding-bottom:1.6cqmin;
+    letter-spacing:.01em; text-align:left; line-height:1.25; }
+  .end-div{ width:1px; align-self:stretch; background:var(--line); margin:1cqmin 0; }
+  .end-sub{ font-size:2.5cqmin; font-weight:500; color:var(--ink3); }
+  .scene.active .e1{ animation:numIn .8s var(--spring) .15s both; }
+  .scene.active .e2{ animation:numIn .8s var(--spring) .35s both; }
+  .scene.active .e-sub{ animation:capRise .7s var(--ease) .55s both; }
+  @keyframes numIn{ from{opacity:0; transform:translateY(2cqmin) scale(.85);} to{opacity:1; transform:none;} }
+
+  /* ======================================================= REDUCED MOTION */
+  @media (prefers-reduced-motion: reduce){
+    body{ padding:18px; }
+    .frame{ width:min(96vw,520px); aspect-ratio:auto; height:auto; box-shadow:none; background:transparent; }
+    .stage{ position:relative; container-type:inline-size; background:none; }
+    .bg-glow,.vig,.dots{ display:none; }
+    .scene{ position:relative; inset:auto; opacity:1; visibility:visible;
+      aspect-ratio:16/9; border-radius:14px; overflow:hidden; margin-bottom:16px;
+      background:radial-gradient(46% 46% at 50% 40%, rgba(162,89,255,.10), transparent 72%), var(--bg);
+      box-shadow:0 0 0 1px var(--line); }
+    *{ animation:none!important; transition:none!important; }
+    .thread,.stub,.s-node,.m-tag,.l-arc,.l-halo,.paperInner,.resGlow,.winLate{ opacity:1; }
+    .stubL{ transform:translateX(-24px);} .stubR{ transform:translateX(24px);}
+    .s-node{ opacity:0!important; }       /* dropped/lost in final state */
+    .thread{ opacity:0!important; }        /* snapped in final state */
+    .m-tag{ opacity:0!important; }
+    .l-halo{ opacity:0!important; }
+  }
+</style>
+</head>
+<body>
+  <div class="frame" role="img" aria-label="SYSTEM 8 — One person directs three AI tools: Cowork, Claude Design and Claude Code. 23 tenders surfaced from 6 months of email; 4 nearly lost. No fabricated data, ever.">
+    <div class="stage" id="stage">
+      <div class="bg-glow"></div>
+
+      <!-- shared SVG defs -->
+      <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+        <defs>
+          <linearGradient id="ag" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#a259ff"/><stop offset="1" stop-color="#ff5e8a"/>
+          </linearGradient>
+          <linearGradient id="agv" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#a259ff"/><stop offset="1" stop-color="#ff5e8a"/>
+          </linearGradient>
+          <linearGradient id="agh" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#a259ff"/><stop offset="1" stop-color="#ff5e8a"/>
+          </linearGradient>
+          <radialGradient id="paperGold" cx="50%" cy="0%" r="120%">
+            <stop offset="0" stop-color="#ffd9a0"/><stop offset=".5" stop-color="#ff8fb0"/>
+            <stop offset="1" stop-color="#b06bff"/>
+          </radialGradient>
+        </defs>
+      </svg>
+
+      <!-- =================== SCENE 0 — TITLE =================== -->
+      <section class="scene s-title active" data-scene="title" data-dur="3200">
+        <div class="art art-center">
+          <div class="title-wrap">
+            <div class="t-mark">
+              <svg class="ring" viewBox="0 0 120 120" aria-hidden="true">
+                <circle cx="60" cy="60" r="52" fill="none" stroke="url(#ag)" stroke-width="2.6"
+                        stroke-linecap="round" stroke-dasharray="330" stroke-dashoffset="0"/>
+              </svg>
+              <span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span>
+            </div>
+            <div class="t-word">SYSTEM&nbsp;8</div>
+          </div>
+        </div>
+        <div class="cap">
+          <div class="cap-en">One person, three AI tools</div>
+          <div class="cap-ar" dir="rtl" lang="ar">شخصٌ واحد، وثلاث أدوات ذكاء اصطناعي</div>
+        </div>
+      </section>
+
+      <!-- =================== SCENE 1 — THE SPRAWL =================== -->
+      <section class="scene s-sprawl" data-scene="sprawl" data-dur="5200">
+        <div class="art">
+          <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMin meet" aria-hidden="true">
+            <!-- left window: Design -->
+            <g class="winL">
+              <rect x="300" y="232" width="360" height="244" rx="18" fill="#15151b" stroke="rgba(255,255,255,.12)"/>
+              <rect x="300" y="232" width="360" height="44" rx="18" fill="#1d1d25"/>
+              <rect x="300" y="258" width="360" height="18" fill="#1d1d25"/>
+              <circle cx="326" cy="254" r="5.5" fill="#3a3a44"/><circle cx="346" cy="254" r="5.5" fill="#3a3a44"/><circle cx="366" cy="254" r="5.5" fill="#3a3a44"/>
+              <text x="480" y="259" font-size="16" font-weight="600" fill="rgba(255,255,255,.45)" text-anchor="middle" font-family="var(--font)">Design</text>
+              <g class="winContent">
+                <rect x="330" y="304" width="120" height="92" rx="12" fill="url(#ag)" opacity=".85"/>
+                <rect x="466" y="304" width="164" height="40" rx="9" fill="#2a2a33"/>
+                <rect x="466" y="356" width="120" height="40" rx="9" fill="#2a2a33"/>
+                <rect x="330" y="416" width="300" height="14" rx="7" fill="#26262e"/>
+                <rect x="330" y="440" width="210" height="14" rx="7" fill="#222229"/>
+              </g>
+            </g>
+            <!-- right window: Code -->
+            <g class="winR">
+              <rect x="940" y="232" width="360" height="244" rx="18" fill="#15151b" stroke="rgba(255,255,255,.12)"/>
+              <rect x="940" y="232" width="360" height="44" rx="18" fill="#1d1d25"/>
+              <rect x="940" y="258" width="360" height="18" fill="#1d1d25"/>
+              <circle cx="966" cy="254" r="5.5" fill="#3a3a44"/><circle cx="986" cy="254" r="5.5" fill="#3a3a44"/><circle cx="1006" cy="254" r="5.5" fill="#3a3a44"/>
+              <text x="1120" y="259" font-size="16" font-weight="600" fill="rgba(255,255,255,.45)" text-anchor="middle" font-family="var(--font)">Code</text>
+              <g class="winContent">
+                <rect x="972" y="306" width="150" height="13" rx="6.5" fill="#9a6bff" opacity=".8"/>
+                <rect x="998" y="330" width="210" height="13" rx="6.5" fill="#2c2c35"/>
+                <rect x="998" y="354" width="160" height="13" rx="6.5" fill="#2c2c35"/>
+                <rect x="972" y="378" width="120" height="13" rx="6.5" fill="#ff7aa2" opacity=".7"/>
+                <rect x="998" y="402" width="190" height="13" rx="6.5" fill="#2c2c35"/>
+                <rect x="972" y="426" width="96" height="13" rx="6.5" fill="#2c2c35"/>
+              </g>
+            </g>
+            <!-- connecting thread -->
+            <path class="thread" d="M 660 352 C 740 300, 860 300, 940 352" fill="none"
+                  stroke="url(#agh)" stroke-width="5" stroke-linecap="round"
+                  pathLength="300" stroke-dasharray="300" stroke-dashoffset="0"/>
+            <!-- snapped stubs -->
+            <path class="stub stubL" d="M 660 352 C 700 332, 720 330, 740 338" fill="none"
+                  stroke="#a259ff" stroke-width="5" stroke-linecap="round"/>
+            <path class="stub stubR" d="M 940 352 C 900 332, 880 330, 860 338" fill="none"
+                  stroke="#ff5e8a" stroke-width="5" stroke-linecap="round"/>
+            <!-- the context node that drops -->
+            <g class="s-node tb">
+              <circle cx="800" cy="332" r="15" fill="url(#ag)"/>
+              <circle cx="800" cy="332" r="26" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="2"/>
+            </g>
+          </svg>
+        </div>
+        <div class="cap">
+          <div class="kicker">The sprawl <span class="ar" dir="rtl" lang="ar">التشتّت</span></div>
+          <div class="cap-en">Context kept getting lost.</div>
+          <div class="cap-ar" dir="rtl" lang="ar">السياق ظلّ يضيع باستمرار.</div>
+        </div>
+      </section>
+
+      <!-- =================== SCENE 2 — THE MODEL =================== -->
+      <section class="scene s-model" data-scene="model" data-dur="5600">
+        <div class="art">
+          <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMin meet" aria-hidden="true">
+            <!-- connectors -->
+            <path class="m-conn" d="M800 268 L800 358" stroke="rgba(255,255,255,.18)" stroke-width="2.5" fill="none" stroke-dasharray="240" stroke-dashoffset="0"/>
+            <path class="m-conn" d="M742 444 L600 516" stroke="rgba(255,255,255,.18)" stroke-width="2.5" fill="none" stroke-dasharray="240" stroke-dashoffset="0"/>
+            <path class="m-conn" d="M858 444 L1000 516" stroke="rgba(255,255,255,.18)" stroke-width="2.5" fill="none" stroke-dasharray="240" stroke-dashoffset="0"/>
+
+            <!-- conductor -->
+            <g class="m-pop m-conductor">
+              <circle cx="800" cy="150" r="26" fill="#ededf2"/>
+              <path d="M752 250 Q800 206 848 250 Z" fill="#ededf2"/>
+              <g class="m-arms">
+                <path d="M772 234 L716 150" stroke="#ededf2" stroke-width="8" stroke-linecap="round" fill="none"/>
+                <path d="M828 234 L884 150" stroke="#ededf2" stroke-width="8" stroke-linecap="round" fill="none"/>
+                <circle cx="712" cy="146" r="8" fill="url(#ag)"/>
+                <circle cx="888" cy="146" r="8" fill="url(#ag)"/>
+                <path d="M690 132 Q720 110 752 124" stroke="#a259ff" stroke-width="3" fill="none" stroke-linecap="round" opacity=".55" stroke-dasharray="4 8"/>
+                <path d="M848 124 Q880 110 910 132" stroke="#ff5e8a" stroke-width="3" fill="none" stroke-linecap="round" opacity=".55" stroke-dasharray="4 8"/>
+              </g>
+            </g>
+
+            <!-- node: Cowork -->
+            <g class="m-pop m-cowork">
+              <rect x="676" y="360" width="248" height="84" rx="16" fill="#16161d" stroke="rgba(255,255,255,.14)"/>
+              <rect x="676" y="360" width="6" height="84" rx="3" fill="url(#agv)"/>
+              <text x="808" y="409" font-size="27" font-weight="700" fill="#fff" text-anchor="middle" font-family="var(--font)">Cowork</text>
+            </g>
+            <!-- node: Claude Design -->
+            <g class="m-pop m-design">
+              <rect x="474" y="516" width="252" height="84" rx="16" fill="#16161d" stroke="rgba(255,255,255,.14)"/>
+              <rect x="474" y="516" width="6" height="84" rx="3" fill="url(#agv)"/>
+              <text x="600" y="565" font-size="24" font-weight="700" fill="#fff" text-anchor="middle" font-family="var(--font)">Claude Design</text>
+            </g>
+            <!-- node: Claude Code -->
+            <g class="m-pop m-code">
+              <rect x="874" y="516" width="252" height="84" rx="16" fill="#16161d" stroke="rgba(255,255,255,.14)"/>
+              <rect x="874" y="516" width="6" height="84" rx="3" fill="url(#agv)"/>
+              <text x="1000" y="565" font-size="25" font-weight="700" fill="#fff" text-anchor="middle" font-family="var(--font)">Claude Code</text>
+            </g>
+
+            <!-- labelled brief tags -->
+            <g class="m-tag tagA" transform="translate(800,360)">
+              <g transform="translate(-34,-13)">
+                <path d="M0 4 a4 4 0 0 1 4 -4 H56 l12 13 -12 13 H4 a4 4 0 0 1 -4 -4 Z" fill="#1c1426" stroke="#a259ff" stroke-width="1.6"/>
+                <circle cx="11" cy="13" r="3" fill="#ff5e8a"/>
+                <rect x="20" y="9" width="34" height="3" rx="1.5" fill="rgba(255,255,255,.6)"/>
+                <rect x="20" y="16" width="22" height="3" rx="1.5" fill="rgba(255,255,255,.3)"/>
+              </g>
+            </g>
+            <g class="m-tag tagB" transform="translate(742,444)">
+              <g transform="translate(-34,-13)">
+                <path d="M0 4 a4 4 0 0 1 4 -4 H56 l12 13 -12 13 H4 a4 4 0 0 1 -4 -4 Z" fill="#1c1426" stroke="#a259ff" stroke-width="1.6"/>
+                <circle cx="11" cy="13" r="3" fill="#ff5e8a"/>
+                <rect x="20" y="9" width="34" height="3" rx="1.5" fill="rgba(255,255,255,.6)"/>
+                <rect x="20" y="16" width="22" height="3" rx="1.5" fill="rgba(255,255,255,.3)"/>
+              </g>
+            </g>
+            <g class="m-tag tagC" transform="translate(858,444)">
+              <g transform="translate(-34,-13)">
+                <path d="M0 4 a4 4 0 0 1 4 -4 H56 l12 13 -12 13 H4 a4 4 0 0 1 -4 -4 Z" fill="#1c1426" stroke="#ff5e8a" stroke-width="1.6"/>
+                <circle cx="11" cy="13" r="3" fill="#a259ff"/>
+                <rect x="20" y="9" width="34" height="3" rx="1.5" fill="rgba(255,255,255,.6)"/>
+                <rect x="20" y="16" width="22" height="3" rx="1.5" fill="rgba(255,255,255,.3)"/>
+              </g>
+            </g>
+          </svg>
+        </div>
+        <div class="cap">
+          <div class="kicker">The model <span class="ar" dir="rtl" lang="ar">النموذج</span></div>
+          <div class="cap-en">I'm the controller; every handoff a labelled brief.</div>
+          <div class="cap-ar" dir="rtl" lang="ar">أنا المتحكّم، وكل عملية تسليم موجزٌ مُعنوَن.</div>
+        </div>
+      </section>
+
+      <!-- =================== SCENE 3 — THE LOOP =================== -->
+      <section class="scene s-loop" data-scene="loop" data-dur="5200">
+        <div class="art">
+          <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMin meet" aria-hidden="true">
+            <circle class="l-ring" cx="800" cy="320" r="175" fill="none" stroke="rgba(255,255,255,.13)" stroke-width="2.5" stroke-dasharray="1100" stroke-dashoffset="0"/>
+            <!-- direction arrows on ring -->
+            <path d="M952 232 l10 -16 l16 10" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M800 495 l18 4 l-4 18" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M638 240 l-16 -10 l10 -16" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+            <!-- rotating gradient arc -->
+            <circle class="l-arc" cx="800" cy="320" r="175" fill="none" stroke="url(#ag)" stroke-width="5"
+                    stroke-linecap="round" stroke-dasharray="240 860"/>
+
+            <!-- halos -->
+            <circle class="l-halo h1" cx="800" cy="145" r="58" fill="none" stroke="#ff5e8a" stroke-width="3"/>
+            <circle class="l-halo h2" cx="952" cy="408" r="58" fill="none" stroke="#a259ff" stroke-width="3"/>
+            <circle class="l-halo h3" cx="648" cy="408" r="58" fill="none" stroke="#a259ff" stroke-width="3"/>
+
+            <!-- nodes -->
+            <g class="l-node l-brief">
+              <circle cx="800" cy="145" r="50" fill="#16161d" stroke="rgba(255,255,255,.16)"/>
+              <text x="800" y="152" font-size="22" font-weight="700" fill="#fff" text-anchor="middle" font-family="var(--font)">Brief</text>
+            </g>
+            <g class="l-node l-build">
+              <circle cx="952" cy="408" r="50" fill="#16161d" stroke="rgba(255,255,255,.16)"/>
+              <text x="952" y="415" font-size="22" font-weight="700" fill="#fff" text-anchor="middle" font-family="var(--font)">Build</text>
+            </g>
+            <g class="l-node l-verify">
+              <circle cx="648" cy="408" r="50" fill="#16161d" stroke="rgba(255,255,255,.16)"/>
+              <text x="648" y="404" font-size="18.5" font-weight="700" fill="#fff" text-anchor="middle" font-family="var(--font)">Verify</text>
+              <g>
+                <circle class="live-dot" cx="630" cy="424" r="4.5" fill="#5ce6a0"/>
+                <text x="648" y="429" font-size="13" font-weight="600" fill="rgba(255,255,255,.55)" text-anchor="middle" font-family="var(--font)" dx="6">live</text>
+              </g>
+            </g>
+          </svg>
+        </div>
+        <div class="cap">
+          <div class="kicker">The loop <span class="ar" dir="rtl" lang="ar">الحلقة</span></div>
+          <div class="cap-en">Ship without hand-writing the code.</div>
+          <div class="cap-ar" dir="rtl" lang="ar">نُطلق المنتج دون كتابة الكود يدويًا.</div>
+        </div>
+      </section>
+
+      <!-- =================== SCENE 4 — THE WIN =================== -->
+      <section class="scene s-win" data-scene="win" data-dur="6400">
+        <div class="art">
+          <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMin meet" aria-hidden="true">
+            <!-- counter -->
+            <g class="counterWrap">
+              <text id="rfqCount" x="250" y="262" font-size="150" font-weight="800" fill="#fff" text-anchor="middle" font-family="var(--font)" letter-spacing="-4">23</text>
+              <text x="250" y="312" font-size="23" font-weight="600" fill="rgba(255,255,255,.55)" text-anchor="middle" font-family="var(--font)">tenders surfaced</text>
+            </g>
+            <!-- rescue bracket + badge (appears late) -->
+            <g class="winLate">
+              <path d="M620 196 q0 -16 16 -16 H964 q16 0 16 16" fill="none" stroke="url(#ag)" stroke-width="2.5" opacity=".7"/>
+              <g transform="translate(800,118)">
+                <rect x="-58" y="-26" width="116" height="44" rx="22" fill="#1c1426" stroke="url(#ag)" stroke-width="1.8"/>
+                <path d="M-32 -4 l8 9 l16 -18" fill="none" stroke="#5ce6a0" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+                <text x="14" y="7" font-size="24" font-weight="800" fill="#fff" text-anchor="middle" font-family="var(--font)">4</text>
+              </g>
+            </g>
+            <!-- RFQ pile label -->
+            <g class="pileLabel">
+              <rect x="688" y="556" width="124" height="34" rx="17" fill="#15151b" stroke="rgba(255,255,255,.12)"/>
+              <text x="750" y="579" font-size="17" font-weight="700" fill="rgba(255,255,255,.6)" text-anchor="middle" font-family="var(--font)" letter-spacing="1">RFQ</text>
+            </g>
+            <!-- papers injected by JS -->
+            <g id="pile"></g>
+          </svg>
+        </div>
+        <div class="cap">
+          <div class="kicker">The win <span class="ar" dir="rtl" lang="ar">النتيجة</span></div>
+          <div class="cap-en">23 tenders surfaced from 6 months of email; 4 nearly lost. No fabricated data, ever.</div>
+          <div class="cap-ar" dir="rtl" lang="ar">ظهرت 23 مناقصة من بريد 6 أشهر؛ 4 كادت أن تُفقد. لا بيانات ملفّقة، إطلاقًا.</div>
+        </div>
+      </section>
+
+      <!-- =================== SCENE 5 — END =================== -->
+      <section class="scene s-end" data-scene="end" data-dur="4600">
+        <div class="art art-center">
+          <div class="end-wrap">
+            <div class="end-sys">SYSTEM 8</div>
+            <div class="end-row">
+              <div class="e1" style="display:flex; align-items:flex-end; gap:1.8cqmin;">
+                <span class="end-num">23</span>
+                <span class="end-lab">tenders<br>surfaced</span>
+              </div>
+              <div class="end-div"></div>
+              <div class="e2" style="display:flex; align-items:flex-end; gap:1.8cqmin;">
+                <span class="end-num sm" style="background:linear-gradient(120deg,#ff5e8a,#ff9d6e);-webkit-background-clip:text;background-clip:text;">4</span>
+                <span class="end-lab">nearly<br>lost</span>
+              </div>
+            </div>
+            <div class="end-sub e-sub">from 6 months of email</div>
+          </div>
+        </div>
+        <div class="cap">
+          <div class="cap-en" style="font-size:3.4cqmin;background:linear-gradient(100deg,var(--v),var(--p));-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700;">No fabricated data, ever.</div>
+          <div class="cap-ar" dir="rtl" lang="ar">بلا بيانات ملفّقة، إطلاقًا.</div>
+        </div>
+      </section>
+
+      <div class="vig"></div>
+      <div class="dots" aria-hidden="true">
+        <i class="dot-i on"></i><i class="dot-i"></i><i class="dot-i"></i><i class="dot-i"></i><i class="dot-i"></i><i class="dot-i"></i>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function(){
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var stage = document.getElementById('stage');
+  var scenes = Array.prototype.slice.call(stage.querySelectorAll('.scene'));
+  var dots = Array.prototype.slice.call(stage.querySelectorAll('.dot-i'));
+  var counterEl = document.getElementById('rfqCount');
+
+  /* ---- build the 23-paper RFQ pile ---- */
+  (function buildPile(){
+    var pile = document.getElementById('pile');
+    if(!pile) return;
+    var SVGNS='http://www.w3.org/2000/svg';
+    var cols=6, count=23, cellW=86, cellH=78, ox=560, oy=300;
+    var accent=[4,10,15,21];               // the 4 gold tenders
+    var slots=[665,758,851,944], si=0;
+    var seed=7; function rnd(){ seed=(seed*9301+49297)%233280; return seed/233280; }
+    for(var i=0;i<count;i++){
+      var col=i%cols, row=Math.floor(i/cols);
+      var jx=(rnd()-.5)*22, jy=(rnd()-.5)*16, rot=(rnd()-.5)*16;
+      var x=ox+col*cellW+jx, y=oy+row*cellH+jy;
+      var isAcc=accent.indexOf(i)>=0;
+      var g=document.createElementNS(SVGNS,'g');
+      if(isAcc){
+        var sx=slots[si++], sy=152;
+        g.setAttribute('class','rescue');
+        g.style.setProperty('--fx', x.toFixed(1)+'px');
+        g.style.setProperty('--fy', y.toFixed(1)+'px');
+        g.style.setProperty('--fr', rot.toFixed(1)+'deg');
+        g.style.setProperty('--tx', sx+'px');
+        g.style.setProperty('--ty', sy+'px');
+        g.style.transform='translate('+sx+'px,'+sy+'px) rotate(0deg)';
+      } else {
+        g.setAttribute('transform','translate('+x.toFixed(1)+','+y.toFixed(1)+') rotate('+rot.toFixed(1)+')');
+      }
+      var inner=document.createElementNS(SVGNS,'g');
+      inner.setAttribute('class','paperInner');
+      inner.style.setProperty('--d', (i*0.045)+'s');
+      // glow for accent
+      if(isAcc){
+        var glow=document.createElementNS(SVGNS,'rect');
+        glow.setAttribute('class','resGlow');
+        glow.setAttribute('x','-34');glow.setAttribute('y','-44');glow.setAttribute('width','68');glow.setAttribute('height','88');
+        glow.setAttribute('rx','9'); glow.setAttribute('fill','none');
+        glow.setAttribute('stroke','url(#ag)'); glow.setAttribute('stroke-width','6');
+        inner.appendChild(glow);
+      }
+      var rect=document.createElementNS(SVGNS,'rect');
+      rect.setAttribute('x','-29');rect.setAttribute('y','-39');rect.setAttribute('width','58');rect.setAttribute('height','78');rect.setAttribute('rx','7');
+      rect.setAttribute('fill', isAcc?'url(#paperGold)':'#16161d');
+      rect.setAttribute('stroke', isAcc?'rgba(255,255,255,.35)':'rgba(255,255,255,.12)');
+      rect.setAttribute('stroke-width','1.4');
+      inner.appendChild(rect);
+      // paper lines
+      var lc = isAcc?'rgba(40,10,40,.45)':'rgba(255,255,255,.22)';
+      [[-18,-22,36],[-18,-10,28],[-18,2,34],[-18,14,20]].forEach(function(L){
+        var ln=document.createElementNS(SVGNS,'rect');
+        ln.setAttribute('x',L[0]);ln.setAttribute('y',L[1]);ln.setAttribute('width',L[2]);ln.setAttribute('height','3.4');ln.setAttribute('rx','1.7');
+        ln.setAttribute('fill',lc); inner.appendChild(ln);
+      });
+      g.appendChild(inner);
+      pile.appendChild(g);
+    }
+  })();
+
+  function startCounter(){
+    if(!counterEl || reduce){ if(counterEl) counterEl.textContent='23'; return; }
+    if(counterEl._raf) cancelAnimationFrame(counterEl._raf);
+    counterEl.textContent='0';
+    var target=23, dur=1900, begin=performance.now()+350;
+    function step(t){
+      if(t<begin){ counterEl._raf=requestAnimationFrame(step); return; }
+      var p=Math.min(1,(t-begin)/dur);
+      var e=1-Math.pow(1-p,3);
+      counterEl.textContent=String(Math.round(e*target));
+      if(p<1) counterEl._raf=requestAnimationFrame(step); else counterEl.textContent='23';
+    }
+    counterEl._raf=requestAnimationFrame(step);
+  }
+
+  var idx=-1, timer=null;
+  function show(n){
+    if(timer) clearTimeout(timer);
+    idx=((n%scenes.length)+scenes.length)%scenes.length;
+    for(var i=0;i<scenes.length;i++) scenes[i].classList.toggle('active', i===idx);
+    for(var j=0;j<dots.length;j++) dots[j].classList.toggle('on', j===idx);
+    var sc=scenes[idx];
+    if(sc.dataset.scene==='win') startCounter();
+    var dur=parseInt(sc.dataset.dur,10)||5000;
+    timer=setTimeout(function(){ show(idx+1); }, dur);
+  }
+
+  // debug hook
+  window.__goto=function(n){
+    if(timer) clearTimeout(timer);
+    for(var i=0;i<scenes.length;i++) scenes[i].classList.toggle('active', i===n);
+    for(var j=0;j<dots.length;j++) dots[j].classList.toggle('on', j===n);
+    if(scenes[n] && scenes[n].dataset.scene==='win') startCounter();
+  };
+
+  if(reduce){
+    for(var k=0;k<scenes.length;k++) scenes[k].classList.add('active');
+    if(counterEl) counterEl.textContent='23';
+  } else {
+    show(0);
+  }
+})();
+</script>
+</body>
+</html>

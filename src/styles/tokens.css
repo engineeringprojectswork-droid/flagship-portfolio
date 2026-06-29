@@ -1,0 +1,470 @@
+/* =====================================================================
+   MOHAMED MAHMOUD — FLAGSHIP PORTFOLIO (Astro rebuild)
+   Design system · Apple-keynote aesthetic · bilingual AR/EN · dark+light
+   Ported from the hand-built reference, reorganised for component reuse.
+   Every visual token lives here; per-page accents come from body[data-accent].
+   ===================================================================== */
+
+/* ---------- Fonts (self-hosted, no external requests) ---------- */
+@import '@fontsource-variable/inter/wght.css';
+@import '@fontsource/ibm-plex-sans-arabic/arabic-300.css';
+@import '@fontsource/ibm-plex-sans-arabic/arabic-400.css';
+@import '@fontsource/ibm-plex-sans-arabic/arabic-500.css';
+@import '@fontsource/ibm-plex-sans-arabic/arabic-600.css';
+@import '@fontsource/ibm-plex-sans-arabic/arabic-700.css';
+
+/* ---------- Reset ---------- */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{min-height:100%;overflow-x:hidden}
+img,video,svg,iframe{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+ul{list-style:none}
+
+/* ---------- Tokens (dark is the default) ---------- */
+:root{
+  --bg:#000000;
+  --bg-2:#08080a;
+  --bg-soft:#101013;
+  --panel:rgba(255,255,255,.04);
+  --panel-brd:rgba(255,255,255,.10);
+  --ink:#f5f5f7;          /* primary text */
+  --ink-2:#a1a1a6;        /* secondary text (Apple gray) */
+  --ink-3:#6e6e73;
+  --accent:#2997ff;       /* Apple blue */
+  --accent-2:#a259ff;
+  --grad: linear-gradient(120deg,#2997ff 0%,#a259ff 50%,#ff5e8a 100%);
+  --grad-soft: radial-gradient(60% 80% at 50% 0%, rgba(41,151,255,.22), transparent 70%);
+  --maxw:1120px;
+  --pad:clamp(20px,5vw,40px);
+  --r:22px;
+  --ease:cubic-bezier(.2,.7,.2,1);
+  --font: "Inter Variable",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,Roboto,Helvetica,Arial,sans-serif;
+  --font-ar: "IBM Plex Sans Arabic","Noto Kufi Arabic",var(--font);
+  --shadow: 0 30px 80px -20px rgba(0,0,0,.7);
+  /* App-window mockups + card mesh follow the theme via these tokens */
+  --win-body:#101013;   /* device window body */
+  --win-bar:#08080a;    /* device title bar */
+  --mesh-a:#161616;     /* project-card mesh base (start) */
+  --mesh-b:#000000;     /* project-card mesh base (end) */
+  color-scheme: dark;
+}
+[data-theme="light"]{
+  --bg:#ffffff;--bg-2:#f5f5f7;--bg-soft:#ececee;
+  --panel:rgba(0,0,0,.03);--panel-brd:rgba(0,0,0,.10);
+  --ink:#1d1d1f;--ink-2:#515154;--ink-3:#86868b;
+  --shadow:0 30px 80px -28px rgba(0,0,0,.22);
+  --win-body:#ffffff;--win-bar:#f1f1f3;
+  --mesh-a:#ffffff;--mesh-b:#e9ecf3;
+  color-scheme: light;
+}
+
+/* Per-project accent (set via data-accent on <body>) */
+body[data-accent="blue"]   {--accent:#2997ff;--accent-2:#5ac8fa;--grad:linear-gradient(120deg,#2997ff,#5ac8fa)}
+body[data-accent="violet"] {--accent:#a259ff;--accent-2:#d18cff;--grad:linear-gradient(120deg,#7b2fff,#d18cff)}
+body[data-accent="green"]  {--accent:#30d158;--accent-2:#9bf0b4;--grad:linear-gradient(120deg,#1ea64a,#9bf0b4)}
+body[data-accent="orange"] {--accent:#ff9f0a;--accent-2:#ffd60a;--grad:linear-gradient(120deg,#ff7a00,#ffd60a)}
+body[data-accent="pink"]   {--accent:#ff375f;--accent-2:#ff7eb6;--grad:linear-gradient(120deg,#ff375f,#ff7eb6)}
+body[data-accent="teal"]   {--accent:#40e0d0;--accent-2:#64d2ff;--grad:linear-gradient(120deg,#0bb1c4,#64d2ff)}
+
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--font);
+  line-height:1.5;
+  letter-spacing:-.01em;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  transition:background .5s var(--ease), color .5s var(--ease);
+}
+[dir="rtl"] body, [dir="rtl"]{font-family:var(--font-ar);letter-spacing:0}
+
+/* ---------- Accessibility ---------- */
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.skip-link{position:fixed;top:8px;left:8px;z-index:200;transform:translateY(-160%);
+  background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:600;transition:transform .2s var(--ease)}
+.skip-link:focus{transform:none}
+[dir="rtl"] .skip-link{left:auto;right:8px}
+
+/* ---------- Type scale ---------- */
+.kicker{font-size:clamp(13px,1.4vw,15px);font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+[dir="rtl"] .kicker{letter-spacing:.02em}
+h1,h2,h3{line-height:1.05;letter-spacing:-.03em;font-weight:800}
+[dir="rtl"] h1,[dir="rtl"] h2,[dir="rtl"] h3{letter-spacing:0;line-height:1.2}
+.display{font-size:clamp(44px,10.5vw,150px);font-weight:900;line-height:.95}
+.h-xl{font-size:clamp(34px,6.5vw,84px)}
+.h-lg{font-size:clamp(28px,4.6vw,56px)}
+.h-md{font-size:clamp(22px,3vw,36px);font-weight:700}
+.lead{font-size:clamp(18px,2.3vw,27px);color:var(--ink-2);font-weight:400;line-height:1.4}
+.muted{color:var(--ink-2)}
+.tnum{font-variant-numeric:tabular-nums}
+
+.gradient-text{
+  background:var(--grad);-webkit-background-clip:text;background-clip:text;
+  color:transparent;-webkit-text-fill-color:transparent;
+}
+/* opt-in living sheen for signature gradient headlines */
+.gradient-text.shimmer{background-size:220% 100%;animation:shimmer 9s var(--ease) infinite}
+@keyframes shimmer{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+@media (prefers-reduced-motion:reduce){.gradient-text.shimmer{animation:none}}
+
+/* ---------- Layout ---------- */
+.wrap{width:100%;max-width:var(--maxw);margin-inline:auto;padding-inline:var(--pad)}
+.section{padding-block:clamp(80px,14vh,170px)}
+.center{text-align:center}
+.stack>*+*{margin-top:1.1em}
+.divider{height:1px;background:var(--panel-brd);border:0}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:clamp(24px,5vw,70px);align-items:center}
+@media(max-width:860px){.two-col{grid-template-columns:1fr;gap:34px}}
+
+/* ---------- Top nav (Apple translucent) ---------- */
+.nav{
+  position:fixed;inset:0 0 auto 0;z-index:100;height:54px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding-inline:clamp(16px,4vw,34px);
+  background:color-mix(in srgb,var(--bg) 72%,transparent);
+  backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);
+  border-bottom:1px solid transparent;transition:border-color .4s,background .4s;
+}
+.nav.scrolled{border-bottom-color:var(--panel-brd)}
+.nav__brand{font-weight:700;letter-spacing:-.02em;font-size:18px;display:flex;gap:.5em;align-items:center}
+.nav__brand .dot{width:9px;height:9px;border-radius:50%;background:var(--grad);box-shadow:0 0 14px var(--accent)}
+.nav__links{display:flex;gap:clamp(10px,2vw,26px);align-items:center}
+.nav__links a{font-size:14px;color:var(--ink-2);transition:color .25s}
+.nav__links a:hover{color:var(--ink)}
+.nav__tools{display:flex;gap:8px;align-items:center}
+.pill{
+  border:1px solid var(--panel-brd);border-radius:999px;padding:7px 13px;font-size:13px;
+  font-weight:600;color:var(--ink);display:inline-flex;gap:6px;align-items:center;
+  transition:border-color .25s,background .25s,transform .2s;min-width:40px;justify-content:center;
+}
+.pill:hover{border-color:var(--accent);transform:translateY(-1px)}
+@media(max-width:760px){.nav__links a{display:none}}
+
+/* ---------- Scroll progress ---------- */
+.progress{position:fixed;top:0;left:0;height:2px;width:0;background:var(--grad);z-index:101;box-shadow:0 0 12px var(--accent)}
+
+/* ---------- Buttons / CTA ---------- */
+.btn{
+  display:inline-flex;align-items:center;gap:.6em;border-radius:999px;
+  padding:14px 26px;font-weight:600;font-size:16px;transition:transform .2s var(--ease),box-shadow .3s,opacity .2s;
+  will-change:transform;
+}
+.btn--primary{background:var(--ink);color:var(--bg)}
+.btn--primary:hover{transform:translateY(-2px) scale(1.02);box-shadow:0 14px 40px -10px rgba(255,255,255,.3)}
+.btn--accent{background:var(--grad);color:#fff}
+.btn--accent:hover{transform:translateY(-2px) scale(1.02);box-shadow:0 14px 50px -12px var(--accent)}
+.btn--ghost{border:1px solid var(--panel-brd);color:var(--ink)}
+.btn--ghost:hover{border-color:var(--accent);transform:translateY(-2px)}
+.btn-row{display:flex;gap:14px;flex-wrap:wrap}
+.center .btn-row{justify-content:center}
+
+/* ---------- Reveal animations ----------
+   Hidden state is gated behind .js so no-JS visitors and crawlers see
+   everything; with JS, IntersectionObserver adds .in to animate them. */
+.js .reveal{opacity:0;transform:translateY(38px);transition:opacity 1s var(--ease),transform 1s var(--ease)}
+.js .reveal.in{opacity:1;transform:none}
+.reveal.d1{transition-delay:.08s}.reveal.d2{transition-delay:.16s}
+.reveal.d3{transition-delay:.24s}.reveal.d4{transition-delay:.32s}.reveal.d5{transition-delay:.40s}
+.js .scale-in{opacity:0;transform:scale(.92);transition:opacity 1.1s var(--ease),transform 1.1s var(--ease)}
+.js .scale-in.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  .reveal,.scale-in{opacity:1!important;transform:none!important;transition:none!important}
+}
+
+/* ---------- HERO ---------- */
+.hero{position:relative;min-height:100svh;display:grid;place-items:center;text-align:center;overflow:hidden;padding-top:54px}
+.hero__aurora{
+  position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.6;
+  background:
+    radial-gradient(40% 50% at 20% 18%, rgba(162,89,255,.22), transparent 70%),
+    radial-gradient(45% 55% at 82% 28%, rgba(41,151,255,.22), transparent 70%),
+    radial-gradient(40% 45% at 60% 88%, rgba(255,94,138,.16), transparent 70%);
+  animation:floaty 18s var(--ease) infinite alternate;
+}
+@keyframes floaty{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(0,-3%,0) scale(1.06)}}
+/* The home hero is always dark (aurora canvas), so force light text even in
+   the light theme — otherwise the non-gradient headline goes dark-on-dark. */
+.hero{--ink:#f5f5f7;--ink-2:#a1a1a6;--ink-3:#6e6e73;--panel-brd:rgba(255,255,255,.16);color:var(--ink)}
+.hero__canvas{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:0;pointer-events:none}
+.hero__grain{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:.05;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:180px 180px}
+.hero__vignette{position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(135% 130% at 50% 44%,transparent 58%,rgba(0,0,0,.55) 100%)}
+.hero__inner{position:relative;z-index:2;max-width:980px;padding-inline:var(--pad)}
+.hero__name{font-size:clamp(13px,1.5vw,15px);letter-spacing:.32em;text-transform:uppercase;color:var(--ink-2);margin-bottom:22px}
+[dir="rtl"] .hero__name{letter-spacing:.06em}
+.hero .display{margin-bottom:.22em}
+.scrollcue{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);z-index:3;color:var(--ink-2);font-size:12px;letter-spacing:.2em;text-transform:uppercase;display:flex;flex-direction:column;gap:8px;align-items:center;opacity:.8}
+[dir="rtl"] .scrollcue{letter-spacing:.05em}
+.scrollcue .mouse{width:22px;height:36px;border:1.5px solid var(--ink-3);border-radius:14px;position:relative}
+.scrollcue .mouse::after{content:"";position:absolute;top:7px;left:50%;width:3px;height:7px;background:var(--ink-2);border-radius:2px;transform:translateX(-50%);animation:wheel 1.6s infinite}
+@keyframes wheel{0%{opacity:0;transform:translate(-50%,0)}40%{opacity:1}100%{opacity:0;transform:translate(-50%,12px)}}
+
+/* ---------- Statement scenes (cinematic lines) ---------- */
+.statements{position:relative}
+.statement{min-height:96svh;display:grid;place-items:center;text-align:center;padding-inline:var(--pad)}
+.statement p{max-width:14ch;margin-inline:auto;font-weight:800;font-size:clamp(34px,8vw,96px);line-height:1.02;letter-spacing:-.03em}
+[dir="rtl"] .statement p{letter-spacing:0;max-width:18ch;line-height:1.2}
+
+/* ---------- Metrics / counters ---------- */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(14px,3vw,30px)}
+@media(max-width:820px){.metrics{grid-template-columns:repeat(2,1fr)}}
+.metric{padding:clamp(20px,3vw,34px) 16px;text-align:center;border:1px solid var(--panel-brd);border-radius:var(--r);background:var(--panel)}
+.metric__num{font-size:clamp(40px,7vw,76px);font-weight:900;line-height:1;letter-spacing:-.04em}
+.metric__lbl{margin-top:12px;color:var(--ink-2);font-size:clamp(13px,1.5vw,15px);font-weight:500}
+.metric__sub{margin-top:6px;color:var(--ink-3);font-size:12px}
+
+/* ---------- "Team you replace" cards ---------- */
+.roles{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media(max-width:900px){.roles{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.roles{grid-template-columns:1fr}}
+.role{
+  position:relative;border:1px solid var(--panel-brd);border-radius:var(--r);
+  padding:26px;background:var(--panel);overflow:hidden;transition:transform .4s var(--ease),border-color .4s;
+}
+.role:hover{transform:translateY(-4px);border-color:var(--accent)}
+.role::before{content:"";position:absolute;inset:0;background:var(--grad);opacity:0;transition:opacity .4s;z-index:0}
+.role:hover::before{opacity:.06}
+.role>*{position:relative;z-index:1}
+.role h3{font-size:20px;font-weight:700;margin-bottom:8px}
+.role .receipt{color:var(--ink-2);font-size:15px;line-height:1.45}
+.role .receipt b{color:var(--ink);font-weight:700}
+/* per-role line-art glyph that encodes the metric (funnel, growth curve, …) */
+.role__viz{
+  width:56px;height:56px;border-radius:15px;display:grid;place-items:center;margin-bottom:18px;
+  background:color-mix(in srgb,var(--accent) 13%,transparent);
+  border:1px solid color-mix(in srgb,var(--accent) 26%,transparent);
+  color:var(--accent);transition:transform .4s var(--ease),background .3s;
+}
+.role:hover .role__viz{transform:translateY(-2px) scale(1.05);background:color-mix(in srgb,var(--accent) 18%,transparent)}
+.role__viz svg{width:32px;height:32px;display:block}
+
+/* ---------- "Five hires → one person" convergence graphic ---------- */
+.converge{display:flex;flex-direction:column;align-items:center;gap:34px}
+.converge__stage{position:relative;width:min(380px,82vw);aspect-ratio:1}
+.converge__web{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.converge__ring{stroke:var(--panel-brd);stroke-width:1.5;fill:none}
+.converge__spoke{stroke:color-mix(in srgb,var(--accent) 48%,transparent);stroke-width:2;stroke-dasharray:4 6;animation:dashflow 5.5s linear infinite}
+@keyframes dashflow{to{stroke-dashoffset:-100}}
+.converge__node{
+  position:absolute;left:var(--cx);top:var(--cy);transform:translate(-50%,-50%);
+  width:48px;height:48px;border-radius:14px;display:grid;place-items:center;z-index:2;
+  background:color-mix(in srgb,var(--accent) 12%,var(--bg));
+  border:1px solid color-mix(in srgb,var(--accent) 30%,transparent);color:var(--accent);
+  box-shadow:0 8px 24px -12px color-mix(in srgb,var(--accent) 70%,transparent);
+}
+.converge__node svg{width:27px;height:27px;display:block}
+.converge__hub{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:3;
+  width:108px;height:108px;border-radius:50%;display:grid;place-items:center;
+  background:var(--grad);color:#fff;font-weight:900;font-size:48px;line-height:1;letter-spacing:-.04em;
+  box-shadow:0 0 0 9px color-mix(in srgb,var(--accent) 13%,transparent),0 24px 64px -14px var(--accent);
+}
+.converge__hub::after{content:"";position:absolute;inset:-9px;border-radius:50%;border:1.5px solid color-mix(in srgb,var(--accent) 35%,transparent);animation:hubpulse 3.4s var(--ease) infinite}
+@keyframes hubpulse{0%,100%{transform:scale(1);opacity:.7}50%{transform:scale(1.08);opacity:.25}}
+.converge__line{max-width:24ch;text-align:center}
+@media (prefers-reduced-motion:reduce){.converge__spoke,.converge__hub::after{animation:none}}
+
+/* ---------- Scroll-scrubbed tech orbit ---------- */
+.orbit-wrap{--p:0;position:relative;display:flex;flex-direction:column;align-items:center;gap:24px;padding-block:16px}
+.orbit{position:relative;width:min(520px,90vw);aspect-ratio:1;transform:rotate(calc(var(--p) * 90deg));will-change:transform}
+.orbit__chip{
+  position:absolute;left:50%;top:50%;--R:196px;
+  transform:translate(-50%,-50%) rotate(var(--a)) translateY(calc(-1 * var(--R))) rotate(calc(-1 * var(--a))) rotate(calc(var(--p) * -90deg));
+  opacity:clamp(0,calc((var(--p) - var(--t)) * 7),1);
+  transition:opacity .12s linear;
+}
+@media(max-width:720px){.orbit__chip{--R:150px}}
+@media(max-width:480px){.orbit__chip{--R:118px} .orbit__chip .tech{font-size:12px;padding:6px 11px 6px 8px}}
+.orbit__hub{
+  position:absolute;left:50%;top:50%;
+  transform:translate(-50%,-50%) rotate(calc(var(--p) * -90deg));
+  width:98px;height:98px;border-radius:50%;display:grid;place-items:center;z-index:4;
+  background:var(--grad);
+  box-shadow:0 0 0 10px color-mix(in srgb,var(--accent) 12%,transparent),0 24px 60px -16px var(--accent);
+  opacity:clamp(0,calc(var(--p) * 6),1);
+}
+.orbit__hub svg{width:40px;height:40px;display:block}
+.orbit__hint{font-size:13px;letter-spacing:.03em;text-align:center;max-width:30ch}
+@media (prefers-reduced-motion:reduce){
+  .orbit{transform:none}
+  .orbit__chip{opacity:1;transform:translate(-50%,-50%) rotate(var(--a)) translateY(calc(-1 * var(--R))) rotate(calc(-1 * var(--a)))}
+  .orbit__hub{opacity:1;transform:translate(-50%,-50%)}
+}
+
+/* ---------- Projects index ---------- */
+.projects{display:grid;grid-template-columns:repeat(2,1fr);gap:clamp(14px,2.4vw,22px)}
+@media(max-width:760px){.projects{grid-template-columns:1fr}}
+.pcard{
+  position:relative;border-radius:26px;overflow:hidden;min-height:340px;
+  /* Mesh + text follow the theme (light card on white, dark card on black). */
+  border:1px solid var(--panel-brd);background:var(--bg-soft);color:var(--ink);
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:30px;isolation:isolate;transition:transform .5s var(--ease),box-shadow .5s;
+}
+.pcard:hover{transform:translateY(-6px);box-shadow:var(--shadow)}
+.pcard__bg{position:absolute;inset:0;z-index:-1;opacity:.9;transition:transform .8s var(--ease)}
+.pcard:hover .pcard__bg{transform:scale(1.06)}
+.pcard__tag{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+[dir="rtl"] .pcard__tag{letter-spacing:.02em}
+.pcard h3{font-size:clamp(24px,3vw,34px);font-weight:800;margin-bottom:8px;letter-spacing:-.02em}
+.pcard p{color:var(--ink-2);font-size:15px;max-width:42ch}
+.pcard .stat{margin-top:16px;font-size:14px;color:var(--ink);font-weight:600;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.pcard .arrow{margin-top:18px;font-size:14px;color:var(--accent);font-weight:600;display:inline-flex;gap:8px;align-items:center;transition:gap .3s}
+.pcard:hover .arrow{gap:14px}
+/* per-project line-art emblem (frosted chip, top corner) */
+.pcard__emblem{
+  position:absolute;top:24px;inset-inline-end:24px;z-index:2;
+  width:54px;height:54px;border-radius:15px;display:grid;place-items:center;
+  background:color-mix(in srgb,var(--ink) 9%,transparent);
+  border:1px solid color-mix(in srgb,var(--ink) 18%,transparent);
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  color:var(--ink);transition:transform .5s var(--ease),background .3s;
+}
+.pcard:hover .pcard__emblem{transform:translateY(-3px) scale(1.06);background:color-mix(in srgb,var(--ink) 14%,transparent)}
+.pcard__emblem svg{width:30px;height:30px;display:block}
+
+/* mesh backgrounds for cards (no external images needed) — base follows theme */
+.mesh{background:
+  radial-gradient(60% 80% at 18% 18%, color-mix(in srgb,var(--accent) 60%,transparent), transparent 60%),
+  radial-gradient(70% 90% at 88% 30%, color-mix(in srgb,var(--accent-2) 55%,transparent), transparent 60%),
+  linear-gradient(160deg, var(--mesh-a), var(--mesh-b));}
+
+/* ---------- Claude Design film (embedded, isolated iframe) ----------
+   Frameless: the embedded film draws its OWN rounded, shadowed card, so the
+   wrapper is just a transparent aspect-ratio box (no second frame, no gutter). */
+.cd-film{position:relative;max-width:1040px;margin-inline:auto;aspect-ratio:16/9;background:transparent}
+@media(max-width:620px){.cd-film{aspect-ratio:4/5}}
+.cd-frame{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;background:transparent;color-scheme:dark}
+.story-film-wrap{padding-block:clamp(14px,4vh,40px)}
+
+/* ---------- Story page (project) ---------- */
+.story-hero{min-height:100svh;display:grid;place-items:center;text-align:center;position:relative;overflow:hidden;padding:90px var(--pad) 60px}
+.story-hero .badge{display:inline-flex;gap:8px;align-items:center;border:1px solid var(--panel-brd);border-radius:999px;padding:8px 16px;font-size:13px;color:var(--ink-2);margin-bottom:26px}
+.story-hero .badge .d{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent)}
+.story-section{padding-block:clamp(70px,12vh,150px)}
+.feat-list{display:grid;gap:14px;margin-top:8px}
+.feat{display:flex;gap:14px;align-items:flex-start;padding:18px;border:1px solid var(--panel-brd);border-radius:16px;background:var(--panel)}
+.feat .ic{flex:0 0 auto;width:40px;height:40px;border-radius:11px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--accent);font-weight:700}
+.feat h4{font-size:17px;font-weight:700;margin-bottom:3px}
+.feat p{color:var(--ink-2);font-size:14.5px;line-height:1.45}
+
+/* steps */
+.steps{counter-reset:step;display:grid;gap:18px}
+.step{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:start;padding:22px;border:1px solid var(--panel-brd);border-radius:18px;background:var(--panel)}
+.step__n{counter-increment:step;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;font-weight:800;background:var(--grad);color:#fff}
+.step__n::before{content:counter(step)}
+.step h4{font-weight:700;font-size:18px;margin-bottom:5px}
+.step p{color:var(--ink-2);font-size:15px}
+
+/* honesty / note callout */
+.note{border:1px solid var(--panel-brd);border-left:3px solid var(--accent);border-radius:14px;padding:18px 22px;background:var(--panel);color:var(--ink-2);font-size:15px;line-height:1.5}
+[dir="rtl"] .note{border-left:1px solid var(--panel-brd);border-right:3px solid var(--accent)}
+.note b{color:var(--ink)}
+
+/* tech chips */
+.chips{display:flex;flex-wrap:wrap;gap:9px}
+.chip{border:1px solid var(--panel-brd);border-radius:999px;padding:7px 14px;font-size:13.5px;color:var(--ink-2);background:var(--panel);transition:.25s}
+.chip:hover{color:var(--ink);border-color:var(--accent)}
+
+/* big device mockups — a real macOS app-window that follows the theme:
+   crisp white window in light mode, dark window in dark mode. The dashboards
+   inside use ambient tokens, so they re-colour with the theme automatically. */
+.device{
+  border:1px solid var(--panel-brd);border-radius:18px;overflow:hidden;
+  background:var(--win-body);box-shadow:var(--shadow);color:var(--ink)
+}
+.device__bar{height:40px;display:flex;align-items:center;gap:7px;padding:0 14px;border-bottom:1px solid var(--panel-brd);background:var(--win-bar)}
+.device__bar .d{width:11px;height:11px;border-radius:50%}
+.device__bar .r{background:#ff5f57}.device__bar .y{background:#febc2e}.device__bar .g{background:#28c840}
+.device__bar .addr{margin-inline-start:12px;font-size:12px;color:var(--ink-3);background:var(--panel);border-radius:6px;padding:3px 10px}
+.device__body{padding:0}
+
+/* embedded live site frame */
+.liveframe{width:100%;aspect-ratio:16/10;border:0;background:var(--win-body)}
+
+/* prev/next */
+.pager{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.pager a{color:var(--ink-2);font-size:15px;display:inline-flex;gap:8px;align-items:center;transition:color .25s}
+.pager a:hover{color:var(--ink)}
+
+/* ---------- Contact ---------- */
+.contact{text-align:center}
+.contact .links{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-top:30px}
+
+/* ---------- Footer ---------- */
+.footer{border-top:1px solid var(--panel-brd);padding-block:48px;color:var(--ink-3);font-size:13.5px}
+.footer .wrap{display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;align-items:center}
+.footer a{color:var(--ink-2)}.footer a:hover{color:var(--ink)}
+
+/* ---------- utilities ---------- */
+.hide{display:none!important}
+.eyebrow-row{display:flex;align-items:center;gap:14px;margin-bottom:22px}
+.eyebrow-row .ln{height:1px;flex:1;background:var(--panel-brd)}
+
+/* ---------- Tech / brand icon chips ---------- */
+.tech-row{display:flex;flex-wrap:wrap;gap:10px}
+.tech-row--center{justify-content:center}
+.tech{
+  --tc:var(--accent);
+  display:inline-flex;align-items:center;gap:9px;
+  border:1px solid var(--panel-brd);border-radius:999px;
+  padding:8px 15px 8px 10px;font-size:14px;font-weight:600;color:var(--ink);
+  background:var(--panel);position:relative;
+  transition:border-color .25s,transform .25s var(--ease),box-shadow .35s,background .25s;
+}
+[dir="rtl"] .tech{padding:8px 10px 8px 15px}
+.tech:hover{
+  transform:translateY(-2px);
+  border-color:color-mix(in srgb,var(--tc) 65%,transparent);
+  box-shadow:0 12px 30px -12px color-mix(in srgb,var(--tc) 70%,transparent);
+  background:color-mix(in srgb,var(--tc) 9%,var(--panel));
+}
+.tech__ic{display:grid;place-items:center;width:22px;height:22px;flex:0 0 auto}
+.tech__ic svg{width:16px;height:16px;display:block}
+.tech__mono{
+  display:grid;place-items:center;width:22px;height:22px;border-radius:7px;
+  font-size:11px;font-weight:800;letter-spacing:-.02em;line-height:1;
+  background:color-mix(in srgb,var(--tc) 20%,transparent);
+  border:1px solid color-mix(in srgb,var(--tc) 38%,transparent);
+}
+.tech__lbl{white-space:nowrap}
+
+/* ---------- Section accent glow (cinematic depth behind key blocks) ---------- */
+.section-glow{position:relative;isolation:isolate}
+.section-glow::before{
+  content:"";position:absolute;z-index:-1;inset:-10% -20% auto -20%;height:60%;
+  background:radial-gradient(50% 80% at 50% 0%,color-mix(in srgb,var(--accent) 22%,transparent),transparent 70%);
+  pointer-events:none;filter:blur(12px);opacity:.7;
+}
+
+/* ---------- Richer hover for content cards ---------- */
+.feat,.step,.metric{transition:transform .4s var(--ease),border-color .4s,box-shadow .4s,background .4s}
+.feat:hover,.step:hover{
+  transform:translateY(-3px);
+  border-color:color-mix(in srgb,var(--accent) 50%,var(--panel-brd));
+  box-shadow:0 16px 40px -22px color-mix(in srgb,var(--accent) 70%,transparent);
+}
+.metric:hover{border-color:color-mix(in srgb,var(--accent) 45%,var(--panel-brd))}
+.feat .ic{transition:transform .4s var(--ease),background .3s}
+.feat:hover .ic{transform:scale(1.08) rotate(-3deg)}
+
+/* shine sweep on the project cards */
+.pcard::after{
+  content:"";position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;
+  background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.10) 48%,transparent 62%);
+  transform:translateX(-30%);transition:opacity .5s;
+}
+.pcard:hover::after{opacity:1;animation:shine 1.1s var(--ease)}
+@keyframes shine{from{transform:translateX(-60%)}to{transform:translateX(60%)}}
+
+@media (prefers-reduced-motion:reduce){
+  .pcard:hover::after{animation:none}
+}
+
+/* ---------- View Transitions cross-fade ---------- */
+@media (prefers-reduced-motion:no-preference){
+  ::view-transition-old(root),::view-transition-new(root){animation-duration:.32s}
+}

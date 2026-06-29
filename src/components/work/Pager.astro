@@ -1,0 +1,22 @@
+---
+import { neighbours } from '../../data/projects';
+import { useTranslations, pick, workPath, type Lang } from '../../i18n/utils';
+
+interface Props {
+  lang: Lang;
+  slug: string;
+}
+const { lang, slug } = Astro.props;
+const t = useTranslations(lang);
+const { prev, next } = neighbours(slug);
+---
+
+<section class="story-section" style="padding-top:0">
+  <div class="wrap">
+    <hr class="divider" style="margin-bottom:34px" />
+    <div class="pager">
+      <a href={workPath(lang, prev.slug)}>← {t('work.prev')}: {pick(lang, prev.title)}</a>
+      <a href={workPath(lang, next.slug)}>{t('work.next')}: {pick(lang, next.title)} →</a>
+    </div>
+  </div>
+</section>

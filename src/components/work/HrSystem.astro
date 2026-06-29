@@ -1,0 +1,237 @@
+---
+import StoryHero from './StoryHero.astro';
+import FilmEmbed from './FilmEmbed.astro';
+import Metrics, { type MetricItem } from '../Metrics.astro';
+import TechRow from '../TechRow.astro';
+import { pick, type Lang } from '../../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+
+const funnel = [
+  {
+    w: '100%',
+    label: { en: 'Résumés parsed', ar: 'سِيَر مُحلَّلة' },
+    count: 142,
+  },
+  {
+    w: '70%',
+    label: { en: 'Deduped candidates', ar: 'مرشّحون بلا تكرار' },
+    count: 100,
+  },
+  {
+    w: '30%',
+    label: { en: 'Shortlisted', ar: 'القائمة المختصرة' },
+    count: 8,
+  },
+];
+
+const jobs = [
+  {
+    t: '08:30',
+    label: {
+      en: 'Intake — scan, parse, dedupe & score',
+      ar: 'استقبال — مسح وتحليل وإزالة تكرار وتقييم',
+    },
+  },
+  {
+    t: 'every 5h',
+    label: {
+      en: 'Read-only WhatsApp confirmation check',
+      ar: 'فحص تأكيد واتساب للقراءة فقط',
+    },
+  },
+  {
+    t: '19:30',
+    label: { en: 'Archive the day’s résumés', ar: 'أرشفة سِيَر اليوم' },
+  },
+];
+
+const feats = [
+  {
+    ic: '⌘',
+    h: { en: 'Read-verified scoring', ar: 'تقييمٌ مُتحقَّقٌ بالقراءة' },
+    p: {
+      en: 'Each likely fit is read, not keyword-matched — which corrected at least 3 mis-rankings.',
+      ar: 'كل مرشّحٍ مُحتمَل يُقرأ لا يُطابَق بالكلمات — ما صحّح ٣ أخطاء ترتيبٍ على الأقل.',
+    },
+  },
+  {
+    ic: '▦',
+    h: { en: 'One colour-coded master tracker', ar: 'مُتتبِّعٌ رئيسي واحد مُرمَّز بالألوان' },
+    p: {
+      en: 'Three channels (Gmail, WhatsApp, file drops) consolidated into a single source of truth.',
+      ar: 'ثلاث قنوات (Gmail، واتساب، ملفات) مُجمَّعة في مصدرٍ واحدٍ للحقيقة.',
+    },
+  },
+  {
+    ic: '⛨',
+    h: { en: 'Strict rules, enforced', ar: 'قواعد صارمة، مُطبَّقة' },
+    p: {
+      en: 'Male-only shortlist for these roles, never message without approval, never invent data.',
+      ar: 'قائمة مختصرة للذكور لهذه الأدوار، لا مراسلة دون موافقة، ولا اختلاق بيانات.',
+    },
+  },
+];
+
+const deliveryMetrics: MetricItem[] = [
+  { count: 142, label: { en: 'Résumés parsed', ar: 'سِيَر مُحلَّلة' } },
+  { count: 100, label: { en: 'Deduplicated candidates', ar: 'مرشّحون بلا تكرار' } },
+  { count: 7, label: { en: 'Python scripts', ar: 'سكربتات بايثون' } },
+  { count: 3, label: { en: 'Scheduled jobs live', ar: 'مهام مجدولة حيّة' } },
+];
+
+const honest = {
+  en: '<b>Honest credit:</b> Spec-driven, AI-assisted (Claude Code), operated daily by me — I set the roles, the rubric, the rules and the manager-review mode, and I approve every invitation. Time saved and recruiter-fee avoidance were never measured, so they aren’t claimed.',
+  ar: '<b>نسبٌ صادق:</b> مدفوعٌ بالمواصفات، وبمساعدة الذكاء الاصطناعي (Claude Code)، وأُشغّله يوميًا — وضعت الأدوار والمعايير والقواعد ووضع مراجعة المدير، وأوافق على كل دعوة. ولم يُقَس الوقت الموفّر ولا توفير أتعاب التوظيف، فلا يُدّعيان.',
+};
+---
+
+<StoryHero
+  lang={lang}
+  badge={{ en: 'Automation · Recruitment', ar: 'أتمتة · توظيف' }}
+  headline={{
+    en: 'Hiring on<br><span class="gradient-text">autopilot.</span>',
+    ar: 'توظيفٌ<br><span class="gradient-text">يعمل تلقائيًا.</span>',
+  }}
+  lead={{
+    en: 'Résumés arrive on three channels at once. <b style="color:var(--ink)">7 Python scripts and 3 scheduled jobs</b> collect, dedupe, read-score and track them daily — and never message a candidate without approval.',
+    ar: 'السِّيَر تصل عبر ثلاث قنواتٍ معًا. <b style="color:var(--ink)">٧ سكربتات بايثون و٣ مهام مجدولة</b> تجمعها وتُزيل التكرار وتُقيّمها بالقراءة وتتتبّعها يوميًا — ولا تراسل مرشّحًا دون موافقة.',
+  }}
+/>
+
+<FilmEmbed
+  lang={lang}
+  film="hr-system.html"
+  title={{ en: 'Interactive story film', ar: 'Interactive story film' }}
+/>
+
+<!-- THE PROBLEM -->
+<section class="story-section">
+  <div class="wrap two-col">
+    <div class="stack">
+      <p class="kicker reveal">{pick(lang, { en: 'The problem', ar: 'المشكلة' })}</p>
+      <h2 class="h-lg reveal d1">
+        {pick(lang, {
+          en: 'Keyword sorting hires the wrong person.',
+          ar: 'الفرز بالكلمات يوظّف الشخص الخطأ.',
+        })}
+      </h2>
+      <p class="lead reveal d2">
+        {pick(lang, {
+          en: 'Applications piled up across Gmail, WhatsApp and a downloads folder; the same person applied twice; and keyword ranking once put a procurement officer first for an engineering role. The fix: read, don’t keyword-match — at scale.',
+          ar: 'تكدّست الطلبات عبر Gmail وواتساب ومجلد التنزيلات؛ وتقدّم الشخص نفسه مرّتين؛ وذات مرّة وضع الترتيب بالكلمات موظّف مشترياتٍ أولًا لوظيفة هندسية. الحل: القراءة لا مطابقة الكلمات — وعلى نطاقٍ واسع.',
+        })}
+      </p>
+      <div class="reveal d3">
+        <TechRow lang={lang} items={['Gmail', 'WhatsApp']} />
+      </div>
+    </div>
+    <div class="reveal d1">
+      <div class="device">
+        <div class="device__bar">
+          <span class="d r"></span><span class="d y"></span><span class="d g"></span>
+          <span class="addr">Master tracker · daily</span>
+        </div>
+        <div class="device__body" style="padding:24px">
+          <div class="funnel">
+            {
+              funnel.map((f, i) => (
+                <div class={`fbar reveal${i ? ` d${i}` : ''}`} style={`--w:${f.w}`}>
+                  <span>{f.label[lang]}</span>
+                  <b class="tnum" data-count={f.count} data-duration="1500">0</b>
+                </div>
+              ))
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- THE DAILY CYCLE -->
+<section class="story-section">
+  <div class="wrap">
+    <div class="center stack" style="max-width:720px;margin-inline:auto">
+      <p class="kicker reveal">{pick(lang, { en: 'The daily cycle', ar: 'الدورة اليومية' })}</p>
+      <h2 class="h-xl reveal d1">
+        {pick(lang, {
+          en: 'It runs whether I’m there or not.',
+          ar: 'يعمل سواءٌ كنتُ موجودًا أم لا.',
+        })}
+      </h2>
+    </div>
+    <div class="schedule reveal d1" style="margin:34px auto 0;max-width:840px">
+      {
+        jobs.map((j) => (
+          <div class="sjob">
+            <b>{j.t}</b>
+            <span>{j.label[lang]}</span>
+          </div>
+        ))
+      }
+    </div>
+    <div class="feat-list" style="max-width:840px;margin:26px auto 0">
+      {
+        feats.map((f, i) => (
+          <div class={`feat reveal${i ? ` d${i}` : ''}`}>
+            <div class="ic" aria-hidden="true">{f.ic}</div>
+            <div>
+              <h4>{f.h[lang]}</h4>
+              <p>{f.p[lang]}</p>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<!-- DELIVERY FACTS -->
+<section class="story-section section-glow">
+  <div class="wrap">
+    <Metrics
+      lang={lang}
+      eyebrow={{ en: 'One build · 24 Jun 2026', ar: 'بناءٌ واحد · ٢٤ يونيو ٢٠٢٦' }}
+      items={deliveryMetrics}
+    />
+    <div class="note reveal" style="margin-top:30px" set:html={honest[lang]}></div>
+  </div>
+</section>
+
+<!-- TOOLS -->
+<section class="story-section">
+  <div class="wrap center stack" style="max-width:760px;margin-inline:auto">
+    <p class="kicker reveal">{pick(lang, { en: 'Tools', ar: 'الأدوات' })}</p>
+    <TechRow
+      lang={lang}
+      items={[
+        'Python',
+        'openpyxl',
+        'cron / scheduled tasks',
+        'Google Drive / Sheets',
+        'Gmail',
+        'WhatsApp Web (read-only)',
+        'JSON / CSV',
+      ]}
+    />
+  </div>
+</section>
+
+<style>
+  .funnel{display:grid;gap:12px}
+  .fbar{position:relative;border-radius:12px;padding:14px 16px;background:color-mix(in srgb,var(--accent) 16%,transparent);border:1px solid var(--panel-brd);display:flex;justify-content:space-between;align-items:center;overflow:hidden}
+  .fbar::before{content:"";position:absolute;inset:0;width:var(--w);background:var(--grad);opacity:.18;transform-origin:left;transform:scaleX(0);transition:transform 1.2s var(--ease)}
+  [dir="rtl"] .fbar::before{transform-origin:right}
+  .fbar.in::before{transform:scaleX(1)}
+  .fbar b{font-size:19px;font-weight:800;position:relative}
+  .fbar span{position:relative;color:var(--ink-2);font-weight:600;font-size:14px}
+  .schedule{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  @media(max-width:680px){.schedule{grid-template-columns:1fr}}
+  .sjob{padding:16px;border:1px solid var(--panel-brd);border-radius:14px;background:var(--panel)}
+  .sjob b{display:block;font-size:18px;font-weight:800;color:var(--accent);margin-bottom:4px}
+  .sjob span{font-size:13.5px;color:var(--ink-2)}
+</style>

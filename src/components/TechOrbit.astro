@@ -1,0 +1,49 @@
+---
+import Tech from './Tech.astro';
+import { pick, type Lang } from '../i18n/utils';
+
+type Item = string | { en: string; ar: string };
+
+interface Props {
+  lang: Lang;
+  items: Item[];
+}
+const { lang, items } = Astro.props;
+const N = Math.max(1, items.length);
+
+const nameOf = (it: Item): string => (typeof it === 'string' ? it : it.en);
+const displayOf = (it: Item): string => (typeof it === 'string' ? it : it[lang]);
+
+const hint = pick(lang, {
+  en: 'Scroll — the stack assembles, one capability at a time',
+  ar: 'مرّر — تتجمّع المنظومة، قدرةً تلو الأخرى',
+});
+---
+
+<!-- data-scrub: interactions.ts feeds this a live --p (0→1) from scroll position -->
+<div class="orbit-wrap" data-scrub>
+  <div class="orbit" aria-hidden="true">
+    {
+      items.map((it, i) => (
+        <span
+          class="orbit__chip"
+          style={`--a:${(i * 360) / N}deg;--t:${((i * 0.62) / Math.max(1, N - 1)).toFixed(3)}`}
+        >
+          <Tech name={nameOf(it)} display={displayOf(it)} />
+        </span>
+      ))
+    }
+    <div class="orbit__hub" aria-hidden="true">
+      <svg viewBox="0 0 64 64" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M32 11 L53 22 L32 33 L11 22 Z" />
+        <path d="M11 32 L32 43 L53 32" />
+        <path d="M11 42 L32 53 L53 42" />
+      </svg>
+    </div>
+  </div>
+
+  <!-- accessible / no-JS fallback: the same stack as a plain list -->
+  <ul class="sr-only">{items.map((it) => <li>{displayOf(it)}</li>)}</ul>
+
+  <p class="orbit__hint muted">{hint}</p>
+</div>

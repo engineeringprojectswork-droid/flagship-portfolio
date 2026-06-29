@@ -1,0 +1,31 @@
+---
+import type { Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+
+type Line = { en: string; ar: string; grad?: boolean };
+const lines: Line[] = [
+  { en: 'I run the ads.', ar: 'أُدير الإعلانات.' },
+  { en: 'I grow the audience.', ar: 'أُنمّي الجمهور.' },
+  { en: 'I build the systems.', ar: 'أبني الأنظمة.' },
+  { en: 'I automate the rest with AI.', ar: 'وأؤتمت الباقي بالذكاء الاصطناعي.' },
+  {
+    en: 'So a business gets a full team’s output —<br>from a single hire.',
+    ar: 'ليحصل العمل على إنتاج فريقٍ كامل —<br>من تعيينٍ واحد.',
+    grad: true,
+  },
+];
+---
+
+<section class="statements" aria-label={lang === 'ar' ? 'ما الذي أفعله' : 'What I do'}>
+  {
+    lines.map((l) => (
+      <div class="statement">
+        <p class={`reveal${l.grad ? ' gradient-text shimmer' : ''}`} set:html={l[lang]} />
+      </div>
+    ))
+  }
+</section>

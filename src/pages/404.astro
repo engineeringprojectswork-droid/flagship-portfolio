@@ -1,0 +1,28 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  lang="en"
+  title="Page not found — Mohamed Mahmoud"
+  description="That page doesn’t exist. Head back to the work."
+  path="/404"
+  accent="pink"
+>
+  <section class="hero" style="min-height:84svh">
+    <div class="hero__aurora" aria-hidden="true"></div>
+    <div class="hero__inner">
+      <p class="hero__name">404</p>
+      <h1 class="display" style="font-size:clamp(40px,9vw,120px)">
+        Lost the <span class="gradient-text">thread.</span>
+      </h1>
+      <p class="lead" style="max-width:42ch;margin-inline:auto;margin-top:.6em">
+        That page doesn’t exist — but the work does.
+      </p>
+      <div class="btn-row" style="justify-content:center;margin-top:30px">
+        <a class="btn btn--accent" href="/en">Home →</a>
+        <a class="btn btn--ghost" href="/en#work">See the work</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

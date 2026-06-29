@@ -1,0 +1,31 @@
+---
+import { useTranslations, otherLang, mirrorPath, homePath, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+  /** true on the homepage → in-page anchors; false on stories → link home first */
+  home?: boolean;
+}
+const { lang, home = false } = Astro.props;
+const t = useTranslations(lang);
+const base = home ? '' : homePath(lang);
+const other = otherLang(lang);
+const mirror = mirrorPath(Astro.url.pathname, other);
+const otherLabel = other === 'ar' ? 'ع' : 'EN';
+---
+
+<nav class="nav" id="top" aria-label="Primary">
+  <a class="nav__brand" href={homePath(lang)} aria-label={t('a11y.home')}>
+    <span class="dot" aria-hidden="true"></span>Mohamed&nbsp;Mahmoud
+  </a>
+  <div class="nav__links">
+    <a href={`${base}#work`}>{t('nav.work')}</a>
+    <a href={`${base}#team`}>{t('nav.team')}</a>
+    <a href={`${base}#about`}>{t('nav.about')}</a>
+    <a href={`${base}#contact`}>{t('nav.contact')}</a>
+  </div>
+  <div class="nav__tools">
+    <a class="pill" href={mirror} aria-label={t('a11y.switchLang')} data-astro-reload>{otherLabel}</a>
+    <button class="pill" type="button" data-theme-btn aria-label={t('a11y.toggleTheme')}>☀</button>
+  </div>
+</nav>

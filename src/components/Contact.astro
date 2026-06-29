@@ -1,0 +1,29 @@
+---
+import { profile } from '../data/profile';
+import type { Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+
+const kicker = lang === 'ar' ? 'لنتحدّث' : 'Let’s talk';
+const h2 = lang === 'ar' ? 'وظِّف واحدًا. واحصل على فريق.' : 'Hire one. Get a team.';
+const lead =
+  lang === 'ar'
+    ? 'متاحٌ لأدوار التسويق وعمليات التسويق وأتمتة الذكاء الاصطناعي في الكويت والخليج.'
+    : 'Open to marketing, marketing-ops, and AI-automation roles in Kuwait & the GCC.';
+---
+
+<section class="section contact" id="contact">
+  <div class="wrap stack" style="max-width:720px;margin-inline:auto">
+    <p class="kicker reveal">{kicker}</p>
+    <h2 class="h-xl reveal d1">{h2}</h2>
+    <p class="lead reveal d2">{lead}</p>
+    <div class="links reveal d3">
+      <a class="btn btn--accent" href={profile.contact.whatsapp} target="_blank" rel="noopener">WhatsApp</a>
+      <a class="btn btn--primary" href={`mailto:${profile.contact.email}`}>Email</a>
+      <a class="btn btn--ghost" href={profile.contact.linkedin} target="_blank" rel="noopener">LinkedIn</a>
+    </div>
+  </div>
+</section>

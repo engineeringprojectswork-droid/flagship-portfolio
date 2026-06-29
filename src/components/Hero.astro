@@ -1,0 +1,38 @@
+---
+import { useTranslations, pick, type Lang } from '../i18n/utils';
+import { profile } from '../data/profile';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const headline =
+  lang === 'ar'
+    ? 'فريق تسويقٍ كامل.<br><span class="gradient-text shimmer">في شخصٍ واحد.</span>'
+    : 'A whole marketing team.<br><span class="gradient-text shimmer">In one person.</span>';
+
+const lead =
+  lang === 'ar'
+    ? 'أُدير الإعلانات، وأُنتج المحتوى، وأبني نظام إدارة العملاء، وأؤتمت الباقي بالذكاء الاصطناعي — وأُطلق البرمجيات بنفسي أيضًا.'
+    : 'I run the ads, produce the content, build the CRM, and automate the rest with AI — and I ship the software too.';
+---
+
+<header class="hero">
+  <canvas class="hero__canvas" id="auroraCanvas" aria-hidden="true"></canvas>
+  <div class="hero__grain" aria-hidden="true"></div>
+  <div class="hero__vignette" aria-hidden="true"></div>
+  <div class="hero__inner">
+    <p class="hero__name reveal">MOHAMED&nbsp;MAHMOUD&nbsp;·&nbsp;{pick(lang, profile.location)}</p>
+    <h1 class="display reveal d1" set:html={headline}></h1>
+    <p class="lead reveal d2" style="max-width:46ch;margin-inline:auto;margin-top:.7em">{lead}</p>
+    <div class="btn-row reveal d3" style="justify-content:center;margin-top:34px">
+      <a class="btn btn--accent" href="#work">{t('cta.seeWork')} →</a>
+      <a class="btn btn--ghost" href="#contact">{t('cta.getInTouch')}</a>
+    </div>
+  </div>
+  <div class="scrollcue" aria-hidden="true">
+    <span class="mouse"></span><span>{t('hero.scroll')}</span>
+  </div>
+</header>

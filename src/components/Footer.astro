@@ -1,0 +1,21 @@
+---
+import { useTranslations, pick, type Lang } from '../i18n/utils';
+import { profile } from '../data/profile';
+
+interface Props {
+  lang: Lang;
+  /** optional override for the small middle note (e.g. a project's data provenance) */
+  note?: string;
+}
+const { lang, note } = Astro.props;
+const t = useTranslations(lang);
+const year = new Date().getFullYear();
+---
+
+<footer class="footer">
+  <div class="wrap">
+    <span>© {year} {pick(lang, profile.name)} · {pick(lang, profile.location)}</span>
+    <span>{note ?? t('footer.note')}</span>
+    <a href="#top">{t('footer.top')}</a>
+  </div>
+</footer>

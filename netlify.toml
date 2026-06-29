@@ -1,0 +1,20 @@
+# Netlify — static deploy of the Astro build output.
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# Long-cache the immutable, hashed assets Astro emits.
+[[headers]]
+  for = "/_astro/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# The embedded Claude Design films are self-contained HTML in /films.
+[[headers]]
+  for = "/films/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    Cache-Control = "public, max-age=86400"

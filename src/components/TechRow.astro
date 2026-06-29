@@ -1,0 +1,25 @@
+---
+import Tech from './Tech.astro';
+import type { Lang } from '../i18n/utils';
+
+type Item = string | { en: string; ar: string };
+
+interface Props {
+  lang: Lang;
+  items: Item[];
+  /** center the row (default true) */
+  center?: boolean;
+}
+const { lang, items, center = true } = Astro.props;
+
+function nameOf(it: Item): string {
+  return typeof it === 'string' ? it : it.en;
+}
+function displayOf(it: Item): string {
+  return typeof it === 'string' ? it : it[lang];
+}
+---
+
+<div class={`tech-row reveal d1${center ? ' tech-row--center' : ''}`}>
+  {items.map((it) => <Tech name={nameOf(it)} display={displayOf(it)} />)}
+</div>

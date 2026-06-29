@@ -1,0 +1,18 @@
+# build output
+dist/
+# deps
+node_modules/
+# astro
+.astro/
+# env
+.env
+.env.production
+# os / editor
+.DS_Store
+Thumbs.db
+*.log
+
+# Local Netlify folder
+.netlify
+
+.vercel

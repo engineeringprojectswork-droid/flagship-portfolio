@@ -1,0 +1,43 @@
+---
+import { useTranslations, homePath, type Lang } from '../../i18n/utils';
+
+interface Props {
+  lang: Lang;
+  /** small pill text above the headline, e.g. "Software · Desktop app" */
+  badge: { en: string; ar: string };
+  /** headline HTML (may contain <br> and <span class="gradient-text">) */
+  headline: { en: string; ar: string };
+  /** lead/intro HTML (may contain <b>) */
+  lead: { en: string; ar: string };
+  /** optional inline style for the display headline (font-size override) */
+  headlineStyle?: string;
+  /** optional primary CTA label (renders an accent button before "All work") */
+  cta?: { en: string; ar: string };
+  /** href for the optional primary CTA (external links open in a new tab) */
+  ctaHref?: string;
+}
+const { lang, badge, headline, lead, headlineStyle = 'font-size:clamp(40px,8vw,110px)', cta, ctaHref } =
+  Astro.props;
+const ctaExternal = !!ctaHref && /^https?:\/\//.test(ctaHref);
+const t = useTranslations(lang);
+---
+
+<header class="story-hero">
+  <div class="hero__aurora" data-parallax="0.12" aria-hidden="true"></div>
+  <div class="hero__inner">
+    <span class="badge reveal"><span class="d" aria-hidden="true"></span>{badge[lang]}</span>
+    <h1 class="display reveal d1" style={headlineStyle} set:html={headline[lang]}></h1>
+    <p class="lead reveal d2" style="max-width:54ch;margin-inline:auto;margin-top:.6em" set:html={lead[lang]}></p>
+    <div class="btn-row reveal d3" style="justify-content:center;margin-top:32px">
+      {cta && ctaHref && (
+        <a
+          class="btn btn--accent"
+          href={ctaHref}
+          target={ctaExternal ? '_blank' : undefined}
+          rel={ctaExternal ? 'noopener' : undefined}
+        >{cta[lang]} ↗</a>
+      )}
+      <a class="btn btn--ghost" href={homePath(lang) + '#work'}>← {t('work.all')}</a>
+    </div>
+  </div>
+</header>

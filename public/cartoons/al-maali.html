@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Al-Ma'ali Satellite Channel — 0 → 1M+</title>
+<style>
+  :root{
+    --bg:#0a0a0c;
+    --ink:#ffffff;
+    --muted:rgba(255,255,255,.56);
+    --faint:rgba(255,255,255,.12);
+    --accent:#ff375f;
+    --accent-soft:rgba(255,55,95,.14);
+    --ui:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,Roboto,Helvetica,Arial,sans-serif;
+    --ar:"SF Arabic","Geeza Pro","Noto Naskh Arabic","Segoe UI",Tahoma,Arial,sans-serif;
+    --e:cubic-bezier(.16,1,.3,1);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:#070708;
+    color:var(--ink);
+    font-family:var(--ui);
+    -webkit-font-smoothing:antialiased;
+    display:grid;
+    place-items:center;
+    padding:clamp(8px,3vw,30px);
+  }
+
+  /* ---------- Stage / frame ---------- */
+  .stage{
+    position:relative;
+    width:min(100%,1120px);
+    aspect-ratio:16/9;
+    border-radius:clamp(14px,2.1vw,24px);
+    overflow:hidden;
+    background:radial-gradient(125% 120% at 50% 26%,#17171c 0%,#0d0d10 52%,var(--bg) 100%);
+    box-shadow:0 36px 90px -34px rgba(0,0,0,.85),inset 0 0 0 1px rgba(255,255,255,.05);
+    isolation:isolate;
+  }
+  @media (max-width:620px){ .stage{ aspect-ratio:4/5; } }
+
+  /* ---------- Persistent chrome ---------- */
+  .brand{
+    position:absolute; top:5.2cqh; left:5.2cqw; z-index:6;
+    display:flex; align-items:center; gap:1.6cqw;
+    opacity:.6; letter-spacing:.26em; font-size:min(2.3cqw,3.3cqh);
+    font-weight:600; text-transform:uppercase; color:var(--ink);
+  }
+  .brand i{ width:1.7cqh; height:1.7cqh; background:var(--accent); border-radius:2px; display:block; box-shadow:0 0 10px rgba(255,55,95,.6); }
+  .dots{
+    position:absolute; bottom:4.6cqh; left:0; right:0; z-index:6;
+    display:flex; gap:1.4cqh; justify-content:center; align-items:center;
+  }
+  .dot{ width:1.5cqh; height:1.5cqh; border-radius:99px; background:rgba(255,255,255,.18); transition:width .5s var(--e),background .5s var(--e); }
+  .dot.on{ width:5cqh; background:var(--accent); }
+
+  /* ---------- Scenes ---------- */
+  .scene{
+    position:absolute; inset:0; z-index:1;
+    container-type:size;
+    display:grid; grid-template-rows:1fr auto;
+    align-items:center; justify-items:center;
+    row-gap:3.2cqh;
+    padding:12cqh 7cqw 12cqh;
+    opacity:0; visibility:hidden; transform:scale(1.03);
+    transition:opacity .55s ease,transform .9s var(--e),visibility .55s;
+  }
+  .scene.active{ opacity:1; visibility:visible; transform:none; }
+
+  .art{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3.4cqh; width:100%; }
+  .cap{ text-align:center; }
+  .en{ font-weight:600; letter-spacing:-.02em; line-height:1.05; color:var(--ink); font-size:min(5.4cqw,8.4cqh); text-wrap:balance; }
+  .ar{ font-family:var(--ar); color:var(--muted); line-height:1.35; margin-top:1.8cqh; font-size:min(4cqw,6.2cqh); }
+  .em{ color:var(--accent); }
+
+  /* entrance: captions + art children rise in */
+  .scene .en,.scene .ar,.scene .rise{
+    opacity:0; transform:translateY(2.6cqh);
+    transition:opacity .75s var(--e),transform .75s var(--e);
+  }
+  .scene.active .en{ opacity:1; transform:none; transition-delay:.22s; }
+  .scene.active .ar{ opacity:1; transform:none; transition-delay:.36s; }
+  .scene.active .rise{ opacity:1; transform:none; }
+
+  /* ---------- S1 : dish ---------- */
+  .dish{ width:min(40cqw,52cqh); height:auto; overflow:visible; }
+  .ring{ fill:none; stroke:var(--accent); stroke-width:3; transform-box:fill-box; transform-origin:center; opacity:0; }
+  .scene.active .r1{ animation:ping 2.6s var(--e) infinite; }
+  .scene.active .r2{ animation:ping 2.6s var(--e) .85s infinite; }
+  .scene.active .r3{ animation:ping 2.6s var(--e) 1.7s infinite; }
+  @keyframes ping{ 0%{ transform:scale(.18); opacity:.85;} 70%{opacity:.18;} 100%{ transform:scale(1.5); opacity:0;} }
+  .name{ font-weight:600; letter-spacing:-.02em; line-height:1.04; font-size:min(7cqw,11.5cqh); }
+  .name-ar{ font-family:var(--ar); color:var(--muted); font-size:min(4.4cqw,7cqh); margin-top:1.2cqh; }
+  .scene.active .name{ transition-delay:.12s; }
+  .scene.active .name-ar{ transition-delay:.24s; }
+
+  /* ---------- S2 : platforms ---------- */
+  .net{ width:min(82cqw,128cqh); height:min(42.3cqw,66cqh); overflow:visible; }
+  .core{ fill:var(--accent); }
+  .halo{ fill:none; stroke:var(--accent); stroke-width:2.5; transform-box:fill-box; transform-origin:center; opacity:0; }
+  .scene.active .halo{ animation:ping 2.4s var(--e) infinite; }
+  .wire{ stroke:rgba(255,55,95,.55); stroke-width:2.4; stroke-linecap:round; stroke-dasharray:160; stroke-dashoffset:160; transition:stroke-dashoffset .7s var(--e); }
+  .scene.active .wire{ stroke-dashoffset:0; }
+  .tile{ opacity:.32; transition:opacity .55s var(--e),filter .55s var(--e); }
+  .tile .bg{ fill:rgba(255,255,255,.045); stroke:var(--faint); stroke-width:1.5; transition:fill .55s var(--e),stroke .55s var(--e); }
+  .tile .ico{ color:var(--accent); }
+  .tile .lbl{ fill:var(--muted); font-family:var(--ui); font-size:13.5px; font-weight:500; text-anchor:middle; }
+  .scene.active .tile{ opacity:1; filter:drop-shadow(0 0 8px rgba(255,55,95,.5)); }
+  .scene.active .tile .bg{ fill:var(--accent-soft); stroke:var(--accent); }
+
+  /* ---------- S3 : climb ---------- */
+  .eyebrow{ font-size:min(2.9cqw,4.3cqh); letter-spacing:.3em; font-weight:600; color:var(--accent); text-transform:uppercase; }
+  .bignum{ font-weight:700; letter-spacing:-.04em; line-height:.9; font-variant-numeric:tabular-nums; font-feature-settings:"tnum"; font-size:min(25cqw,40cqh); }
+  .graph{ width:min(62cqw,150cqh); height:auto; overflow:visible; margin-top:1.5cqh; }
+  .gline{ fill:none; stroke:var(--accent); stroke-width:3.4; stroke-linecap:round; stroke-linejoin:round; stroke-dasharray:560; stroke-dashoffset:560; transition:stroke-dashoffset 2.2s var(--e) .15s; }
+  .scene.active .gline{ stroke-dashoffset:0; }
+  .garea{ fill:url(#gfade); opacity:0; transition:opacity 1.4s ease .6s; }
+  .scene.active .garea{ opacity:1; }
+  .gtip{ fill:var(--accent); opacity:0; transform-box:fill-box; transform-origin:center; transform:scale(0); transition:opacity .5s ease 2s,transform .6s var(--e) 2s; }
+  .scene.active .gtip{ opacity:1; transform:scale(1); }
+  .gtip-glow{ fill:rgba(255,55,95,.28); opacity:0; transition:opacity .6s ease 2s; }
+  .scene.active .gtip-glow{ opacity:1; }
+
+  /* ---------- S4 : three stats ---------- */
+  .cards{ display:flex; gap:3cqw; align-items:stretch; justify-content:center; width:100%; max-width:96cqw; }
+  .card{
+    flex:1 1 0; min-width:0;
+    background:rgba(255,255,255,.035); border:1px solid var(--faint);
+    border-radius:2.6cqh; padding:4.4cqh 2.4cqw 4cqh;
+    display:flex; flex-direction:column; align-items:center; gap:1.8cqh;
+    transition-property:opacity,transform; /* uses .rise base */
+  }
+  .card .ico{ color:var(--accent); width:min(9cqw,13cqh); height:min(9cqw,13cqh); }
+  .card .pn{ color:var(--muted); font-size:min(3.4cqw,4.8cqh); font-weight:500; letter-spacing:.01em; }
+  .card .pv{ font-weight:700; letter-spacing:-.03em; font-variant-numeric:tabular-nums; font-feature-settings:"tnum"; font-size:min(8.4cqw,12cqh); line-height:1; }
+
+  /* ---------- S5 : payoff ---------- */
+  .payoff{ display:flex; flex-direction:column; align-items:center; gap:1.2cqh; }
+  .payoff .big{ font-weight:700; letter-spacing:-.04em; line-height:.86; font-size:min(30cqw,46cqh); text-shadow:0 0 60px rgba(255,55,95,.35); }
+  .payoff .sub{ font-size:min(3cqw,4.4cqh); letter-spacing:.34em; text-transform:uppercase; color:var(--muted); font-weight:600; }
+  .payoff .nm{ font-weight:600; font-size:min(4.2cqw,6cqh); letter-spacing:-.01em; margin-top:1.2cqh; }
+  .payoff .nm-ar{ font-family:var(--ar); color:var(--muted); font-size:min(3.6cqw,5.2cqh); }
+  .scene.active .payoff .sub{ transition-delay:.18s; }
+  .scene.active .payoff .nm{ transition-delay:.3s; }
+  .scene.active .payoff .nm-ar{ transition-delay:.4s; }
+
+  /* ================= REDUCED MOTION : static panels ================= */
+  @media (prefers-reduced-motion:reduce){ }
+  .reduced .stage{
+    position:static; width:min(100%,1120px); height:auto; aspect-ratio:auto;
+    background:none; box-shadow:none; overflow:visible; display:block; margin:0 auto;
+  }
+  .reduced .brand,.reduced .dots{ display:none; }
+  .reduced .scene{
+    position:relative; inset:auto; aspect-ratio:16/9;
+    opacity:1!important; visibility:visible!important; transform:none!important;
+    margin-bottom:16px; border-radius:18px;
+    background:radial-gradient(125% 120% at 50% 26%,#17171c 0%,#0d0d10 52%,var(--bg) 100%);
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.05);
+  }
+  @media (max-width:620px){ .reduced .scene{ aspect-ratio:4/5; } }
+  .reduced .scene .en,.reduced .scene .ar,.reduced .scene .rise,
+  .reduced .name,.reduced .name-ar,.reduced .payoff *{ opacity:1!important; transform:none!important; }
+  .reduced .wire{ stroke-dashoffset:0!important; }
+  .reduced .gline{ stroke-dashoffset:0!important; }
+  .reduced .garea,.reduced .gtip,.reduced .gtip-glow{ opacity:1!important; transform:scale(1)!important; }
+  .reduced .tile{ opacity:1!important; filter:none!important; }
+  .reduced .tile .bg{ fill:var(--accent-soft)!important; stroke:var(--accent)!important; }
+  .reduced *{ animation:none!important; transition:none!important; }
+</style>
+</head>
+<body>
+  <div class="stage" id="stage">
+
+    <!-- shared icon symbols -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+      <defs>
+        <symbol id="ic-fb" viewBox="0 0 48 48"><text x="24" y="35" text-anchor="middle" font-size="36" font-weight="800" fill="#ff375f" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif">f</text></symbol>
+        <symbol id="ic-ig" viewBox="0 0 48 48"><rect x="9.5" y="9.5" width="29" height="29" rx="9.5" fill="none" stroke="#ff375f" stroke-width="3.6"/><circle cx="24" cy="24" r="8" fill="none" stroke="#ff375f" stroke-width="3.6"/><circle cx="33.6" cy="14.4" r="2.4" fill="#ff375f"/></symbol>
+        <symbol id="ic-tt" viewBox="0 0 48 48"><line x1="29" y1="12" x2="29" y2="31" stroke="#ff375f" stroke-width="3.4" stroke-linecap="round"/><path d="M29 12 q9 1 9 10" fill="none" stroke="#ff375f" stroke-width="3.4" stroke-linecap="round"/><ellipse cx="24" cy="32" rx="6.4" ry="4.8" fill="#ff375f" transform="rotate(-16 24 32)"/></symbol>
+        <symbol id="ic-yt" viewBox="0 0 48 48"><rect x="8" y="14" width="32" height="20" rx="7" fill="#ff375f"/><path d="M21 19.5 L21 28.5 L29.5 24 Z" fill="#0a0a0c"/></symbol>
+        <linearGradient id="gfade" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="rgba(255,55,95,.34)"/>
+          <stop offset="1" stop-color="rgba(255,55,95,0)"/>
+        </linearGradient>
+      </defs>
+    </svg>
+
+    <div class="brand"><i></i><span>Al-Ma'ali</span></div>
+    <div class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+
+    <!-- ============ S1 : the channel ============ -->
+    <section class="scene" data-scene="channel">
+      <div class="art">
+        <svg class="dish" viewBox="0 0 240 200" aria-hidden="true">
+          <circle class="ring r1" cx="150" cy="84" r="34"/>
+          <circle class="ring r2" cx="150" cy="84" r="34"/>
+          <circle class="ring r3" cx="150" cy="84" r="34"/>
+          <g transform="rotate(-26 118 122)">
+            <ellipse cx="118" cy="122" rx="58" ry="40" fill="rgba(255,55,95,.15)" stroke="#ff375f" stroke-width="4"/>
+            <ellipse cx="118" cy="122" rx="34" ry="23" fill="none" stroke="rgba(255,55,95,.5)" stroke-width="2"/>
+            <line x1="118" y1="122" x2="150" y2="84" stroke="#ff375f" stroke-width="4" stroke-linecap="round"/>
+          </g>
+          <circle cx="150" cy="84" r="8" fill="#ff375f"/>
+          <line x1="118" y1="144" x2="103" y2="182" stroke="#ff375f" stroke-width="4.5" stroke-linecap="round"/>
+          <line x1="118" y1="144" x2="133" y2="182" stroke="#ff375f" stroke-width="4.5" stroke-linecap="round"/>
+          <rect x="92" y="180" width="52" height="8" rx="4" fill="#ff375f"/>
+        </svg>
+        <div>
+          <div class="name rise">Al-Ma'ali Satellite Channel</div>
+          <div class="name-ar rise" dir="rtl" lang="ar">قناة المعالي الفضائية</div>
+        </div>
+      </div>
+      <div class="cap">
+        <div class="en">An Islamic broadcast network <span class="em">·</span> 2021–2025</div>
+        <div class="ar" dir="rtl" lang="ar">شبكة بثّ إسلامية <span class="em">·</span> 2021–2025</div>
+      </div>
+    </section>
+
+    <!-- ============ S2 : four platforms ============ -->
+    <section class="scene" data-scene="platforms">
+      <div class="art">
+        <svg class="net" viewBox="0 0 380 196" aria-hidden="true">
+          <!-- wires -->
+          <line class="wire" style="transition-delay:.15s" x1="190" y1="50" x2="64"  y2="92"/>
+          <line class="wire" style="transition-delay:.32s" x1="190" y1="50" x2="148" y2="92"/>
+          <line class="wire" style="transition-delay:.49s" x1="190" y1="50" x2="232" y2="92"/>
+          <line class="wire" style="transition-delay:.66s" x1="190" y1="50" x2="316" y2="92"/>
+          <!-- engine -->
+          <circle class="halo" cx="190" cy="36" r="14"/>
+          <circle class="core" cx="190" cy="36" r="14"/>
+          <circle cx="190" cy="36" r="5.5" fill="#0a0a0c"/>
+          <!-- tiles -->
+          <g class="tile" style="transition-delay:.35s">
+            <rect class="bg" x="32"  y="92" width="64" height="60" rx="15"/>
+            <use class="ico" href="#ic-fb" x="45"  y="103" width="38" height="38"/>
+            <text class="lbl" x="64"  y="174">Facebook</text>
+          </g>
+          <g class="tile" style="transition-delay:.55s">
+            <rect class="bg" x="116" y="92" width="64" height="60" rx="15"/>
+            <use class="ico" href="#ic-ig" x="129" y="103" width="38" height="38"/>
+            <text class="lbl" x="148" y="174">Instagram</text>
+          </g>
+          <g class="tile" style="transition-delay:.75s">
+            <rect class="bg" x="200" y="92" width="64" height="60" rx="15"/>
+            <use class="ico" href="#ic-tt" x="213" y="103" width="38" height="38"/>
+            <text class="lbl" x="232" y="174">TikTok</text>
+          </g>
+          <g class="tile" style="transition-delay:.95s">
+            <rect class="bg" x="284" y="92" width="64" height="60" rx="15"/>
+            <use class="ico" href="#ic-yt" x="297" y="103" width="38" height="38"/>
+            <text class="lbl" x="316" y="174">YouTube</text>
+          </g>
+        </svg>
+      </div>
+      <div class="cap">
+        <div class="en">One engine, four platforms.</div>
+        <div class="ar" dir="rtl" lang="ar">محرّك واحد، أربع منصّات.</div>
+      </div>
+    </section>
+
+    <!-- ============ S3 : the climb ============ -->
+    <section class="scene" data-scene="climb">
+      <div class="art">
+        <div class="eyebrow rise" style="transition-delay:.1s">Facebook</div>
+        <div class="bignum rise" id="bignum" style="transition-delay:.16s">9.2K</div>
+        <svg class="graph" viewBox="0 0 360 124" aria-hidden="true">
+          <polygon class="garea" points="14,108 70,98 126,100 182,76 238,54 300,28 346,16 346,124 14,124"/>
+          <polyline class="gline" points="14,108 70,98 126,100 182,76 238,54 300,28 346,16"/>
+          <circle class="gtip-glow" cx="346" cy="16" r="13"/>
+          <circle class="gtip" cx="346" cy="16" r="5.5"/>
+        </svg>
+      </div>
+      <div class="cap">
+        <div class="en">Facebook 9.2K <span class="em">→</span> over a million.</div>
+        <div class="ar" dir="rtl" lang="ar">فيسبوك: من 9.2K إلى أكثر من مليون.</div>
+      </div>
+    </section>
+
+    <!-- ============ S4 : and beyond ============ -->
+    <section class="scene" data-scene="beyond">
+      <div class="art">
+        <div class="cards">
+          <div class="card rise" style="transition-delay:.18s">
+            <svg class="ico" viewBox="0 0 48 48"><use href="#ic-ig"/></svg>
+            <div class="pn">Instagram</div>
+            <div class="pv" data-count="50000" data-final="50K">50K</div>
+          </div>
+          <div class="card rise" style="transition-delay:.36s">
+            <svg class="ico" viewBox="0 0 48 48"><use href="#ic-tt"/></svg>
+            <div class="pn">TikTok</div>
+            <div class="pv" data-count="33000" data-final="33K">33K</div>
+          </div>
+          <div class="card rise" style="transition-delay:.54s">
+            <svg class="ico" viewBox="0 0 48 48"><use href="#ic-yt"/></svg>
+            <div class="pn">YouTube</div>
+            <div class="pv" data-count="43000" data-final="43K">43K</div>
+          </div>
+        </div>
+      </div>
+      <div class="cap">
+        <div class="en">Three more, from near zero.</div>
+        <div class="ar" dir="rtl" lang="ar">ثلاث منصّات أخرى، من الصفر تقريبًا.</div>
+      </div>
+    </section>
+
+    <!-- ============ S5 : payoff ============ -->
+    <section class="scene" data-scene="payoff">
+      <div class="art">
+        <div class="payoff">
+          <div class="big rise" style="transition-delay:.08s">1M+</div>
+          <div class="sub rise" style="transition-delay:.2s">Followers · 0 → 1M+</div>
+          <div class="nm rise">Al-Ma'ali Satellite Channel</div>
+          <div class="nm-ar rise" dir="rtl" lang="ar">قناة المعالي الفضائية</div>
+        </div>
+      </div>
+      <div class="cap">
+        <div class="en">From zero to over a million.</div>
+        <div class="ar" dir="rtl" lang="ar">من الصفر إلى أكثر من مليون.</div>
+      </div>
+    </section>
+
+  </div>
+
+<script>
+(function(){
+  var stage=document.getElementById('stage');
+  var scenes=[].slice.call(stage.querySelectorAll('.scene'));
+  var dots=[].slice.call(stage.querySelectorAll('.dot'));
+  var DUR=[6500,7000,8200,7400,5200];
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var i=0,timer=null;
+
+  function ease(t){ return 1-Math.pow(1-t,3); }
+  function fmtClimb(v){
+    if(v>=1000000) return '1M+';
+    var k=v/1000;
+    if(k<100) return (Math.floor(k*10)/10).toFixed(1)+'K';
+    return Math.floor(k)+'K';
+  }
+  function fmtK(v){ return v<1000 ? String(Math.floor(v)) : Math.floor(v/1000)+'K'; }
+
+  function count(el,from,to,dur,fmt,final){
+    if(!el) return;
+    var s=performance.now();
+    (function step(now){
+      var p=Math.min(1,(now-s)/dur), v=from+(to-from)*ease(p);
+      el.textContent=fmt(v);
+      if(p<1){ requestAnimationFrame(step); } else { el.textContent=final; }
+    })(performance.now());
+  }
+
+  function enter(n){
+    var s=scenes[n], k=s.getAttribute('data-scene');
+    if(k==='climb'){ count(s.querySelector('#bignum'),9200,1000000,2400,fmtClimb,'1M+'); }
+    if(k==='beyond'){
+      [].forEach.call(s.querySelectorAll('[data-count]'),function(el){
+        count(el,0,parseInt(el.getAttribute('data-count'),10),1600,fmtK,el.getAttribute('data-final'));
+      });
+    }
+  }
+
+  function show(n){
+    scenes.forEach(function(s,j){ s.classList.toggle('active',j===n); });
+    dots.forEach(function(d,j){ d.classList.toggle('on',j===n); });
+    enter(n);
+  }
+  function play(){
+    show(i);
+    clearTimeout(timer);
+    timer=setTimeout(function(){ i=(i+1)%scenes.length; play(); }, DUR[i]);
+  }
+
+  if(reduce){
+    document.documentElement.classList.add('reduced');
+    scenes.forEach(function(s){ s.classList.add('active'); });
+    var b=stage.querySelector('#bignum'); if(b) b.textContent='1M+';
+    [].forEach.call(stage.querySelectorAll('[data-count]'),function(el){ el.textContent=el.getAttribute('data-final'); });
+  } else {
+    play();
+    document.addEventListener('visibilitychange',function(){
+      if(document.hidden){ clearTimeout(timer); } else { play(); }
+    });
+  }
+
+  window.__goto=function(n){ clearTimeout(timer); i=n; show(n); };
+})();
+</script>
+</body>
+</html>

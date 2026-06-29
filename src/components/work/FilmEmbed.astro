@@ -1,0 +1,79 @@
+---
+import { pick, type Lang } from '../../i18n/utils';
+
+interface Props {
+  lang: Lang;
+  /** filename used in BOTH /public/cartoons and /public/films, e.g. "sheep.html" */
+  film: string;
+  /** accessible iframe title for the interactive film */
+  title: { en: string; ar: string };
+}
+const { lang, film, title } = Astro.props;
+---
+
+<section class="story-film-wrap">
+  <div class="wrap">
+    <!-- Cartoon explainer (auto-plays on its own) -->
+    <div class="cd-film">
+      <iframe
+        class="cd-frame"
+        src={`/cartoons/${film}`}
+        title={pick(lang, { en: 'Animated explainer', ar: 'شرح متحرّك' })}
+        loading="lazy"
+        allow="autoplay"
+      ></iframe>
+    </div>
+    <p class="muted center" style="font-size:12.5px;margin-top:12px">
+      {
+        pick(lang, {
+          en: 'Animated explainer — plays on its own · crafted in Claude Design',
+          ar: 'شرحٌ متحرّك — يعمل تلقائيًا · صُمّم في Claude Design',
+        })
+      }
+    </p>
+
+    <!-- Interactive story film (click / arrow driven) -->
+    <div class="cd-film" style="margin-top:20px">
+      <iframe
+        class="cd-frame"
+        src={`/films/${film}`}
+        title={title[lang]}
+        loading="lazy"
+        allow="autoplay"
+      ></iframe>
+    </div>
+    <p class="muted center" style="font-size:12.5px;margin-top:12px">
+      {
+        pick(lang, {
+          en: 'Prefer to explore? Step through it yourself — click or use the arrows',
+          ar: 'تفضّل الاستكشاف؟ تنقّل بنفسك — انقر أو استخدم الأسهم',
+        })
+      }
+    </p>
+  </div>
+</section>
+
+<script>
+  /* The embedded films draw their OWN rounded, shadowed card; their document
+     body paints a full-bleed dark fill that, on a light page, reads as a second
+     hard-edged box around that card. Films are same-origin, so neutralise that
+     body fill to transparent — leaving just the film's own card floating. */
+  function clearFilmGutter(frame: HTMLIFrameElement) {
+    try {
+      const d = frame.contentDocument;
+      if (!d) return;
+      if (d.documentElement) d.documentElement.style.background = 'transparent';
+      if (d.body) d.body.style.background = 'transparent';
+    } catch {
+      /* not ready / blocked — the load handler will retry */
+    }
+  }
+  function initFilmFrames() {
+    document.querySelectorAll<HTMLIFrameElement>('iframe.cd-frame').forEach((f) => {
+      clearFilmGutter(f); // handles already-cached frames
+      f.addEventListener('load', () => clearFilmGutter(f));
+    });
+  }
+  initFilmFrames();
+  document.addEventListener('astro:page-load', initFilmFrames);
+</script>

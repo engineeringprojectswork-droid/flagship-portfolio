@@ -1,0 +1,133 @@
+---
+import type { Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+
+type Role = { title: { en: string; ar: string }; receipt: { en: string; ar: string } };
+const roles: Role[] = [
+  {
+    title: { en: 'Media Buyer', ar: 'مشتري إعلانات' },
+    receipt: {
+      en: 'Meta ads → WhatsApp leads at <b>$0.84</b> each (best <b>$0.50</b>); ~<b>878K</b> cumulative impressions, <b>420+</b> leads.',
+      ar: 'إعلانات ميتا ← عملاء واتساب بـ<b>٠٫٨٤$</b> للواحد (الأفضل <b>٠٫٥٠$</b>)؛ نحو <b>٨٧٨ ألف</b> ظهور و<b>٤٢٠+</b> عميلًا.',
+    },
+  },
+  {
+    title: { en: 'Social Media Manager', ar: 'مدير سوشيال ميديا' },
+    receipt: {
+      en: 'Grew Al-Ma’ali <b>9.2K → 1M+</b> (IG 50K, TikTok 33K, YouTube 43K).',
+      ar: 'نمّى قناة المعالي <b>٩٫٢ ألف ← مليون+</b> (إنستغرام ٥٠ألف، تيك‑توك ٣٣ألف، يوتيوب ٤٣ألف).',
+    },
+  },
+  {
+    title: { en: 'Content / Creative', ar: 'صانع محتوى' },
+    receipt: {
+      en: '~<b>254</b> production files incl. ~<b>144</b> videos; a full bilingual brand system.',
+      ar: '~<b>٢٥٤</b> ملف إنتاج منها ~<b>١٤٤</b> فيديو؛ ونظام هويةٍ ثنائي اللغة كامل.',
+    },
+  },
+  {
+    title: { en: 'Marketing Ops / Analyst', ar: 'محلل عمليات تسويق' },
+    receipt: {
+      en: 'Built a <b>12-tab</b> bilingual CRM — pipeline, dashboards, ad-spend → lead funnel.',
+      ar: 'بنى نظام عملاء بـ<b>١٢ تبويبًا</b> — مسار، ولوحات، وقمع من الإنفاق إلى العميل.',
+    },
+  },
+  {
+    title: { en: 'Marketing Manager', ar: 'مدير تسويق' },
+    receipt: {
+      en: 'Authored a <b>30-day campaign plan</b> with budget + placement/audience/country analysis from real data.',
+      ar: 'وضع <b>خطة حملة ٣٠ يومًا</b> بميزانية وتحليل مواضع وجمهور ودول من بيانات حقيقية.',
+    },
+  },
+  {
+    title: { en: 'Automation Engineer', ar: 'مهندس أتمتة' },
+    receipt: {
+      en: 'Custom AI assistants + <b>7 Python scripts & 3 scheduled jobs</b> running a live HR pipeline, and a website live on Vercel.',
+      ar: 'مساعدو ذكاء مخصّصون + <b>٧ سكربتات و٣ مهام مجدولة</b> تُشغّل منظومة توظيف حية، وموقع مباشر على Vercel.',
+    },
+  },
+];
+
+/* Per-role line-art glyphs (currentColor = accent; auto-theme). Each encodes
+   the role's headline metric: a funnel, a growth curve, a media frame, a
+   dashboard, a campaign calendar, an automation graph. */
+const S = 'stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"';
+const vizzes: string[] = [
+  // Media Buyer — cost funnel (impressions → reach → leads), last bar filled
+  `<svg viewBox="0 0 64 64" fill="none" ${S}><rect x="10" y="13" width="44" height="9" rx="4.5"/><rect x="17" y="29" width="30" height="9" rx="4.5"/><rect x="24" y="45" width="16" height="9" rx="4.5" fill="currentColor"/></svg>`,
+  // Social Media Manager — steep growth curve with arrowhead
+  `<svg viewBox="0 0 64 64" fill="none" ${S}><path d="M10 47 L24 35 L34 41 L54 17"/><path d="M43 17 H54 V28"/></svg>`,
+  // Content / Creative — media frame with play triangle (library of video)
+  `<svg viewBox="0 0 64 64" fill="none" ${S}><rect x="12" y="16" width="40" height="32" rx="6"/><path d="M28 26 L39 32 L28 38 Z" fill="currentColor" stroke="none"/></svg>`,
+  // Marketing Ops / Analyst — dashboard window with header tabs + bar chart
+  `<svg viewBox="0 0 64 64" fill="none" ${S}><rect x="10" y="13" width="44" height="38" rx="6"/><path d="M10 23 H54"/><path d="M21 43 V35"/><path d="M31 43 V27"/><path d="M41 43 V31"/></svg>`,
+  // Marketing Manager — campaign calendar (30-day plan)
+  `<svg viewBox="0 0 64 64" fill="none" ${S}><rect x="12" y="15" width="40" height="37" rx="6"/><path d="M12 25 H52"/><path d="M23 12 V18"/><path d="M41 12 V18"/><circle cx="24" cy="35" r="2.3" fill="currentColor" stroke="none"/><circle cx="34" cy="35" r="2.3" fill="currentColor" stroke="none"/><circle cx="44" cy="35" r="2.3" fill="currentColor" stroke="none"/><circle cx="24" cy="44" r="2.3" fill="currentColor" stroke="none"/></svg>`,
+  // Automation Engineer — two sources feeding one node (pipeline graph)
+  `<svg viewBox="0 0 64 64" fill="none" ${S}><circle cx="16" cy="20" r="6"/><circle cx="16" cy="44" r="6"/><circle cx="46" cy="32" r="6"/><path d="M22 22 L40 30"/><path d="M22 42 L40 34"/></svg>`,
+];
+
+/* Hub-and-spokes geometry: six role nodes evenly around a centre at (180,180)
+   on a 360 viewBox, radius 150 — the spoke lines and the node %-positions. */
+const spokes = [
+  { x: 50, y: 8.3, d: 'M180 180 L180 30' },
+  { x: 86.1, y: 29.2, d: 'M180 180 L310 105' },
+  { x: 86.1, y: 70.8, d: 'M180 180 L310 255' },
+  { x: 50, y: 91.7, d: 'M180 180 L180 330' },
+  { x: 13.9, y: 70.8, d: 'M180 180 L50 255' },
+  { x: 13.9, y: 29.2, d: 'M180 180 L50 105' },
+];
+
+const kicker = lang === 'ar' ? 'لماذا يُصدَّق «شخصٌ واحد»' : 'Why “one person” is believable';
+const h2 = lang === 'ar' ? 'الفريق الذي كنت ستوظّفه.' : 'The team you’d otherwise hire.';
+const lead = lang === 'ar' ? 'دليلٌ لكل دور — لا وعد.' : 'A receipt for every role — not a promise.';
+const close =
+  lang === 'ar'
+    ? '«خمسة تعيينات. شخصٌ واحد. والذكاء الاصطناعي يجاري إيقاع الخمسة.»'
+    : '“Five hires. One person. AI keeps the pace of five.”';
+---
+
+<section class="section" id="team">
+  <div class="wrap">
+    <div class="center stack" style="max-width:780px;margin-inline:auto">
+      <p class="kicker reveal">{kicker}</p>
+      <h2 class="h-xl reveal d1">{h2}</h2>
+      <p class="lead reveal d2">{lead}</p>
+    </div>
+    <div class="roles" style="margin-top:50px">
+      {
+        roles.map((r, i) => (
+          <div class={`role reveal${i % 3 ? ` d${i % 3}` : ''}`}>
+            <span class="role__viz" aria-hidden="true" set:html={vizzes[i]} />
+            <h3>{r.title[lang]}</h3>
+            <p class="receipt" set:html={r.receipt[lang]} />
+          </div>
+        ))
+      }
+    </div>
+    <div class="converge reveal" style="margin-top:64px">
+      <div class="converge__stage">
+        <svg class="converge__web" viewBox="0 0 360 360" fill="none" aria-hidden="true">
+          <circle class="converge__ring" cx="180" cy="180" r="150" />
+          {spokes.map((s) => <path class="converge__spoke" d={s.d} />)}
+        </svg>
+        {
+          spokes.map((s, i) => (
+            <span
+              class="converge__node"
+              style={`--cx:${s.x}%;--cy:${s.y}%`}
+              aria-hidden="true"
+              set:html={vizzes[i]}
+            />
+          ))
+        }
+        <div class="converge__hub" aria-hidden="true"><span>1</span></div>
+      </div>
+      <p class="converge__line h-md gradient-text">{close}</p>
+    </div>
+  </div>
+</section>
