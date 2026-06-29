@@ -1,0 +1,168 @@
+---
+/** Centerpiece · my-resume — "three lanes, one site".
+ *  Cowork (ideas) → Claude Design (look) → Claude Code (build) each slide in
+ *  from the start edge and their tracks fill toward a shared "this site" node
+ *  as the proof pin scrubs. Pure CSS off var(--q). RTL-mirrored. */
+import { pick, type Lang } from '../../../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+
+const lanes = [
+  { tool: 'Cowork', role: { en: 'ideas · briefs · verify', ar: 'أفكار · مواجيز · تحقّق' } },
+  { tool: 'Claude Design', role: { en: 'the look — only', ar: 'الشكل — فقط' } },
+  { tool: 'Claude Code', role: { en: 'build · git · deploy', ar: 'بناء · git · نشر' } },
+];
+---
+
+<div class="proof__grid laneflow">
+  <div class="lf__copy reveal">
+    <span class="kicker">{pick(lang, { en: 'The flow', ar: 'سير العمل' })}</span>
+    <h2>{pick(lang, { en: 'Three lanes, one site.', ar: 'ثلاثة مسارات، موقعٌ واحد.' })}</h2>
+    <p>
+      {
+        pick(lang, {
+          en: 'I direct three AI tools as one system — every handoff a labelled, ready-to-paste brief, so work is never redone and context is never lost.',
+          ar: 'أُوجّه ثلاث أدوات ذكاءٍ كنظامٍ واحد — كل تسليمٍ موجزٌ مُعنون جاهزٌ للّصق، فلا يُعاد عملٌ ولا يضيع سياق.',
+        })
+      }
+    </p>
+  </div>
+
+  <div class="lf__stage" aria-hidden="true">
+    <div class="lf__lanes">
+      {
+        lanes.map((l, i) => (
+          <div class="lf__lane" style={`--i:${i}`}>
+            <span class="lf__node">
+              <b>{l.tool}</b>
+              <span>{pick(lang, l.role)}</span>
+            </span>
+            <span class="lf__track" />
+          </div>
+        ))
+      }
+    </div>
+    <div class="lf__site"><b class="gradient-text">{pick(lang, { en: 'this site', ar: 'هذا الموقع' })}</b></div>
+  </div>
+</div>
+
+<style>
+  .laneflow {
+    align-items: center;
+  }
+  .lf__copy h2 {
+    font-size: clamp(28px, 4vw, 46px);
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    line-height: 1.04;
+    margin: 14px 0 14px;
+  }
+  [dir='rtl'] .lf__copy h2 {
+    letter-spacing: 0;
+  }
+  .lf__copy p {
+    color: var(--ink-2);
+    font-size: 16px;
+    line-height: 1.6;
+    max-width: 400px;
+  }
+
+  .lf__stage {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-height: 300px;
+  }
+  .lf__lanes {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .lf__lane {
+    display: flex;
+    align-items: center;
+    /* slide in from the start edge + fade, staggered by index, as --q rises */
+    opacity: calc((var(--q, 1) - var(--i) * 0.16) * 3);
+    transform: translateX(calc((1 - var(--q, 1)) * -40px));
+  }
+  [dir='rtl'] .lf__lane {
+    transform: translateX(calc((1 - var(--q, 1)) * 40px));
+  }
+  .lf__node {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 11px 15px;
+    border-radius: 12px;
+    background: var(--surface-card);
+    border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--hair));
+  }
+  .lf__node b {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--ink);
+  }
+  .lf__node span {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+  .lf__track {
+    flex: 1;
+    height: 2px;
+    margin-inline-start: 10px;
+    background: color-mix(in srgb, var(--ink) 12%, transparent);
+    border-radius: 2px;
+    position: relative;
+    overflow: hidden;
+  }
+  .lf__track::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform-origin: left center;
+    transform: scaleX(clamp(0, (var(--q, 1) - var(--i) * 0.12) * 1.6, 1));
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    border-radius: 2px;
+  }
+  [dir='rtl'] .lf__track::after {
+    transform-origin: right center;
+  }
+  .lf__site {
+    flex: 0 0 auto;
+    margin-inline-start: 6px;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    padding: 18px 20px;
+    border-radius: 16px;
+    border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+    background: color-mix(in srgb, var(--accent) 12%, var(--surface-card));
+    opacity: calc(var(--q, 1) * 1.4 - 0.2);
+    transform: scale(calc(0.9 + var(--q, 1) * 0.1));
+  }
+  .lf__site b {
+    font-weight: 700;
+    font-size: clamp(17px, 2.4vw, 26px);
+    letter-spacing: -0.02em;
+  }
+
+  @media (prefers-reduced-motion: reduce), (max-width: 820px) {
+    .lf__lane,
+    .lf__site {
+      opacity: 1 !important;
+      transform: none !important;
+    }
+    .lf__track::after {
+      transform: scaleX(1) !important;
+    }
+  }
+</style>

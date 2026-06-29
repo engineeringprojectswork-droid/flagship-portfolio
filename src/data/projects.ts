@@ -158,6 +158,21 @@ export const projects: ProjectMeta[] = [
     stat: { en: '23 tenders', ar: '٢٣ مناقصة' },
     statNote: { en: '· 4 live deals recovered', ar: '· ٤ صفقات مُستردّة' },
   },
+  {
+    slug: 'my-resume',
+    film: '', // no interactive film — the page IS the spine
+    accent: 'resume',
+    cardA: '#2997ff',
+    cardB: '#bf5af2',
+    tag: { en: 'Career OS', ar: 'نظام المسيرة' },
+    title: { en: 'Built in the open', ar: 'بُني على المكشوف' },
+    blurb: {
+      en: 'The AI operating model behind this very site — one person, three tools.',
+      ar: 'نموذج التشغيل بالذكاء الاصطناعي خلف هذا الموقع — شخصٌ واحد وثلاث أدوات.',
+    },
+    stat: { en: '3 · 1 · 1', ar: '٣ · ١ · ١' },
+    statNote: { en: 'tools · workflow · person', ar: 'أدوات · سير عمل · شخص' },
+  },
 ];
 
 /** Canonical hex for each domain accent (single source for inline card colours). */

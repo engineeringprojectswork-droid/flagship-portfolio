@@ -1,0 +1,175 @@
+---
+import Spine from './spine/Spine.astro';
+import Hook from './spine/Hook.astro';
+import Brief from './spine/Brief.astro';
+import Build from './spine/Build.astro';
+import Proof from './spine/Proof.astro';
+import Honesty from './spine/Honesty.astro';
+import LaneFlow from './centerpieces/LaneFlow.astro';
+import Metrics, { type MetricItem } from '../Metrics.astro';
+import TechRow from '../TechRow.astro';
+import { pick, type Lang } from '../../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+
+// The operating-model artifact shown in the Brief beat.
+const model = [
+  { tool: 'Me + Cowork', role: { en: 'controller · memory · briefs', ar: 'تحكّم · ذاكرة · مواجيز' } },
+  { tool: 'Claude Design', role: { en: 'the look — only', ar: 'الشكل — فقط' } },
+  { tool: 'Claude Code', role: { en: 'build · git · deploy', ar: 'بناء · git · نشر' } },
+];
+
+const buildItems = [
+  {
+    n: '01',
+    title: { en: 'Me + Cowork — the controller', ar: 'أنا + Cowork — المتحكّم' },
+    body: {
+      en: 'I hold the context, the memory and the briefs, and I verify every result. Nothing ships without my decision.',
+      ar: 'أحملُ السياق والذاكرة والمواجيز، وأتحقّق من كل نتيجة. لا شيء يُنشر دون قراري.',
+    },
+  },
+  {
+    n: '02',
+    title: { en: 'Claude Design — the look, only', ar: 'Claude Design — الشكل فقط' },
+    body: {
+      en: 'Layout, motion specs and the visual system — design output I implement, never the decisions.',
+      ar: 'التخطيط ومواصفات الحركة والنظام البصري — مُخرجات تصميمٍ أُنفّذها، لا القرارات.',
+    },
+  },
+  {
+    n: '03',
+    title: { en: 'Claude Code — build, git, deploy', ar: 'Claude Code — بناء، git، نشر' },
+    body: {
+      en: 'It writes and ships the code — this very site — under my direction and review.',
+      ar: 'يكتب الكود ويُطلقه — هذا الموقع نفسه — بإدارتي ومراجعتي.',
+    },
+  },
+  {
+    n: '04',
+    title: { en: 'Labelled handoffs', ar: 'تسليمات مُعنونة' },
+    body: {
+      en: 'Every handoff is a ready-to-paste brief — so work is never redone and context is never lost.',
+      ar: 'كل تسليمٍ موجزٌ جاهزٌ للّصق — فلا يُعاد عملٌ ولا يضيع سياق.',
+    },
+  },
+];
+
+// Real, safe, sourced facts about THIS site — no job-hunt numbers.
+const siteMetrics: MetricItem[] = [
+  {
+    count: 3,
+    label: { en: 'AI tools directed', ar: 'أدوات ذكاء مُوجَّهة' },
+    sub: { en: 'one workflow · one person', ar: 'سير عمل واحد · شخص واحد' },
+  },
+  { count: 9, label: { en: 'story pages', ar: 'صفحات قصص' }, sub: { en: 'every one on this spine', ar: 'كلٌّ منها على هذا الهيكل' } },
+  { count: 2, label: { en: 'languages', ar: 'لغتان' }, sub: { en: 'English · العربية, full RTL', ar: 'الإنجليزية · العربية، RTL كامل' } },
+  { count: 1, label: { en: 'master CV', ar: 'سيرة ذاتية رئيسية' }, sub: { en: '→ tailored per role', ar: '← مُخصّصة لكل دور' } },
+];
+
+const note = {
+  en: 'The AI tools execute under my direction — I designed the operating model, wrote the briefs, set the no-fabrication rules, and made every decision. Every number on this site is sourced; nothing is fabricated. This page is about the craft and the system — not the job hunt.',
+  ar: 'الأدوات تُنفّذ بإدارتي — أنا صمّمت نموذج التشغيل وكتبت المواجيز ووضعت قواعد عدم التلفيق واتخذت كل قرار. وكل رقمٍ على هذا الموقع موثَّق؛ لا شيء مُلفّق. هذه الصفحة عن الحِرفة والنظام — لا عن البحث عن وظيفة.',
+};
+---
+
+<Spine lang={lang}>
+  <Hook
+    lang={lang}
+    badge={{ en: 'Career OS · built in the open', ar: 'نظام المسيرة · بُني على المكشوف' }}
+    headline={{
+      en: 'Built<br><span class="gradient-text">in the open.</span>',
+      ar: 'بُنِيَ<br><span class="gradient-text">على المكشوف.</span>',
+    }}
+    lead={{
+      en: 'The AI operating model behind this very portfolio: one person directing three AI tools — <b>Cowork, Claude Design and Claude Code</b> — to design and ship this site.',
+      ar: 'نموذج التشغيل بالذكاء الاصطناعي خلف هذا الموقع: شخصٌ واحد يُوجّه ثلاث أدوات — <b>Cowork وClaude Design وClaude Code</b> — لتصميم هذا الموقع وإطلاقه.',
+    }}
+    heroNumber="3 · 1 · 1"
+    heroCaption={{ en: 'AI tools · workflow<br>· one person', ar: 'أدوات ذكاء · سير عمل<br>· شخص واحد' }}
+    ghost="OS"
+  />
+
+  <Brief
+    lang={lang}
+    kicker={{ en: 'The operating model', ar: 'نموذج التشغيل' }}
+    heading={{ en: 'I’m the controller.', ar: 'أنا المتحكّم.' }}
+    body={{
+      en: 'Three AI tools, one workflow, one person. I direct the system the way a lead directs a team — briefing, reviewing and deciding — and it ships real work, this site included.',
+      ar: 'ثلاث أدوات ذكاء، سير عملٍ واحد، شخصٌ واحد. أُوجّه النظام كما يُوجّه القائد فريقًا — تكليفًا ومراجعةً وقرارًا — وهو يُنجز عملًا حقيقيًا، هذا الموقع منه.',
+    }}
+    ghostWord="OS"
+  >
+    <div slot="aside" style="margin-top:22px">
+      <TechRow lang={lang} items={['Cowork', 'Claude Design', 'Claude Code']} center={false} />
+    </div>
+    <div class="device">
+      <div class="device__bar">
+        <span class="d r"></span><span class="d y"></span><span class="d g"></span>
+        <span class="addr">{pick(lang, { en: 'Operating model', ar: 'نموذج التشغيل' })}</span>
+      </div>
+      <div class="device__body" style="padding:20px">
+        <div class="om">
+          {
+            model.map((m, i) => (
+              <div class={`om__row reveal${i ? ` d${i}` : ''}`}>
+                <b>{m.tool}</b>
+                <span>{pick(lang, m.role)}</span>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </Brief>
+
+  <Build
+    lang={lang}
+    kicker={{ en: 'How it ships', ar: 'كيف يُطلَق' }}
+    heading={{ en: 'Direct, brief, review, ship.', ar: 'توجيهٌ، تكليفٌ، مراجعةٌ، إطلاق.' }}
+    mult={2.6}
+    items={buildItems}
+  />
+
+  <Proof lang={lang} center="lane-flow" mult={2.4}>
+    <LaneFlow lang={lang} />
+  </Proof>
+
+  <section class="story-section section-glow proof-numbers">
+    <div class="wrap">
+      <Metrics lang={lang} eyebrow={{ en: 'This site, in the open', ar: 'هذا الموقع، على المكشوف' }} items={siteMetrics} />
+    </div>
+  </section>
+
+  <Honesty lang={lang} slug="my-resume" kicker={{ en: 'Honest credit', ar: 'نسبةٌ صادقة' }} note={note} />
+</Spine>
+
+<style>
+  .om {
+    display: grid;
+    gap: 10px;
+  }
+  .om__row {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: var(--panel);
+    border: 1px solid var(--panel-brd);
+  }
+  .om__row b {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--ink);
+  }
+  .om__row span {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+</style>
