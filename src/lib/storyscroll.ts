@@ -131,12 +131,17 @@ export function initStoryScroll(): void {
   const ST = getST();
   if (!ST) return;
 
+  // Phones get a longer pin per beat so the scrub doesn't race — the data-mult
+  // distances were tuned for desktop viewport heights, which made each beat
+  // complete in too little scroll on a short mobile viewport.
+  const slow = window.innerWidth <= 820 ? 1.9 : 1;
+
   document.querySelectorAll<HTMLElement>('[data-build]').forEach((sec) => {
     const sticky = sec.querySelector<HTMLElement>('[data-build-sticky]') || (sec.firstElementChild as HTMLElement);
     const items = Array.from(sec.querySelectorAll<HTMLElement>('[data-build-item]'));
     const bar = sec.querySelector<HTMLElement>('[data-build-bar]');
     const mult = parseFloat(sec.getAttribute('data-mult') || '2.6') || 2.6;
-    const dist = (mult - 1) * window.innerHeight;
+    const dist = (mult - 1) * window.innerHeight * slow;
     // Note: items render readable (CSS default) until the pin engages — the
     // scrubbed dimming applies via onUpdate, so the at-rest state stays AA.
     ST.create({
@@ -154,7 +159,7 @@ export function initStoryScroll(): void {
     const sticky = sec.querySelector<HTMLElement>('[data-proof-sticky]') || (sec.firstElementChild as HTMLElement);
     const update = makeProof(sec);
     const mult = parseFloat(sec.getAttribute('data-mult') || '2.4') || 2.4;
-    const dist = (mult - 1) * window.innerHeight;
+    const dist = (mult - 1) * window.innerHeight * slow;
     // centerpiece renders at its readable CSS default until the pin engages
     ST.create({
       trigger: sec,

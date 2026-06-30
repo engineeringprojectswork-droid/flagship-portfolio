@@ -7,17 +7,16 @@
 
 /* ---------- Fonts (self-hosted, no external requests) ---------- */
 @import '@fontsource-variable/inter/wght.css';
-/* Arabic — 3 weights only (regular / semibold / bold) to keep AR mobile light;
-   500/300 map to the nearest available weight. */
-@import '@fontsource/ibm-plex-sans-arabic/arabic-400.css';
-@import '@fontsource/ibm-plex-sans-arabic/arabic-600.css';
-@import '@fontsource/ibm-plex-sans-arabic/arabic-700.css';
+/* Arabic — Cairo (variable weight axis). A clean, modern geometric Arabic that
+   reads far clearer than the old IBM Plex Sans Arabic at display + body sizes,
+   and covers the full 400–900 range our headings use from one file. */
+@import '@fontsource-variable/cairo/wght.css';
 /* Mono — spec labels / routes / number-meta (Claude Design parallax package) */
 @import '@fontsource-variable/jetbrains-mono/wght.css';
 
 /* ---------- Reset ---------- */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;overflow-x:clip}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 body{min-height:100%;overflow-x:hidden}
 img,video,svg,iframe{display:block;max-width:100%}
@@ -44,7 +43,7 @@ ul{list-style:none}
   --r:22px;
   --ease:cubic-bezier(.2,.7,.2,1);
   --font: "Inter Variable",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,Roboto,Helvetica,Arial,sans-serif;
-  --font-ar: "IBM Plex Sans Arabic","Noto Kufi Arabic",var(--font);
+  --font-ar: "Cairo Variable","Noto Kufi Arabic",var(--font);
   --shadow: 0 30px 80px -20px rgba(0,0,0,.7);
   /* App-window mockups + card mesh follow the theme via these tokens */
   --win-body:#101013;   /* device window body */
@@ -143,8 +142,25 @@ body{
   -webkit-font-smoothing:antialiased;
   text-rendering:optimizeLegibility;
   transition:background .5s var(--ease), color .5s var(--ease);
+  /* Clip the decorative beat glows/ghosts that bleed a little past the right
+     edge so phones don't get a stray horizontal scroll. `clip` (not `hidden`)
+     creates NO scroll container, so it leaves position:sticky + the GSAP pins
+     untouched — vertical scrolling/pinning is unaffected. */
+  overflow-x:clip;
 }
-[dir="rtl"] body, [dir="rtl"]{font-family:var(--font-ar);letter-spacing:0}
+[dir="rtl"] body, [dir="rtl"]{font-family:var(--font-ar)}
+
+/* ---------- Arabic typography (Cairo) ----------
+   Arabic is cursive and vertically taller than Latin. Two things made the old
+   Arabic look bad: the Latin display tracking (negative letter-spacing) mashes
+   the cursive joins, and the tight Latin line-heights clip the marks. For RTL we
+   kill negative tracking everywhere — including the inline-styled biome/spine
+   headings — and open up the leading. Cairo's larger x-height does the rest. */
+[dir="rtl"] *{letter-spacing:normal !important}
+[dir="rtl"] body{line-height:1.7}
+[dir="rtl"] p,[dir="rtl"] .lead,[dir="rtl"] li{line-height:1.9}
+[dir="rtl"] .lead{font-size:clamp(19px,2.5vw,29px)}
+[dir="rtl"] h1,[dir="rtl"] h2,[dir="rtl"] h3{line-height:1.32 !important;font-weight:700}
 
 /* ---------- Accessibility ---------- */
 :focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
