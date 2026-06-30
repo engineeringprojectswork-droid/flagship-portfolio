@@ -15,8 +15,12 @@ import { initHomeMotion, renderHomeStatic } from './home';
 export const prefersReduced = (): boolean =>
   !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches);
 
-const MOBILE = 820;
-const heavyOff = (): boolean => prefersReduced() || window.innerWidth <= MOBILE;
+// Heavy motion (GSAP pins + Lenis smooth-scroll) runs on EVERY width, phones
+// included — the owner wants the story-spine parallax visible on mobile and
+// accepts the performance cost. Only prefers-reduced-motion disables it (an
+// accessibility guarantee we keep). Previously this also bailed out at
+// <=820px, which is why the spine flattened to a static layout on phones.
+const heavyOff = (): boolean => prefersReduced();
 export const clamp01 = (n: number): number => (n < 0 ? 0 : n > 1 ? 1 : n);
 
 /* ---- lazily-loaded engine ---- */
@@ -41,6 +45,9 @@ async function loadEngine(): Promise<void> {
     LenisCtor = L.default;
     gsap.registerPlugin(ST);
     gsap.ticker.lagSmoothing(0);
+    // Phones: the address bar showing/hiding fires resize and changes the
+    // viewport height. Ignore those so pinned beats don't recalc mid-scroll.
+    ST.config({ ignoreMobileResize: true });
     modulesReady = true;
   }
   // (re)create Lenis only when it's actually wanted (desktop + motion)
@@ -112,10 +119,15 @@ function initParallaxDepth(): void {
 /* ---- Orchestrator — called by BaseLayout boot() on load + page-load ---- */
 let lifecycleBound = false;
 let resizeTimer = 0;
+let lastHeavyOff = false;
+let lastWidth = 0;
 export async function initMotion(): Promise<void> {
   initParallaxDepth();
 
-  if (heavyOff()) {
+  const off = heavyOff();
+  lastHeavyOff = off;
+  lastWidth = window.innerWidth;
+  if (off) {
     // mobile / reduced-motion → static end-state; kill pins AND stop Lenis so
     // native scroll resumes (covers a desktop→mobile resize, not just first load)
     killTriggers();
@@ -135,13 +147,20 @@ export async function initMotion(): Promise<void> {
     window.addEventListener('load', () => {
       if (ST) ST.refresh();
     });
-    // rebuild on resize so the mobile / reduced-motion threshold re-evaluates
+    // Re-evaluate only when it matters: a reduced-motion toggle flips the heavy
+    // state (full rebuild); an orientation / real width change needs a refresh.
+    // A height-only change (mobile URL bar) is ignored so pins don't thrash.
     window.addEventListener(
       'resize',
       () => {
         window.clearTimeout(resizeTimer);
         resizeTimer = window.setTimeout(() => {
-          void initMotion();
+          if (heavyOff() !== lastHeavyOff) {
+            void initMotion();
+          } else if (window.innerWidth !== lastWidth) {
+            lastWidth = window.innerWidth;
+            if (ST) ST.refresh();
+          }
         }, 250);
       },
       { passive: true },
