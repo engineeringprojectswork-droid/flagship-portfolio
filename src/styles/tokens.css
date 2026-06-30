@@ -68,6 +68,20 @@ ul{list-style:none}
   --ease-std:cubic-bezier(.4,0,.2,1);     /* hovers, chips */
   /* Parallax depth scale (data-px multipliers) */
   --px-far:.04; --px-mid:.08; --px-content:0; --px-near:.12; --px-float:.16;
+
+  /* ----- Cosmic Keynote: deep-space world + Apple-Intelligence glow ----- */
+  --space-1:#03030a;        /* deep space top */
+  --space-2:#070713;        /* deep space bottom */
+  --star:#ffffff;           /* starfield colour (canvas reads this) */
+  --neb1:rgba(41,151,255,.16);   /* blue nebula */
+  --neb2:rgba(162,89,255,.16);   /* violet nebula */
+  --neb3:rgba(255,94,138,.10);   /* pink nebula */
+  --text-glow:170,195,255;  /* scroll-driven text halo (rgb triplet) */
+  --aura-k:1;               /* shape-aura intensity multiplier */
+  --glass-bg:rgba(255,255,255,.05);
+  --glass-brd:rgba(255,255,255,.12);
+  --glass-hi:rgba(255,255,255,.18);
+  --blur:22px;
   color-scheme: dark;
 }
 [data-theme="light"]{
@@ -80,6 +94,15 @@ ul{list-style:none}
   /* spine surfaces follow the light theme */
   --surface-base:#f5f5f7;--surface-raised:#ffffff;--surface-card:#eef0f4;
   --hair:rgba(0,0,0,.10);
+  /* Cosmic Keynote — dawn-in-orbit: pale sky, faint stars, gentler glow */
+  --space-1:#eaf0ff;--space-2:#f6f4ff;
+  --star:#3a3f70;
+  --neb1:rgba(41,151,255,.12);--neb2:rgba(162,89,255,.12);--neb3:rgba(255,94,138,.08);
+  --text-glow:80,110,210;
+  --aura-k:.78;
+  --glass-bg:rgba(255,255,255,.62);
+  --glass-brd:rgba(20,20,60,.10);
+  --glass-hi:rgba(255,255,255,.95);
   color-scheme: light;
 }
 
@@ -98,7 +121,14 @@ body[data-accent="orange"] {--accent:#ff9f0a;--accent-2:#ffd60a;--grad:linear-gr
 body[data-accent="resume"] {--accent:#2997ff;--accent-2:#bf5af2;--grad:linear-gradient(120deg,#2997ff 0%,#bf5af2 50%,#30d158 100%)}
 
 body{
-  background:var(--bg);
+  /* Cosmic Keynote: the page is a window into deep space — nebula blooms over a
+     deep-space gradient. The fixed #space canvas (starfield) layers on top. */
+  background:
+    radial-gradient(120% 80% at 80% -10%, var(--neb2), transparent 60%),
+    radial-gradient(120% 80% at 10% 20%, var(--neb1), transparent 55%),
+    radial-gradient(120% 90% at 50% 120%, var(--neb3), transparent 60%),
+    linear-gradient(180deg, var(--space-1), var(--space-2));
+  background-attachment:fixed;
   color:var(--ink);
   font-family:var(--font);
   line-height:1.5;
@@ -219,10 +249,39 @@ h1,h2,h3{line-height:1.05;letter-spacing:-.03em;font-weight:800}
   animation:floaty 18s var(--ease) infinite alternate;
 }
 @keyframes floaty{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(0,-3%,0) scale(1.06)}}
-/* The home hero is always dark (aurora canvas), so force light text even in
-   the light theme — otherwise the non-gradient headline goes dark-on-dark. */
-.hero{--ink:#f5f5f7;--ink-2:#a1a1a6;--ink-3:#6e6e73;--panel-brd:rgba(255,255,255,.16);color:var(--ink)}
+/* Cosmic Keynote — DARK hero = the converging-core canvas (force light ink);
+   LIGHT hero = the ribbon banner (keeps light-theme dark ink). The old
+   "always dark" hack is now scoped to dark theme only. */
+.hero{color:var(--ink)}
+:root:not([data-theme="light"]) .hero{--ink:#f5f5f7;--ink-2:#a1a1a6;--ink-3:#6e6e73;--panel-brd:rgba(255,255,255,.16)}
 .hero__canvas{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:0;pointer-events:none}
+
+/* ---- Light "ribbon" hero (ported from hero-banner-light.dc.html) ---- */
+.hero__ribbons{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden;display:none}
+.hero__bloom{position:absolute;inset:0;filter:blur(34px);will-change:transform}
+.hero__bloom.a{transform-origin:60% 46%;animation:auroraDriftA 26s var(--ease) infinite;
+  background:
+    radial-gradient(38% 56% at 50% 40%, rgba(41,151,255,.26), transparent 72%),
+    radial-gradient(42% 58% at 66% 60%, rgba(162,89,255,.21), transparent 72%),
+    radial-gradient(34% 48% at 34% 34%, rgba(255,94,138,.18), transparent 70%),
+    radial-gradient(30% 44% at 50% 50%, rgba(150,196,255,.22), transparent 68%)}
+.hero__bloom.b{transform-origin:50% 48%;animation:auroraDriftB 31s var(--ease) infinite;
+  background:
+    radial-gradient(26% 38% at 50% 47%, rgba(120,176,255,.18), transparent 70%),
+    radial-gradient(24% 34% at 40% 30%, rgba(190,150,255,.13), transparent 70%),
+    radial-gradient(22% 32% at 62% 52%, rgba(255,120,160,.12), transparent 70%)}
+.hero__ribbons svg{position:absolute;inset:0;width:100%;height:100%}
+.hero__wash{position:absolute;inset:0;z-index:1;pointer-events:none;display:none;
+  background:radial-gradient(46% 46% at 50% 46%, rgba(255,255,255,.82), transparent 72%)}
+@keyframes auroraDriftA{0%,100%{transform:translate3d(0,0,0) scale(1.02)}50%{transform:translate3d(-1.4%,1.1%,0) scale(1.06)}}
+@keyframes auroraDriftB{0%,100%{transform:translate3d(0,0,0) scale(1.04)}50%{transform:translate3d(1.6%,-1%,0) scale(1)}}
+@keyframes corePulse{0%,100%{opacity:.88}50%{opacity:1}}
+[data-theme="light"] .hero{background:linear-gradient(152deg,#fff 0%,#fdfdfe 50%,#f6f6f8 82%,#f5f5f7 100%)}
+[data-theme="light"] .hero__canvas{display:none}
+[data-theme="light"] .hero__vignette{display:none}
+[data-theme="light"] .hero__ribbons{display:block}
+[data-theme="light"] .hero__wash{display:block}
+@media (prefers-reduced-motion:reduce){.hero__bloom,.hero__core{animation:none}}
 .hero__grain{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:.05;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:180px 180px}
 .hero__vignette{position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(135% 130% at 50% 44%,transparent 58%,rgba(0,0,0,.55) 100%)}
 .hero__inner{position:relative;z-index:2;max-width:980px;padding-inline:var(--pad)}
@@ -724,4 +783,74 @@ h1,h2,h3{line-height:1.05;letter-spacing:-.03em;font-weight:800}
 /* ---------- View Transitions cross-fade ---------- */
 @media (prefers-reduced-motion:no-preference){
   ::view-transition-old(root),::view-transition-new(root){animation-duration:.32s}
+}
+
+/* =====================================================================
+   COSMIC KEYNOTE — global space field + the two-glow signature
+   (1) TEXT glows by SCROLL only (clean ink + a --glow drop-shadow set by JS).
+   (2) SHAPES carry the Apple-Intelligence colour aura around the edge.
+   --glow (0→1) is written per-element by lib/interactions.ts (viewport-centre
+   proximity). At rest --glow:0 → zero glow, so text stays crisp + AA.
+   ===================================================================== */
+
+/* Fixed starfield/nebula canvas behind every section (lib/space.ts paints it) */
+#space{position:fixed;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none;display:block}
+
+/* (1) professional scroll-glow text */
+.glow-text{--glow:0;
+  filter:drop-shadow(0 0 calc(var(--glow)*20px) rgba(var(--text-glow),calc(var(--glow)*.7)));
+  transition:filter .18s linear}
+.display,.h-xl,.h-lg,.metric__num,.hook__num b,.climb,
+.statement p,.handoff__num,.handoff__label,.hook__title{--glow:0;
+  filter:drop-shadow(0 0 calc(var(--glow)*20px) rgba(var(--text-glow),calc(var(--glow)*.7)));
+  transition:filter .18s linear}
+
+/* (2) Apple-Intelligence aura around shapes — soft pink→violet→blue, scroll-up */
+.glow-frame,.metric,.role,.fcard,.build__item,.feat,.step,.asset-slot,.badge,.note{
+  --glow:0;
+  box-shadow:
+    0 0 calc(8px + var(--glow)*16px) rgba(255,94,138,calc((.05 + var(--glow)*.28)*var(--aura-k))),
+    0 0 calc(16px + var(--glow)*30px) rgba(162,89,255,calc((.05 + var(--glow)*.30)*var(--aura-k))),
+    0 0 calc(26px + var(--glow)*48px) rgba(41,151,255,calc((.04 + var(--glow)*.26)*var(--aura-k)));
+}
+/* keep the existing richer directional shadow on hover for the lift cards */
+.feat:hover,.step:hover{
+  box-shadow:0 16px 40px -22px color-mix(in srgb,var(--accent) 70%,transparent),
+    0 0 calc(20px + var(--glow,1)*30px) rgba(162,89,255,calc(.22*var(--aura-k)));
+}
+
+/* reduced-motion: never glow (stay perfectly crisp + calm) */
+@media (prefers-reduced-motion:reduce){
+  .glow-text,.display,.h-xl,.h-lg,.metric__num,.hook__num b,.climb,
+  .statement p,.handoff__num,.handoff__label,.hook__title{filter:none!important;transition:none}
+  .glow-frame,.metric,.role,.fcard,.build__item,.feat,.step,.asset-slot,.badge,.note{box-shadow:none}
+  #space{opacity:.9}
+}
+
+/* =====================================================================
+   COSMIC KEYNOTE — pinned scroll-scrub scene scaffold (lib/cosmic.ts)
+   A [data-pin] wrapper is a tall section; [data-stage] is its sticky 100svh
+   stage; [data-step] children assemble as --p (0→1) rises. Generalises the
+   MY WORK strip mechanic to any section. Mobile / reduced-motion = no pin,
+   everything shown (static assembled end-state).
+   ===================================================================== */
+.pin{position:relative}
+.pin__stage{position:sticky;top:0;min-height:100svh;display:flex;flex-direction:column;
+  justify-content:center;overflow:hidden}
+.pin [data-step]{opacity:0;transform:translateY(36px);will-change:transform,opacity}
+/* biome layers parallax/scrub behind the stage content */
+.biome{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.pin__stage>.wrap,.pin__stage>.content{position:relative;z-index:2}
+
+/* static end-state: stop holding, reveal everything (mobile + reduced-motion) */
+.no-pin .pin{height:auto!important}
+.no-pin .pin__stage{position:relative;min-height:auto;display:block}
+.no-pin .pin [data-step]{opacity:1!important;transform:none!important}
+@media(max-width:820px){
+  .pin__stage{position:relative;min-height:auto;display:block}
+  .pin [data-step]{opacity:1!important;transform:none!important}
+}
+@media (prefers-reduced-motion:reduce){
+  .pin__stage{position:relative;min-height:auto;display:block}
+  .pin [data-step]{opacity:1!important;transform:none!important}
 }

@@ -139,6 +139,7 @@ const graph = [personSchema, ...(Array.isArray(jsonLd) ? jsonLd : jsonLd ? [json
   </head>
 
   <body data-accent={accent}>
+    <canvas id="space" aria-hidden="true"></canvas>
     <a href="#main" class="skip-link">{t('a11y.skip')}</a>
     <div class="progress" aria-hidden="true"></div>
 
@@ -154,11 +155,13 @@ const graph = [personSchema, ...(Array.isArray(jsonLd) ? jsonLd : jsonLd ? [json
       import { initInteractions } from '../lib/interactions';
       import { initMotion } from '../lib/motion';
       import { initAurora } from '../lib/aurora';
+      import { initSpace } from '../lib/space';
 
       function boot() {
         initInteractions();
         initMotion();
         initAurora();
+        initSpace();
         const isLight = document.documentElement.getAttribute('data-theme') === 'light';
         document
           .querySelectorAll('[data-theme-btn]')
@@ -180,6 +183,8 @@ const graph = [personSchema, ...(Array.isArray(jsonLd) ? jsonLd : jsonLd ? [json
         } catch (err) {
           /* ignore */
         }
+        // Repaint canvases (starfield / hero) for the new palette.
+        document.dispatchEvent(new Event('mm:themechange'));
         document
           .querySelectorAll('[data-theme-btn]')
           .forEach((b) => (b.textContent = goLight ? '☾' : '☀'));

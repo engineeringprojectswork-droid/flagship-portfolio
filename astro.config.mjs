@@ -3,7 +3,7 @@ import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
 // Production URL — update before deploy (drives sitemap, canonical, hreflang, OG).
-const SITE = 'https://mohamed-mahmoud-kuwait.netlify.app';
+const SITE = 'https://mohamed-mahmoud-kw.vercel.app';
 
 // https://astro.build/config
 export default defineConfig({

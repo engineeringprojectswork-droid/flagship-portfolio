@@ -8,6 +8,7 @@ import Team from '../../components/Team.astro';
 import About from '../../components/About.astro';
 import Contact from '../../components/Contact.astro';
 import RailNav from '../../components/RailNav.astro';
+import Biome from '../../components/Biome.astro';
 import { useTranslations, type Lang } from '../../i18n/utils';
 import { locales } from '../../i18n/utils';
 
@@ -71,8 +72,9 @@ const railItems = [
   <Hero lang={lang} />
   <Statements lang={lang} />
 
-  <section class="section" aria-label={lang === 'ar' ? 'الأرقام' : 'Proof in numbers'}>
-    <div class="wrap">
+  <section class="section" style="position:relative" aria-label={lang === 'ar' ? 'الأرقام' : 'Proof in numbers'}>
+    <Biome kind="aurora" tint="#64d2ff" />
+    <div class="wrap" style="position:relative;z-index:1">
       <Metrics
         lang={lang}
         eyebrow={{ en: 'Receipts, not adjectives', ar: 'أرقامٌ لا صفات' }}
@@ -82,7 +84,16 @@ const railItems = [
   </section>
 
   <ProjectsGrid lang={lang} />
-  <Team lang={lang} />
-  <About lang={lang} />
-  <Contact lang={lang} />
+  <div style="position:relative">
+    <Biome kind="constellation" tint="#7574ee" />
+    <Team lang={lang} />
+  </div>
+  <div style="position:relative">
+    <Biome kind="warp" tint="#a259ff" />
+    <About lang={lang} />
+  </div>
+  <div style="position:relative">
+    <Biome kind="comet" tint="#ffd60a" />
+    <Contact lang={lang} />
+  </div>
 </BaseLayout>

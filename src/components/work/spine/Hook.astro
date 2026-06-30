@@ -2,6 +2,7 @@
 /** Beat 1 · Hook — pinned-feel full-screen: badge, headline, hero number,
  *  parallax ghost numeral + glow drift. Reveals stagger in. */
 import { pick, homePath, useTranslations, type Lang } from '../../../i18n/utils';
+import Biome from '../../Biome.astro';
 
 interface Props {
   lang: Lang;
@@ -20,6 +21,7 @@ const t = useTranslations(lang);
 ---
 
 <section class="beat beat--hook" data-screen="hook">
+  <Biome kind="nebula" class="biome--hook" />
   <span class="beat__glow" data-px="0.05" aria-hidden="true"></span>
   <span class="beat__ghost" data-px="0.12" data-ghost={ghost} aria-hidden="true"></span>
   <span class="beat__vignette" aria-hidden="true"></span>

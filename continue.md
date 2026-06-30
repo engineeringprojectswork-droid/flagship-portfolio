@@ -15,14 +15,14 @@ no memory of the prior conversation can pick up from here.
   `run-flagship.cmd` launcher + `.claude/launch.json` (`flagship` preview config).
   A session may open with cwd = `Downloads\website`; **edit flagship-rebuild via
   absolute paths.**
-- **Git:** this folder is now a git repo (`git init` done as a safety net). History:
-  `Baseline → Phase 0 … Phase 5`, one commit per phase. **Local only — nothing pushed,
-  not deployed.** Roll back any phase with `git -C "<path>" reset`/`revert`.
+- **Git:** local git repo (`git init` done as a safety net). History:
+  `Baseline → Phase 0 … Phase 5`, one commit per phase. **No git remote — local only.**
+  Roll back any phase with `git -C "<path>" reset`/`revert`.
 - **Real-data rule (career-critical):** every number must trace to `src/data/profile.ts`
   or `src/data/projects.ts`. Never invent/round/alter figures. Keep the honesty notes
   verbatim. `my-resume` uses only safe framings — no job-hunt counts.
 
-## 1. What was just done — the parallax/3D StoryScroll rework (Claude Design package)
+## 1. What was done — the parallax/3D StoryScroll rework (Claude Design package)
 
 Implemented the full "Claude Design parallax package" (brief: replace the boxed
 self-playing explainer with a page-level scroll story on every work page + home
@@ -116,18 +116,41 @@ on the `#work` section gates the home scenes.
   bar, section rail, EN+AR (RTL mirrors chips/rail/film-strip/3D tilt), light theme,
   and the mobile/reduced static fallback (all content visible, no pins). Console clean.
 
-## 4. PENDING / next steps (in priority order)
+## 4. Deploy status (as of 2026-06-30)
+
+Both platforms are live and in sync. Deploy from `dist/` — always build first.
+
+| Platform | URL | Status |
+|---|---|---|
+| **Vercel** (primary / canonical) | https://mohamed-mahmoud-kw.vercel.app | ✅ Live |
+| **Netlify** (mirror) | https://mohamed-mahmoud-kuwait.netlify.app | ✅ Live |
+
+**Vercel details:**
+- Project: `mohamed-mahmoud-kw` · Scope: `mohamedkw` · ID: `prj_519TppVqznVHZNE4unMmfZlGBSGk`
+- `.vercel/project.json` is up to date.
+- CLI: `vercel deploy --prod --scope mohamedkw --yes` (run from the long path)
+- Netlify canonical tags point to the Vercel domain — Vercel is the SEO primary.
+
+**Netlify details:**
+- Site: `mohamed-mahmoud-kuwait` · CLI: `netlify deploy --prod --dir dist`
+- The Netlify site name (`*-kuwait`) predates the Vercel rename. Could be renamed to
+  `mohamed-mahmoud-kw` in the Netlify dashboard if desired — cosmetic only.
+
+**`astro.config.mjs` `SITE`:** `https://mohamed-mahmoud-kw.vercel.app`
+— drives canonical, sitemap, hreflang, OG. Update this if the primary domain changes.
+
+## 5. PENDING / next steps (in priority order)
 1. **Real screenshots** for the marked `AssetSlot` placeholders (16:10 / 16:11). Drop a
    `src` prop on each — search `AssetSlot` usages. This is the main "fill in real media" step.
 2. **Re-run mobile Lighthouse** on a clean machine to confirm mobile 96–100 (EN was 97).
-3. **Review locally**, then **deploy** only on the owner's say-so (Netlify command in
-   `CLAUDE.md` §3: `npm run build && npx --no-install netlify deploy --prod --dir dist`).
-4. **Open decision:** indigo accent lightened `#5e5ce6`→`#7574ee` for AA — keep, or revert
+3. **Open decision:** indigo accent lightened `#5e5ce6`→`#7574ee` for AA — keep, or revert
    and accept the contrast flag.
-5. Optional polish: richer per-centerpiece visuals once real screenshots are in; consider
+4. Optional polish: richer per-centerpiece visuals once real screenshots are in; consider
    a literal GSAP-pinned Statements (currently 5 stacked screens + ghost, not pinned).
+5. **Netlify site rename** (cosmetic): rename from `mohamed-mahmoud-kuwait` →
+   `mohamed-mahmoud-kw` in the Netlify dashboard if you want URL parity.
 
-## 5. Preview / build / deploy (IMPORTANT — the path has a space)
+## 6. Preview / build / deploy (IMPORTANT — the path has a space)
 - **Preview (Claude tool):** `preview_start({name:"flagship"})` — uses
   `Downloads\website\run-flagship.cmd` + `.claude/launch.json` (`autoPort`). The spaced
   path breaks naive launching and the Windows short-path breaks dev CSS — the launcher
@@ -138,8 +161,13 @@ on the `#work` section gates the home scenes.
 - **Build:** `npm run build` → `dist/` (run from the long path). `npm run preview` serves
   `dist` for Lighthouse. Lighthouse isn't installed; `npx -y lighthouse <url> --preset=desktop`
   works (Chrome present).
+- **Deploy both:** build once, then run both CLI commands from the long path:
+  ```
+  vercel deploy --prod --scope mohamedkw --yes
+  netlify deploy --prod --dir dist
+  ```
 
-## 6. Non-negotiable rules (unchanged)
+## 7. Non-negotiable rules (unchanged)
 Real data only · honesty notes verbatim · AR/EN parity + correct RTL · don't edit the
 self-contained films (`public/films/*`) · don't move/rename files without confirming ·
 match the Apple-calm look · deploy only when the owner says so.

@@ -143,6 +143,65 @@ function initScrub() {
   updateScrub();
 }
 
+/* ---- Cosmic Keynote: scroll-driven Apple-Intelligence glow ----
+   Each element matching GLOW_SEL gets a live `--glow` (0→1) that peaks as its
+   centre nears the viewport centre, then fades. CSS maps --glow to a clean text
+   drop-shadow (headlines) or the soft colour aura (shapes). Glow is therefore
+   driven BY scroll — never a constant animation. Reduced-motion pins --glow:0. */
+const GLOW_SEL =
+  '.glow-text,.glow-frame,.display,.h-xl,.h-lg,.metric__num,.hook__num b,.climb,' +
+  '.statement p,.handoff__num,.handoff__label,.hook__title,.metric,.role,.fcard,' +
+  '.build__item,.feat,.step,.asset-slot,.badge,.note';
+let glowEls: HTMLElement[] = [];
+let glowBound = false;
+function updateGlow() {
+  if (!glowEls.length) return;
+  const vh = window.innerHeight || document.documentElement.clientHeight || 0;
+  const vc = vh / 2;
+  const span = vh * 0.62 || 1;
+  for (const el of glowEls) {
+    const r = el.getBoundingClientRect();
+    let g = 0;
+    if (r.bottom > 0 && r.top < vh) {
+      const ctr = r.top + r.height / 2;
+      g = 1 - Math.min(1, Math.abs(ctr - vc) / span);
+      if (g < 0) g = 0;
+    }
+    const gs = g.toFixed(2);
+    if (el.dataset.g !== gs) {
+      el.dataset.g = gs;
+      el.style.setProperty('--glow', gs);
+    }
+  }
+}
+function initGlow() {
+  glowEls = Array.from(document.querySelectorAll<HTMLElement>(GLOW_SEL));
+  if (reduce()) {
+    glowEls.forEach((el) => el.style.setProperty('--glow', '0'));
+    glowEls = [];
+    return;
+  }
+  if (!glowBound) {
+    glowBound = true;
+    let ticking = false;
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (!ticking) {
+          ticking = true;
+          requestAnimationFrame(() => {
+            ticking = false;
+            updateGlow();
+          });
+        }
+      },
+      { passive: true },
+    );
+    window.addEventListener('resize', updateGlow, { passive: true });
+  }
+  updateGlow();
+}
+
 /* ---- nav scrolled state + scroll-progress bar ---- */
 let chromeBound = false;
 function initScrollChrome() {
@@ -169,5 +228,6 @@ export function initInteractions(): void {
   initCounters();
   initParallax();
   initScrub();
+  initGlow();
   initScrollChrome();
 }

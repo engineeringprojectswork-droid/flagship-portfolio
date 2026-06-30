@@ -34,12 +34,22 @@ Both live under: `C:\Users\GAMING\Claude\Projects\MY Resume\`
 > static structure, confirm whether the owner wants it on the **live Astro site** (almost always yes)
 > and translate the change into this Astro project instead.
 
-## 3. Live deployment
+## 3. Live deployment (DUAL host — Vercel primary, Netlify mirror)
 
-- **Live URL:** https://mohamed-mahmoud-kuwait.netlify.app
-- **Host:** Netlify, site name `mohamed-mahmoud-kuwait` (Netlify account `engineeringprojectswork@gmail.com`, team `engineeringprojectswork`). The folder is `netlify link`-ed (`.netlify/` is gitignored).
-- **Redeploy:** `npm run build && npx --no-install netlify deploy --prod --dir dist`
-- Do **NOT** deploy unless the owner says so — they review locally, then say "deploy". (When they do say deploy, it's authorized.)
+- **Primary (canonical):** Vercel — https://mohamed-mahmoud-kw.vercel.app
+- **Mirror:** Netlify — https://mohamed-mahmoud-kuwait.netlify.app
+- **Account:** `engineeringprojectswork@gmail.com`. Both folders are CLI-linked
+  (`.vercel/` + `.netlify/` are gitignored). **No git remote — local repo only**,
+  so deploy via the CLIs (NOT `git push`).
+- **Redeploy both (run from the long path):**
+  ```
+  npm run build
+  npx --no-install vercel deploy --prod --yes
+  npx --no-install netlify deploy --prod --dir dist
+  ```
+- `astro.config.mjs` `SITE` = the Vercel URL (drives canonical/sitemap/hreflang/OG).
+- Do **NOT** deploy unless the owner says so — they review locally, then say "deploy".
+  (When they do say deploy, it's authorized.)
 
 ## 4. Stack & architecture (this Astro project)
 
@@ -129,21 +139,36 @@ Commands: `npm run dev` (4321) · `npm run build` → `dist/` · `npm run previe
    Deployed. All green.
 5. **Parallax/3D StoryScroll rework (2026-06-30) — Claude Design package.** Replaced the boxed
    explainer with a page-level **5-beat scroll spine** on all stories, added home upgrades, and a
-   **9th** story (`my-resume`). Full detail + the next-session handoff live in **`continue.md`**.
-   In source only (committed per phase; **not deployed** yet).
+   **9th** story (`my-resume`). Full detail in **`continue.md`**. **Deployed to both hosts.**
+6. **Cosmic Keynote (2026-06-30) — space + glow overhaul.** Global starfield/nebula layer
+   (`src/lib/space.ts` → fixed `#space` canvas, theme-aware, reduced-motion static, VT-safe);
+   the two-glow signature (scroll-driven `.glow-text` drop-shadow + the Apple-Intelligence
+   `.glow-frame` shape aura, both driven by a `--glow` written in `interactions.ts`); a light
+   **ribbon hero** (dark keeps the converging-core canvas; the old "always dark" hack retired);
+   and per-section **biomes** (`src/components/Biome.astro` — nebula/aurora/grid/constellation/
+   warp/comet/globe/singularity) behind the home sections + every `/work` hook. Tokens, glow
+   utilities + the `.pin`/`.pin__stage` scene scaffold live in `tokens.css`. Built green (22
+   pages), verified (EN/AR, light/dark, mobile, RTL, console clean), and **deployed to both hosts**.
+   See `DEPLOY-STATUS.md`.
 
 ## 8. ACTIVE / PENDING (current)
 
-The parallax rework is **done in source** (`npm run build` green, 22 pages). What's left:
+The Cosmic Keynote is **live on both hosts** (`npm run build` green, 22 pages). What's left:
 
-1. **Real screenshots** — every centerpiece/card has a clearly-marked `▦ ASSET SLOT` placeholder
+1. **Real screenshots** — every centerpiece/card still has a marked `▦ ASSET SLOT` placeholder
    (`src/components/work/spine/AssetSlot.astro`, 16:10 / 16:11). Pass a real image path as its
-   `src` prop to fill — no layout shift. Search `AssetSlot` usages for the slots.
-2. **Mobile Lighthouse** — verify on a clean machine (desktop is reliably 100/100/100/100; EN mobile
-   hit 97 on a fresh run, but this dev box's mobile numbers were noise-corrupted by repeated audits).
-3. **Deploy** only on the owner's say-so (Netlify command in §3).
+   `src` prop to fill — no layout shift. The 8 existing `public/img/work/*` ad creatives fill the
+   Brand & Content slots; the owner still owes the 6 private shots (Meta/CRM/analytics/app/HR/Cowork)
+   + 2 Brand (AI concept, restored photo). See `DEPLOY-STATUS.md` for the shot-list.
+2. **Lighthouse re-check** — re-run on a clean machine. Desktop was 100/100/100/100 pre-Cosmic; the
+   changes are additive CSS + one cheap starfield rAF + a throttled, dataset-gated glow pass (no
+   blocking resources, no CLS from the fixed canvas, code-split preserved), so expect parity.
+3. **Pin model** — the owner chose "pin every section." Shipped as: pinned filmstrip + all 9 work
+   Build/Proof pins + cinematic statement scenes + biomes everywhere; connective home sections use
+   scrub-reveal-in-flow (kept off hard-pin for mobile-Lighthouse safety). `.pin`/`.pin__stage`
+   scaffold is in `tokens.css` to pin more sections per-section if desired.
 4. **Open decision:** the indigo (Web·Live) accent was lightened from the spec'd `#5e5ce6` to
-   `#7574ee` so it passes AA as small text — confirm keep, or revert and accept the contrast flag.
+   `#7574ee` so it passes AA as small text — confirmed **keep** this session.
 
 **Full architecture + DOM contract + verification status:** see `continue.md` (self-contained handoff).
 

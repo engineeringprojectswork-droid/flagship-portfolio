@@ -21,6 +21,49 @@ const lead =
 
 <header class="hero" id="intro">
   <canvas class="hero__canvas" id="auroraCanvas" aria-hidden="true"></canvas>
+  <div class="hero__ribbons" aria-hidden="true">
+    <div class="hero__bloom a"></div>
+    <div class="hero__bloom b"></div>
+    <svg viewBox="0 0 1200 600" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="rb1" gradientUnits="userSpaceOnUse" x1="600" y1="30" x2="600" y2="300">
+          <stop offset="0" stop-color="#2997ff" stop-opacity="0"/><stop offset=".5" stop-color="#2997ff" stop-opacity=".34"/><stop offset=".84" stop-color="#8fbbff" stop-opacity=".66"/><stop offset="1" stop-color="#fff" stop-opacity=".92"/>
+        </linearGradient>
+        <linearGradient id="rb2" gradientUnits="userSpaceOnUse" x1="1130" y1="120" x2="600" y2="300">
+          <stop offset="0" stop-color="#a259ff" stop-opacity="0"/><stop offset=".5" stop-color="#a259ff" stop-opacity=".32"/><stop offset=".84" stop-color="#c9b0ff" stop-opacity=".62"/><stop offset="1" stop-color="#fff" stop-opacity=".9"/>
+        </linearGradient>
+        <linearGradient id="rb3" gradientUnits="userSpaceOnUse" x1="1090" y1="520" x2="600" y2="300">
+          <stop offset="0" stop-color="#ff5e8a" stop-opacity="0"/><stop offset=".5" stop-color="#ff5e8a" stop-opacity=".30"/><stop offset=".84" stop-color="#ffb0c6" stop-opacity=".6"/><stop offset="1" stop-color="#fff" stop-opacity=".9"/>
+        </linearGradient>
+        <linearGradient id="rb4" gradientUnits="userSpaceOnUse" x1="110" y1="520" x2="600" y2="300">
+          <stop offset="0" stop-color="#a259ff" stop-opacity="0"/><stop offset=".5" stop-color="#a259ff" stop-opacity=".28"/><stop offset=".84" stop-color="#c9b0ff" stop-opacity=".56"/><stop offset="1" stop-color="#fff" stop-opacity=".88"/>
+        </linearGradient>
+        <linearGradient id="rb5" gradientUnits="userSpaceOnUse" x1="70" y1="150" x2="600" y2="300">
+          <stop offset="0" stop-color="#2997ff" stop-opacity="0"/><stop offset=".5" stop-color="#3fa0ff" stop-opacity=".30"/><stop offset=".84" stop-color="#9cc6ff" stop-opacity=".6"/><stop offset="1" stop-color="#fff" stop-opacity=".9"/>
+        </linearGradient>
+        <radialGradient id="coreGlow"><stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset=".3" stop-color="#d2e1ff" stop-opacity=".5"/><stop offset=".7" stop-color="#bfd4ff" stop-opacity=".12"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+        <radialGradient id="coreHot"><stop offset="0" stop-color="#fff" stop-opacity=".98"/><stop offset=".45" stop-color="#ebf2ff" stop-opacity=".5"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+        <filter id="rbSoft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="5"/></filter>
+      </defs>
+      <g filter="url(#rbSoft)" opacity=".5" fill="none" stroke-linecap="round">
+        <path d="M600 30 C600 140 600 200 600 300" stroke="url(#rb1)" stroke-width="7"/>
+        <path d="M1130 120 C950 180 770 250 600 300" stroke="url(#rb2)" stroke-width="7"/>
+        <path d="M1090 520 C920 440 760 360 600 300" stroke="url(#rb3)" stroke-width="7"/>
+        <path d="M110 520 C290 440 440 360 600 300" stroke="url(#rb4)" stroke-width="7"/>
+        <path d="M70 150 C260 210 430 250 600 300" stroke="url(#rb5)" stroke-width="7"/>
+      </g>
+      <g fill="none" stroke-linecap="round">
+        <path d="M600 30 C600 140 600 200 600 300" stroke="url(#rb1)" stroke-width="2"/>
+        <path d="M1130 120 C950 180 770 250 600 300" stroke="url(#rb2)" stroke-width="2"/>
+        <path d="M1090 520 C920 440 760 360 600 300" stroke="url(#rb3)" stroke-width="2"/>
+        <path d="M110 520 C290 440 440 360 600 300" stroke="url(#rb4)" stroke-width="2"/>
+        <path d="M70 150 C260 210 430 250 600 300" stroke="url(#rb5)" stroke-width="2"/>
+      </g>
+      <circle cx="600" cy="300" r="120" fill="url(#coreGlow)"/>
+      <circle class="hero__core" cx="600" cy="300" r="38" fill="url(#coreHot)" style="animation:corePulse 7s ease-in-out infinite"/>
+    </svg>
+  </div>
+  <div class="hero__wash" aria-hidden="true"></div>
   <div class="hero__grain" aria-hidden="true"></div>
   <div class="hero__vignette" aria-hidden="true"></div>
   <div class="hero__inner">

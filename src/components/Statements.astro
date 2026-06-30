@@ -1,10 +1,16 @@
 ---
 import { pick, type Lang } from '../i18n/utils';
+import Biome from './Biome.astro';
 
 interface Props {
   lang: Lang;
 }
 const { lang } = Astro.props;
+
+// One space biome per statement line (same universe, a new region each time).
+const biomes = ['nebula', 'warp', 'grid', 'aurora', 'singularity'] as const;
+// Per-line accent tint so each scene is its own colour (independent of page accent).
+const tints = ['#2997ff', '#ff5e8a', '#30d158', '#bf5af2', '#ff9f0a'];
 
 // Each line earns its screen with a large low-opacity ghost metric + a one-line
 // stat behind it. Every number traces to the real work (profile.ts / the stories).
@@ -46,8 +52,9 @@ const lines: Line[] = [
 
 <section class="statements" aria-label={lang === 'ar' ? 'ما الذي أفعله' : 'What I do'}>
   {
-    lines.map((l) => (
+    lines.map((l, i) => (
       <div class="statement" data-ghost={l.ghost}>
+        <Biome kind={biomes[i % biomes.length]} tint={tints[i % tints.length]} />
         <div class="statement__inner">
           <p class={`reveal${l.grad ? ' gradient-text shimmer' : ''}`} set:html={l[lang]} />
           <span class="statement__stat reveal d2">{pick(lang, l.stat)}</span>

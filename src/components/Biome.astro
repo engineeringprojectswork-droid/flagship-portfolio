@@ -1,0 +1,236 @@
+---
+/**
+ * Cosmic Keynote — a decorative "biome" layer (one region of deep space).
+ * Pure CSS/SVG, accent-tinted (reads --accent/--accent-2 from the page or a
+ * passed `tint`), ambient by default + scrubbable via the section's --p.
+ * Reduced-motion freezes all drift. Always aria-hidden (decoration only).
+ *
+ * kind: nebula · aurora · grid · constellation · warp · comet · globe ·
+ *       singularity · core
+ */
+interface Props {
+  kind?:
+    | 'nebula' | 'aurora' | 'grid' | 'constellation'
+    | 'warp' | 'comet' | 'globe' | 'singularity' | 'core';
+  /** override accent for this biome, e.g. "#2997ff" */
+  tint?: string;
+  class?: string;
+}
+const { kind = 'nebula', tint, class: cls = '' } = Astro.props;
+const style = tint ? `--bt:${tint}` : '';
+---
+
+<div class={`biome biome--${kind} ${cls}`} data-kind={kind} style={style} aria-hidden="true">
+  {kind === 'grid' && <div class="biome__planet"></div>}
+  {kind === 'globe' && <div class="biome__globe"></div>}
+  {kind === 'comet' && <span class="biome__comet"></span>}
+  {kind === 'singularity' && <div class="biome__sing"></div>}
+</div>
+
+<style>
+  .biome {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+    --bt: var(--accent, #2997ff);
+    --bt2: var(--accent-2, #a259ff);
+  }
+
+  /* nebula — twin colour blooms breathing */
+  .biome--nebula::before,
+  .biome--nebula::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0.55;
+  }
+  .biome--nebula::before {
+    width: 62vw; height: 62vw; left: 50%; top: 44%;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, color-mix(in srgb, var(--bt) 55%, transparent), transparent 62%);
+    animation: biomeBreatheA 14s var(--ease, ease-in-out) infinite;
+  }
+  .biome--nebula::after {
+    width: 42vw; height: 42vw; left: 66%; top: 40%;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, color-mix(in srgb, var(--bt2) 45%, transparent), transparent 62%);
+    animation: biomeBreatheB 18s var(--ease, ease-in-out) infinite;
+  }
+
+  /* aurora — soft horizontal ribbons drifting */
+  .biome--aurora::before {
+    content: '';
+    position: absolute;
+    inset: -10% -5%;
+    filter: blur(10px);
+    opacity: 0.5;
+    background:
+      radial-gradient(60% 30% at 30% 40%, color-mix(in srgb, var(--bt) 40%, transparent), transparent 70%),
+      radial-gradient(50% 26% at 72% 56%, color-mix(in srgb, var(--bt2) 40%, transparent), transparent 70%),
+      radial-gradient(40% 22% at 52% 30%, rgba(162, 89, 255, 0.3), transparent 70%);
+    animation: biomeFloat 16s var(--ease, ease-in-out) infinite;
+  }
+
+  /* grid — synthwave horizon + a rising planet */
+  .biome--grid::before {
+    content: '';
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 56%;
+    opacity: 0.45;
+    transform-origin: bottom;
+    transform: perspective(340px) rotateX(74deg);
+    background:
+      repeating-linear-gradient(90deg, transparent 0 38px, color-mix(in srgb, var(--bt2) 55%, transparent) 38px 40px),
+      repeating-linear-gradient(0deg, transparent 0 38px, color-mix(in srgb, var(--bt) 55%, transparent) 38px 40px);
+    -webkit-mask: linear-gradient(transparent, #000);
+    mask: linear-gradient(transparent, #000);
+  }
+  .biome__planet {
+    position: absolute;
+    right: 12%;
+    top: calc(58% - var(--p, 0) * 30%);
+    width: min(24vw, 230px);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle at 34% 30%, #cfe0ff, color-mix(in srgb, var(--bt) 70%, #6f6cff) 42%, #2a1a5e 80%, #120a2e);
+    box-shadow: 0 0 70px -6px color-mix(in srgb, var(--bt) 60%, transparent), inset -16px -10px 50px rgba(0, 0, 0, 0.55);
+    opacity: 0.9;
+    animation: biomeBob 12s var(--ease, ease-in-out) infinite;
+  }
+
+  /* constellation — dotted nodes joined by faint lines */
+  .biome--constellation::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0.5;
+    background:
+      radial-gradient(2px 2px at 18% 30%, var(--bt) 50%, transparent),
+      radial-gradient(2px 2px at 38% 62%, var(--bt2) 50%, transparent),
+      radial-gradient(2px 2px at 62% 26%, var(--bt) 50%, transparent),
+      radial-gradient(2px 2px at 78% 58%, var(--bt2) 50%, transparent),
+      radial-gradient(1.5px 1.5px at 50% 44%, #fff 50%, transparent),
+      radial-gradient(1.5px 1.5px at 28% 78%, var(--bt) 50%, transparent),
+      radial-gradient(1.5px 1.5px at 70% 80%, var(--bt2) 50%, transparent);
+  }
+  .biome--constellation::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0.18;
+    background:
+      linear-gradient(118deg, transparent 49.6%, color-mix(in srgb, var(--bt) 70%, transparent) 49.8% 50.2%, transparent 50.4%),
+      linear-gradient(62deg, transparent 49.6%, color-mix(in srgb, var(--bt2) 70%, transparent) 49.8% 50.2%, transparent 50.4%);
+    -webkit-mask: radial-gradient(60% 60% at 50% 50%, #000, transparent 75%);
+    mask: radial-gradient(60% 60% at 50% 50%, #000, transparent 75%);
+    animation: biomePulse 9s ease-in-out infinite;
+  }
+
+  /* warp — hyperspace streaks rotating */
+  .biome--warp::before {
+    content: '';
+    position: absolute;
+    left: 50%; top: 50%;
+    width: 180vmax; height: 180vmax;
+    transform: translate(-50%, -50%) rotate(calc(var(--p, 0) * 90deg));
+    background: repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--bt) 30%, transparent) 0 0.22deg, transparent 0.22deg 1.7deg);
+    -webkit-mask: radial-gradient(circle, transparent 12%, #000 58%);
+    mask: radial-gradient(circle, transparent 12%, #000 58%);
+    opacity: 0.4;
+    animation: biomeSpin 90s linear infinite;
+  }
+
+  /* comet — a single light streak with a tail */
+  .biome--comet .biome__comet {
+    position: absolute;
+    top: 22%; left: -10%;
+    width: 46%; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--bt), #fff);
+    border-radius: 2px;
+    filter: drop-shadow(0 0 8px var(--bt));
+    transform: rotate(18deg);
+    animation: biomeComet 9s var(--ease, ease-in-out) infinite;
+  }
+  .biome--comet::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(40% 50% at 70% 30%, color-mix(in srgb, var(--bt) 22%, transparent), transparent 70%);
+    opacity: 0.6;
+  }
+
+  /* globe — wireframe orb (lat/long via repeating gradients on a sphere) */
+  .biome__globe {
+    position: absolute;
+    right: 12%; top: 50%;
+    transform: translateY(-50%);
+    width: min(28vw, 280px);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background:
+      repeating-linear-gradient(0deg, transparent 0 13px, color-mix(in srgb, var(--bt) 40%, transparent) 13px 14px),
+      repeating-linear-gradient(90deg, transparent 0 13px, color-mix(in srgb, var(--bt2) 40%, transparent) 13px 14px),
+      radial-gradient(circle at 38% 32%, color-mix(in srgb, var(--bt) 22%, transparent), transparent 70%);
+    -webkit-mask: radial-gradient(circle, #000 60%, transparent 71%);
+    mask: radial-gradient(circle, #000 60%, transparent 71%);
+    box-shadow: inset -18px -14px 60px rgba(0, 0, 0, 0.5), 0 0 60px -10px color-mix(in srgb, var(--bt) 55%, transparent);
+    opacity: 0.6;
+    animation: biomeSpin 60s linear infinite;
+  }
+
+  /* singularity — three rings converging into one bright core */
+  .biome__sing,
+  .biome--core .biome,
+  .biome--singularity::before {
+    content: '';
+  }
+  .biome--singularity .biome__sing,
+  .biome--core::before {
+    content: '';
+    position: absolute;
+    left: 50%; top: 50%;
+    width: min(46vw, 460px); aspect-ratio: 1;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.95), color-mix(in srgb, var(--bt) 60%, transparent) 18%, color-mix(in srgb, var(--bt2) 40%, transparent) 38%, transparent 66%);
+    filter: blur(6px);
+    opacity: 0.7;
+    animation: biomeBreatheA 8s var(--ease, ease-in-out) infinite;
+  }
+  .biome--singularity::before {
+    content: '';
+    position: absolute;
+    left: 50%; top: 50%;
+    width: min(60vw, 620px); aspect-ratio: 1;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    border: 1px solid color-mix(in srgb, var(--bt) 40%, transparent);
+    box-shadow:
+      0 0 0 40px color-mix(in srgb, var(--bt) 6%, transparent),
+      0 0 0 90px color-mix(in srgb, var(--bt2) 5%, transparent);
+    opacity: 0.5;
+  }
+
+  @keyframes biomeBreatheA { 0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.55; } 50% { transform: translate(-50%, -50%) scale(1.08); opacity: 0.75; } }
+  @keyframes biomeBreatheB { 0%, 100% { transform: translate(-50%, -50%) scale(1.05); } 50% { transform: translate(-50%, -50%) scale(0.95); } }
+  @keyframes biomeFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3%); } }
+  @keyframes biomeBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+  @keyframes biomeSpin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+  @keyframes biomePulse { 0%, 100% { opacity: 0.12; } 50% { opacity: 0.24; } }
+  @keyframes biomeComet { 0% { transform: translateX(0) rotate(18deg); opacity: 0; } 12% { opacity: 1; } 60%, 100% { transform: translateX(240%) rotate(18deg); opacity: 0; } }
+
+  /* globe spin needs a centred origin override */
+  .biome__globe { animation-name: biomeGlobeSpin; }
+  @keyframes biomeGlobeSpin { to { transform: translateY(-50%) rotate(360deg); } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .biome *, .biome::before, .biome::after { animation: none !important; }
+  }
+  @media (max-width: 820px) {
+    .biome { opacity: 0.85; }
+    .biome__globe, .biome__planet { opacity: 0.4; }
+  }
+</style>
