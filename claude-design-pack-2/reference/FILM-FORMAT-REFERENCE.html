@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<meta name="darkreader-lock">
+<title>Meta Ads — Story Film</title>
+<style>
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; }
+  body{
+    background:#000;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:clamp(14px,4vw,48px);
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  /* ---------- Frame ---------- */
+  .film{
+    --accentA:#2997ff;
+    --accentB:#5ac8fa;
+    --dur:5000ms;
+    position:relative;
+    width:min(100%,1120px);
+    aspect-ratio:16/9;
+    background:#000;
+    color:#fff;
+    border-radius:clamp(16px,2vw,24px);
+    overflow:hidden;
+    border:1px solid rgba(255,255,255,.08);
+    box-shadow:0 50px 130px -50px rgba(41,151,255,.30), 0 1px 0 rgba(255,255,255,.04) inset;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    isolation:isolate;
+    -webkit-tap-highlight-color:transparent;
+  }
+  @media (max-width:640px){ .film{ aspect-ratio:3/4; } }
+
+  .stage{ position:absolute; inset:0; }
+
+  /* ---------- Scenes ---------- */
+  .scene{
+    position:absolute; inset:0;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center;
+    padding:clamp(26px,5.2vw,76px);
+    opacity:0; pointer-events:none;
+    transition:opacity .8s cubic-bezier(.4,0,.2,1);
+  }
+  .scene.is-active{ opacity:1; pointer-events:auto; }
+  .scene > *{ position:relative; z-index:1; }
+
+  .glow{ position:absolute; z-index:0; border-radius:50%; filter:blur(70px); pointer-events:none; }
+  .glow--1{ width:48%; aspect-ratio:1; top:-8%; left:-6%;  background:radial-gradient(circle,rgba(41,151,255,.45),transparent 66%); }
+  .glow--2{ width:46%; aspect-ratio:1; top:14%; right:-8%; background:radial-gradient(circle,rgba(90,200,250,.40),transparent 66%); }
+  .glow--3{ width:60%; aspect-ratio:1; bottom:-16%; left:50%; transform:translateX(-50%); background:radial-gradient(circle,rgba(41,151,255,.40),transparent 66%); }
+  .glow--4{ width:64%; aspect-ratio:1; top:50%; left:50%; transform:translate(-50%,-50%); background:radial-gradient(circle,rgba(90,200,250,.42),transparent 64%); }
+
+  /* ---------- Type ---------- */
+  .eyebrow{
+    margin:0 0 clamp(16px,2.4vw,24px);
+    font-size:clamp(11px,1.35vw,13px);
+    font-weight:600;
+    letter-spacing:.3em;
+    text-transform:uppercase;
+    color:rgba(255,255,255,.42);
+  }
+  .headline{
+    margin:0;
+    font-size:clamp(27px,4.7vw,60px);
+    line-height:1.05;
+    font-weight:700;
+    letter-spacing:-.026em;
+    max-width:21ch;
+    text-wrap:balance;
+  }
+  .caption{
+    margin:clamp(20px,3vw,30px) 0 0;
+    font-size:clamp(15px,1.95vw,23px);
+    font-weight:500;
+    letter-spacing:-.01em;
+    color:rgba(255,255,255,.6);
+    max-width:30ch;
+    text-wrap:balance;
+  }
+  .accent{
+    background:linear-gradient(90deg,var(--accentA),var(--accentB));
+    -webkit-background-clip:text; background-clip:text;
+    -webkit-text-fill-color:transparent; color:transparent;
+  }
+
+  /* entrance helper */
+  .anim{
+    opacity:0; transform:translateY(16px);
+    transition:opacity .9s cubic-bezier(.16,1,.3,1), transform .9s cubic-bezier(.16,1,.3,1);
+  }
+  .scene.is-active .anim{ opacity:1; transform:none; }
+
+  /* ---------- Scene 1 · chat ---------- */
+  .chat{
+    width:min(100%,380px);
+    margin-top:clamp(26px,3.6vw,40px);
+    display:flex; flex-direction:column; gap:clamp(8px,1.3vw,11px);
+  }
+  .bubble{
+    max-width:80%;
+    padding:clamp(10px,1.4vw,13px) clamp(13px,1.8vw,17px);
+    border-radius:19px;
+    font-size:clamp(13px,1.7vw,16px);
+    line-height:1.32; text-align:left;
+  }
+  .bubble.in{
+    align-self:flex-start;
+    background:rgba(255,255,255,.10);
+    color:rgba(255,255,255,.92);
+    border-bottom-left-radius:6px;
+  }
+  .bubble.out{
+    align-self:flex-end;
+    background:linear-gradient(135deg,var(--accentA),var(--accentB));
+    color:#fff; font-weight:500;
+    border-bottom-right-radius:6px;
+    box-shadow:0 10px 30px -12px rgba(41,151,255,.7);
+  }
+
+  /* ---------- Scene 2 · flow ---------- */
+  .flow{
+    margin-top:clamp(30px,4vw,46px);
+    display:flex; align-items:center; justify-content:center;
+    gap:clamp(6px,1vw,14px); flex-wrap:nowrap;
+  }
+  .node{
+    display:flex; flex-direction:column; gap:5px;
+    padding:clamp(12px,1.7vw,18px) clamp(14px,2.1vw,24px);
+    border-radius:15px;
+    background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.12);
+    min-width:clamp(74px,11vw,128px);
+  }
+  .node__k{ font-weight:600; font-size:clamp(13px,1.75vw,19px); letter-spacing:-.01em; }
+  .node__s{ font-size:clamp(10px,1.15vw,12.5px); color:rgba(255,255,255,.45); }
+  .node--hl{
+    border-color:rgba(90,200,250,.55);
+    background:linear-gradient(180deg,rgba(41,151,255,.18),rgba(41,151,255,.05));
+    box-shadow:0 0 0 1px rgba(90,200,250,.22), 0 14px 44px -18px rgba(41,151,255,.7);
+  }
+  .link{ display:flex; align-items:center; }
+  .link__line{
+    height:2px; width:clamp(22px,4vw,62px);
+    background:linear-gradient(90deg,var(--accentA),var(--accentB));
+    transform:scaleX(0); transform-origin:left center;
+    transition:transform .6s cubic-bezier(.4,0,.2,1);
+  }
+  .scene.is-active .link__line{ transform:scaleX(1); transition-delay:var(--d); }
+  .link__tip{
+    width:0; height:0;
+    border-left:7px solid var(--accentB);
+    border-top:5px solid transparent; border-bottom:5px solid transparent;
+    opacity:0; transition:opacity .3s ease;
+  }
+  .scene.is-active .link__tip{ opacity:1; transition-delay:calc(var(--d) + .42s); }
+
+  /* ---------- Scene 3 · funnel ---------- */
+  .funnel{
+    width:min(100%,560px);
+    margin:clamp(10px,2vw,18px) 0 0;
+    display:flex; flex-direction:column; gap:clamp(13px,2.1vw,20px);
+  }
+  .bar{ text-align:left; }
+  .bar__lbl{ display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:9px; }
+  .bar__num{
+    font-size:clamp(20px,3vw,33px); font-weight:700; letter-spacing:-.02em;
+    font-variant-numeric:tabular-nums;
+  }
+  .bar__name{ font-size:clamp(11px,1.4vw,14px); color:rgba(255,255,255,.5); }
+  .bar__track{
+    height:clamp(10px,1.5vw,14px);
+    background:rgba(255,255,255,.08);
+    border-radius:99px; overflow:hidden;
+  }
+  .bar__fill{
+    height:100%; width:0; border-radius:99px;
+    background:linear-gradient(90deg,var(--accentA),var(--accentB));
+    transition:width 1.2s cubic-bezier(.16,1,.3,1);
+  }
+  .scene.is-active .bar__fill{ width:var(--w); }
+
+  /* ---------- Scene 4 · number ---------- */
+  .big{
+    opacity:0; transform:scale(.72);
+    transition:opacity 1s cubic-bezier(.16,1,.3,1), transform 1s cubic-bezier(.16,1,.3,1);
+    transition-delay:.12s;
+  }
+  .scene.is-active .big{ opacity:1; transform:scale(1); }
+  .big__num{
+    display:block;
+    font-size:clamp(76px,17vw,196px); font-weight:800; line-height:1;
+    letter-spacing:-.045em; font-variant-numeric:tabular-nums;
+    background:linear-gradient(180deg,var(--accentB),var(--accentA));
+    -webkit-background-clip:text; background-clip:text;
+    -webkit-text-fill-color:transparent; color:transparent;
+  }
+
+  /* ---------- Controls ---------- */
+  .controls{
+    position:absolute; left:0; right:0; bottom:clamp(16px,2.6vw,28px);
+    z-index:6;
+    display:flex; align-items:center; justify-content:center; gap:16px;
+    user-select:none;
+  }
+  .playpause{
+    width:27px; height:27px; flex:none;
+    display:grid; place-items:center;
+    border-radius:50%; cursor:pointer;
+    color:#fff;
+    background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.22);
+    transition:background .25s, border-color .25s, opacity .25s;
+  }
+  .playpause:hover{ background:rgba(255,255,255,.14); border-color:rgba(255,255,255,.4); }
+  .film.is-playing .ic--play{ display:none; }
+  .film:not(.is-playing) .ic--pause{ display:none; }
+
+  .dots{ display:flex; align-items:center; gap:8px; }
+  .dot{
+    position:relative;
+    width:7px; height:7px; padding:0; border:0; cursor:pointer;
+    border-radius:99px; overflow:hidden;
+    background:rgba(255,255,255,.28);
+    transition:width .5s cubic-bezier(.4,0,.2,1), background .4s;
+  }
+  .dot:hover{ background:rgba(255,255,255,.5); }
+  .dot.active{ width:36px; background:rgba(255,255,255,.18); }
+  .dot .fill{
+    position:absolute; inset:0; width:0; border-radius:99px;
+    background:linear-gradient(90deg,var(--accentA),var(--accentB));
+  }
+  .dot.active .fill{ animation:dotfill var(--dur) linear forwards; }
+  .film.is-paused .dot.active .fill{ animation-play-state:paused; }
+  @keyframes dotfill{ from{ width:0; } to{ width:100%; } }
+
+  /* ---------- Narrow phones: keep the flow row compact ---------- */
+  @media (max-width:560px){
+    .flow{ gap:7px; }
+    .node{ min-width:0; padding:11px 14px; }
+    .node__s{ display:none; }
+    .chat{ width:100%; }
+  }
+
+  /* ---------- Reduced motion: static stacked cards ---------- */
+  @media (prefers-reduced-motion: reduce){
+    .film{ aspect-ratio:auto; box-shadow:none; }
+    .stage{ position:static; display:flex; flex-direction:column; }
+    .scene{
+      position:static; opacity:1 !important; pointer-events:auto;
+      transition:none; min-height:42vh;
+      border-top:1px solid rgba(255,255,255,.08);
+    }
+    .scene:first-child{ border-top:0; }
+    .scene .anim, .scene .big{ opacity:1 !important; transform:none !important; transition:none; }
+    .scene .bar__fill{ width:var(--w) !important; transition:none; }
+    .scene .link__line{ transform:scaleX(1) !important; transition:none; }
+    .scene .link__tip{ opacity:1 !important; transition:none; }
+    .glow{ display:none; }
+    .controls{ display:none; }
+  }
+</style>
+</head>
+<body>
+  <div class="film is-playing" id="film" role="group" aria-roledescription="story film" aria-label="Meta ads — project story film">
+    <div class="stage">
+
+      <!-- Scene 1 · The market -->
+      <section class="scene scene--chat is-active" data-scene="0" aria-label="Scene 1 of 4 — The market">
+        <span class="glow glow--1" aria-hidden="true"></span>
+        <p class="eyebrow anim">The market</p>
+        <h2 class="headline anim" style="transition-delay:.08s">B2B buyers in Kuwait don’t fill forms.<br><span class="accent">They open WhatsApp.</span></h2>
+        <div class="chat" aria-hidden="true">
+          <div class="bubble in anim"  style="transition-delay:.55s">Do you deliver to Kuwait? Need a quote.</div>
+          <div class="bubble out anim" style="transition-delay:1.35s">Yes — sending our catalogue &amp; pricing now.</div>
+        </div>
+      </section>
+
+      <!-- Scene 2 · The setup -->
+      <section class="scene scene--flow" data-scene="1" aria-label="Scene 2 of 4 — The setup" aria-hidden="true">
+        <span class="glow glow--2" aria-hidden="true"></span>
+        <p class="eyebrow anim">The setup</p>
+        <h2 class="headline anim" style="transition-delay:.08s">So I ran <span class="accent">click-to-WhatsApp</span> ads on Meta.</h2>
+        <div class="flow" aria-hidden="true">
+          <div class="node anim" style="transition-delay:.55s"><span class="node__k">Meta ad</span><span class="node__s">Instagram · Facebook</span></div>
+          <div class="link" style="--d:.95s"><span class="link__line"></span><span class="link__tip"></span></div>
+          <div class="node node--hl anim" style="transition-delay:1.3s"><span class="node__k">WhatsApp</span><span class="node__s">Direct chat</span></div>
+          <div class="link" style="--d:1.7s"><span class="link__line"></span><span class="link__tip"></span></div>
+          <div class="node anim" style="transition-delay:2.05s"><span class="node__k">CRM</span><span class="node__s">Tracked lead</span></div>
+        </div>
+      </section>
+
+      <!-- Scene 3 · The result -->
+      <section class="scene scene--funnel" data-scene="2" aria-label="Scene 3 of 4 — The result" aria-hidden="true">
+        <span class="glow glow--3" aria-hidden="true"></span>
+        <p class="eyebrow anim">The result</p>
+        <div class="funnel">
+          <div class="bar anim" style="transition-delay:.4s">
+            <div class="bar__lbl"><span class="bar__num" data-to="85132">85,132</span><span class="bar__name">impressions</span></div>
+            <div class="bar__track"><div class="bar__fill" style="--w:100%; transition-delay:.5s"></div></div>
+          </div>
+          <div class="bar anim" style="transition-delay:.6s">
+            <div class="bar__lbl"><span class="bar__num" data-to="40460">40,460</span><span class="bar__name">reach</span></div>
+            <div class="bar__track"><div class="bar__fill" style="--w:62%; transition-delay:.7s"></div></div>
+          </div>
+          <div class="bar anim" style="transition-delay:.8s">
+            <div class="bar__lbl"><span class="bar__num" data-to="206">206</span><span class="bar__name">WhatsApp leads</span></div>
+            <div class="bar__track"><div class="bar__fill" style="--w:30%; transition-delay:.9s"></div></div>
+          </div>
+        </div>
+        <p class="caption anim" style="transition-delay:1.35s"><span class="accent">$172.78</span> became <span class="accent">206</span> conversations.</p>
+      </section>
+
+      <!-- Scene 4 · The number -->
+      <section class="scene scene--number" data-scene="3" aria-label="Scene 4 of 4 — The number" aria-hidden="true">
+        <span class="glow glow--4" aria-hidden="true"></span>
+        <p class="eyebrow anim">The number</p>
+        <div class="big"><span class="big__num" data-to="0.84" data-dec="2" data-prefix="$">$0.84</span></div>
+        <p class="caption anim" style="transition-delay:.65s">per WhatsApp lead. Best campaign: <span class="accent">$0.50</span>.</p>
+      </section>
+
+    </div><!-- /stage -->
+
+    <div class="controls">
+      <button class="playpause" id="pp" type="button" aria-label="Pause">
+        <svg class="ic ic--pause" width="11" height="11" viewBox="0 0 11 11" aria-hidden="true"><rect x="1.6" y="1" width="2.6" height="9" rx="1" fill="currentColor"/><rect x="6.8" y="1" width="2.6" height="9" rx="1" fill="currentColor"/></svg>
+        <svg class="ic ic--play" width="11" height="11" viewBox="0 0 11 11" aria-hidden="true"><path d="M2.6 1.1 9.6 5.5 2.6 9.9 Z" fill="currentColor"/></svg>
+      </button>
+      <div class="dots" role="tablist" aria-label="Chapters">
+        <button class="dot active" type="button" data-go="0" role="tab" aria-selected="true"  aria-label="Chapter 1 — The market"><span class="fill"></span></button>
+        <button class="dot"        type="button" data-go="1" role="tab" aria-selected="false" aria-label="Chapter 2 — The setup"><span class="fill"></span></button>
+        <button class="dot"        type="button" data-go="2" role="tab" aria-selected="false" aria-label="Chapter 3 — The result"><span class="fill"></span></button>
+        <button class="dot"        type="button" data-go="3" role="tab" aria-selected="false" aria-label="Chapter 4 — The number"><span class="fill"></span></button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function(){
+    var film    = document.getElementById('film');
+    var sceneEls= [].slice.call(film.querySelectorAll('.scene'));
+    var dotEls  = [].slice.call(film.querySelectorAll('.dot'));
+    var pp      = document.getElementById('pp');
+    var N       = sceneEls.length;
+    var DURATION= 5000; // keep in sync with --dur
+    var reduce  = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    var idx=0, playing=true, timer=null, startedAt=0, remaining=DURATION, wasPlaying=false, counts=[];
+
+    function fmt(v,dec){ return Number(v).toLocaleString('en-US',{minimumFractionDigits:dec,maximumFractionDigits:dec}); }
+    function finalText(el){ var dec=+(el.dataset.dec||0); return (el.dataset.prefix||'')+fmt(+el.dataset.to,dec)+(el.dataset.suffix||''); }
+    function setFinalAll(){ film.querySelectorAll('[data-to]').forEach(function(el){ el.textContent=finalText(el); }); }
+    function clearCounts(){ counts.forEach(function(id){ clearTimeout(id); }); counts=[]; }
+    function countEl(el){
+      var dec=+(el.dataset.dec||0), to=+el.dataset.to, pre=el.dataset.prefix||'', suf=el.dataset.suffix||'';
+      var dur=1500, start=performance.now();
+      el.textContent = pre+fmt(0,dec)+suf;
+      (function step(){
+        var t=Math.min(1,(performance.now()-start)/dur), e=1-Math.pow(1-t,3);
+        el.textContent = pre+fmt(to*e,dec)+suf;
+        if(t<1) counts.push(setTimeout(step,16));
+      })();
+    }
+
+    function arm(){
+      clearTimeout(timer);
+      if(playing && !reduce){
+        startedAt=performance.now();
+        timer=setTimeout(function(){ activate((idx+1)%N); }, remaining);
+      }
+    }
+    function activate(i){
+      clearCounts(); setFinalAll();
+      idx=i; remaining=DURATION;
+      sceneEls.forEach(function(s,k){ var on=k===i; s.classList.toggle('is-active',on); s.setAttribute('aria-hidden', on?'false':'true'); });
+      dotEls.forEach(function(d,k){ var on=k===i; d.classList.toggle('active',on); d.setAttribute('aria-selected', on?'true':'false'); });
+      sceneEls[i].querySelectorAll('[data-to]').forEach(countEl);
+      arm();
+    }
+    function pause(){
+      if(!playing) return;
+      playing=false; clearTimeout(timer);
+      remaining -= performance.now()-startedAt; if(remaining<0) remaining=0;
+      film.classList.remove('is-playing'); film.classList.add('is-paused');
+      pp.setAttribute('aria-label','Play');
+    }
+    function play(){
+      if(playing) return;
+      playing=true;
+      film.classList.add('is-playing'); film.classList.remove('is-paused');
+      pp.setAttribute('aria-label','Pause');
+      arm();
+    }
+    function goTo(i){
+      if(!playing){ playing=true; film.classList.add('is-playing'); film.classList.remove('is-paused'); pp.setAttribute('aria-label','Pause'); }
+      activate(i);
+    }
+
+    pp.addEventListener('click', function(){ playing ? pause() : play(); });
+    dotEls.forEach(function(d){ d.addEventListener('click', function(){ goTo(+d.dataset.go); }); });
+    document.addEventListener('visibilitychange', function(){
+      if(document.hidden){ if(playing){ wasPlaying=true; pause(); } }
+      else { if(wasPlaying){ wasPlaying=false; play(); } }
+    });
+
+    if(reduce){ setFinalAll(); }
+    else { film.classList.add('is-playing'); activate(0); }
+  })();
+  </script>
+</body>
+</html>
