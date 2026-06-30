@@ -52,7 +52,10 @@ ul{list-style:none}
   --mesh-b:#000000;     /* project-card mesh base (end) */
 
   /* ----- Claude Design parallax package: wired once, reused everywhere ----- */
-  --font-mono:"JetBrains Mono Variable",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  /* JetBrains Mono has NO Arabic glyphs, so Arabic in any mono label fell back to
+     an ugly system serif. Cairo sits right after it: Latin/digits stay monospace,
+     Arabic letters render in Cairo (per-glyph fallback). */
+  --font-mono:"JetBrains Mono Variable","Cairo Variable",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
   /* Layered surfaces (theme-aware; dark cinematic by default) */
   --surface-base:#08080a;   /* page / hook backdrop */
   --surface-raised:#0e0e11; /* cards, panels, story articles */
