@@ -119,10 +119,10 @@ const cards = projects.map((p, i) => ({
   <!-- ============ SELECTED WORK · horizontal pinned strip ============ -->
   <section id="work" data-pin style="position:relative;z-index:1;height:300vh">
     <div data-stage style="position:sticky;top:0;height:100svh;min-height:580px;display:flex;flex-direction:column;justify-content:center;gap:26px;overflow:hidden">
-      <div class="bm-tag" style="--c:#64d2ff"><span class="bm-num">★</span><span class="bm-sl">/</span><span>{ar ? 'أعمال مختارة' : 'Selected Work'}</span><span class="bm-sl">·</span><span style="opacity:.7">{ar ? 'الشريط يتحرّك جانبًا' : 'the strip travels sideways'}</span></div>
+      <div class="bm-tag" style="--c:#64d2ff"><span class="bm-num">★</span><span class="bm-sl">/</span><span>{ar ? 'أعمال مختارة' : 'Selected Work'}</span><span class="bm-sl strip-hint">·</span><span class="strip-hint" style="opacity:.7">{ar ? 'الشريط يتحرّك جانبًا' : 'the strip travels sideways'}</span></div>
       <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;padding-inline:clamp(20px,5vw,40px)">
         <h2 data-glow style="font-size:clamp(30px,6vw,64px);font-weight:900;letter-spacing:-.035em;color:var(--ink,#f3f4ff);margin:0;filter:drop-shadow(0 0 calc(var(--glow,0)*20px) rgba(var(--text-glow,170,195,255), calc(var(--glow,0)*.7)));transition:filter .18s linear">{ar ? 'أعمال مختارة.' : 'Selected work.'}</h2>
-        <span style="font-family:var(--mono,ui-monospace,Menlo,monospace);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2,#aab0d6);display:flex;gap:8px;align-items:center"><span style="width:8px;height:8px;border-radius:50%;background:#30d158;box-shadow:0 0 10px #30d158"></span>{ar ? 'مباشر · مرّر للتصفّح ←' : 'Live · scroll to scrub →'}</span>
+        <span style="font-family:var(--mono,ui-monospace,Menlo,monospace);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2,#aab0d6);display:flex;gap:8px;align-items:center"><span style="width:8px;height:8px;border-radius:50%;background:#30d158;box-shadow:0 0 10px #30d158"></span>{ar ? 'مباشر' : 'Live'}<span class="strip-hint">{ar ? ' · مرّر للتصفّح ←' : ' · scroll to scrub →'}</span></span>
       </div>
       <div data-track style="display:flex;gap:20px;width:max-content;padding-inline:clamp(20px,5vw,40px);will-change:transform">
         {cards.map((c) => (
@@ -283,15 +283,45 @@ const cards = projects.map((p, i) => ({
     #work [data-stage]{position:relative !important;height:auto !important;min-height:0 !important;display:block !important;padding-block:54px}
     #work [data-track]{flex-wrap:wrap;width:100% !important;transform:none !important;gap:14px}
     #work .bm-card{flex:1 1 100% !important;width:100% !important;height:auto;min-height:168px}
+
+    /* the strip doesn't travel sideways on mobile (cards are stacked) — hide the
+       hints that say it does, and rise each card in as it scrolls into view. */
+    .strip-hint{display:none}
+    html.js #work .bm-card{opacity:0;transform:translateY(34px) scale(.97);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+    html.js #work .bm-card.in{opacity:1;transform:none}
   }
 </style>
 
 <script>
   import { initBiome } from '../../lib/biome';
   let teardown: (() => void) | undefined;
+  // Mobile: the Selected-Work cards are stacked (not a sideways strip), so rise
+  // each one in as it scrolls into view for a gentle vertical parallax.
+  function revealWorkCards() {
+    if (window.innerWidth > 820) return;
+    const cards = document.querySelectorAll<HTMLElement>('#work .bm-card');
+    if (!cards.length) return;
+    if (!('IntersectionObserver' in window)) {
+      cards.forEach((c) => c.classList.add('in'));
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            e.target.classList.add('in');
+            io.unobserve(e.target);
+          }
+        }
+      },
+      { threshold: 0.14, rootMargin: '0px 0px -8% 0px' },
+    );
+    cards.forEach((c) => io.observe(c));
+  }
   function boot() {
     teardown?.();
     teardown = initBiome();
+    revealWorkCards();
   }
   boot();
   document.addEventListener('astro:page-load', boot);
