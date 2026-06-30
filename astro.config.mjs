@@ -2,14 +2,20 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
-// Production URL — drives sitemap, canonical, hreflang, OG. This MUST be the
-// public, crawlable origin. The site ships on GitHub Pages as a *project site*,
-// so it is served from the `/flagship-portfolio/` subpath. `base` is prepended
-// to every asset URL and to every internal-link helper, keeping the build
-// self-contained under that subpath. (Netlify, a root host, was the earlier
-// target, but its API is unreachable from this build environment.)
-const SITE = 'https://engineeringprojectswork-droid.github.io';
-const BASE = '/flagship-portfolio';
+// This one build serves TWO public hosts, which need different roots:
+//   • Netlify, at the domain ROOT            → base '/'   (the DEFAULT)
+//   • GitHub Pages, a *project site* under   → base '/flagship-portfolio'
+//     /flagship-portfolio/
+// `base` is prepended to every bundled asset and to every internal-link helper,
+// so the build is self-contained under whichever root it is served from.
+// Netlify builds straight from Git (plain `npm run build`, no env), so the root
+// host is the default; the GitHub Pages deploy sets DEPLOY_TARGET=ghpages first
+// (see `npm run build:ghpages`).
+const GH_PAGES = process.env.DEPLOY_TARGET === 'ghpages';
+const SITE = GH_PAGES
+  ? 'https://engineeringprojectswork-droid.github.io'
+  : 'https://mohamed-khalil-kw.netlify.app';
+const BASE = GH_PAGES ? '/flagship-portfolio' : '/';
 
 // https://astro.build/config
 export default defineConfig({

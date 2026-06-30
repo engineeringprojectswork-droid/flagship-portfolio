@@ -16,11 +16,26 @@ scroll-pinned sections** scrub as you scroll (nebula, star-warp, synthwave grid,
 aurora, software globe, comet, constellation, singularity) plus a horizontal
 "Selected Work" card strip. This is built, committed, and **deployed live**.
 
-- **LIVE:** https://engineeringprojectswork-droid.github.io/flagship-portfolio/en
-  (Arabic, full RTL: `.../flagship-portfolio/ar`)
-- Deployed via **GitHub Pages** from the **`gh-pages`** branch. Last Pages build
-  succeeded (commit `d8a92aa`, 2026-06-30 08:33 UTC).
+**DUAL HOST (both live, one codebase):**
+- **Netlify — canonical, root host:** https://mohamed-khalil-kw.netlify.app/en
+  (Arabic: `/ar`). Served at the **domain root** — there is **no**
+  `/flagship-portfolio/` segment here. Netlify builds from **`main`** via its Git
+  integration running plain `npm run build` (the default = root variant, base `/`).
+- **GitHub Pages — functional mirror, subpath host:**
+  https://engineeringprojectswork-droid.github.io/flagship-portfolio/en (`/ar`).
+  Served under the `/flagship-portfolio/` project subpath. Deployed from the
+  **`gh-pages`** branch built with `npm run build:ghpages` (base `/flagship-portfolio`).
+- **One canonical:** every page (on BOTH hosts) emits `rel=canonical`/hreflang/OG
+  pointing at the **Netlify root** URL, so the GitHub Pages copy is a mirror that
+  doesn't compete as duplicate content. The canonical origin is set in
+  `src/layouts/BaseLayout.astro` (`CANONICAL`) — keep it in sync with the Netlify
+  `SITE` in `astro.config.mjs`.
 - Source of truth is the **`main`** branch of this same repo.
+
+> The base path is env-driven in `astro.config.mjs`: `DEPLOY_TARGET=ghpages` →
+> base `/flagship-portfolio` + github.io `site`; unset (Netlify default) → base
+> `/` + netlify `site`. Use `npm run build:ghpages` for the gh-pages deploy and
+> plain `npm run build` for Netlify.
 
 If the owner says "the scroll/parallax is missing," they are looking at an OLD
 host or a cached page. Hard-refresh (Cmd/Ctrl+Shift+R). The biome scroll is the
@@ -118,8 +133,9 @@ The source is **not** auto-present in a fresh container. Clone it:
 git clone <flagship-portfolio remote> repo && cd repo   # main is default
 npm install
 
-# 2) edit source, then build
-npm run build                # outputs dist/  (base '/flagship-portfolio' applied)
+# 2) edit source, then build the GitHub Pages variant (base '/flagship-portfolio')
+npm run build:ghpages        # outputs dist/  — DEPLOY_TARGET=ghpages sets the subpath base
+                             # (plain `npm run build` is the Netlify ROOT variant, base '/')
 
 # 3) sanity-check the build (expect ZERO lines)
 ( cd dist && grep -rhoE '(href|src)="/[^"]*"' --include=*.html . \

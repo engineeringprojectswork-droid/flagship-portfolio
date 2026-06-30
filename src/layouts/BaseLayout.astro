@@ -39,11 +39,26 @@ const {
 const t = useTranslations(lang);
 const direction = dir(lang);
 
-const site = Astro.site ?? new URL('https://mohamed-mahmoud-kuwait.netlify.app');
-const canonical = new URL(path, site).href;
-const enUrl = new URL(mirrorPath(path, 'en'), site).href;
-const arUrl = new URL(mirrorPath(path, 'ar'), site).href;
-const ogUrl = new URL(ogImage ?? `/og/${lang}.png`, site).href;
+// SEO canonical: the same build is served from two hosts (Netlify at the root,
+// GitHub Pages under /flagship-portfolio/), but search engines must see ONE
+// canonical origin. Netlify (the clean root host) is canonical; the GitHub
+// Pages copy is a functional mirror that points crawlers here instead of
+// competing as duplicate content. Keep this origin in sync with the Netlify
+// SITE in `astro.config.mjs`.
+const CANONICAL = new URL('https://mohamed-khalil-kw.netlify.app');
+// Normalize a path to base-free + root-relative so it maps onto the canonical
+// root host regardless of which build (rooted or /flagship-portfolio/) emitted
+// it. Tolerates input with or without the deployment base.
+const baseSeg = import.meta.env.BASE_URL.replace(/\/$/, '');
+const abs = (p: string): string => {
+  let s = p.startsWith('/') ? p : `/${p}`;
+  if (baseSeg && (s === baseSeg || s.startsWith(baseSeg + '/'))) s = s.slice(baseSeg.length) || '/';
+  return new URL(s, CANONICAL).href;
+};
+const canonical = abs(path);
+const enUrl = abs(mirrorPath(path, 'en'));
+const arUrl = abs(mirrorPath(path, 'ar'));
+const ogUrl = abs(ogImage ?? `/og/${lang}.png`);
 
 const personSchema = {
   '@context': 'https://schema.org',
@@ -53,7 +68,7 @@ const personSchema = {
   jobTitle: pick(lang, profile.title),
   description: pick(lang, profile.tagline),
   inLanguage: lang === 'ar' ? 'ar' : 'en',
-  url: new URL(`/${lang}`, site).href,
+  url: abs(`/${lang}`),
   image: ogUrl,
   email: `mailto:${profile.contact.email}`,
   telephone: profile.contact.phone,
