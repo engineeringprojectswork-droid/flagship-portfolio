@@ -145,6 +145,29 @@ const graph = [personSchema, ...(Array.isArray(jsonLd) ? jsonLd : jsonLd ? [json
     <script is:inline>
       (() => {
         document.documentElement.classList.add('js');
+        // Owner's choice: this portfolio ALWAYS plays its motion — even when the
+        // OS asks to reduce motion — because the scroll animations ARE the work
+        // being shown. Make every reduced-motion media query report "motion is
+        // fine" so the JS engines (pins, scrub, centerpieces, biome, starfield)
+        // never fall back to static. The CSS reduced-motion blocks are likewise
+        // neutralised in tokens.css. (Reverting = delete this shim + restore the
+        // @media blocks.)
+        try {
+          const _mm = window.matchMedia.bind(window);
+          window.matchMedia = (q) => {
+            if (typeof q === 'string' && q.indexOf('prefers-reduced-motion') !== -1) {
+              return {
+                matches: q.indexOf('no-preference') !== -1, // reduce→false, no-preference→true
+                media: q, onchange: null,
+                addEventListener() {}, removeEventListener() {},
+                addListener() {}, removeListener() {}, dispatchEvent() { return false; },
+              };
+            }
+            return _mm(q);
+          };
+        } catch (e) {
+          /* matchMedia unavailable — nothing to override */
+        }
         const apply = () => {
           try {
             const root = document.documentElement;

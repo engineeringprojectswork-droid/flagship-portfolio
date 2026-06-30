@@ -229,7 +229,8 @@ const style = tint ? `--bt:${tint}` : '';
   /* the dawn-in-orbit light theme is pale — keep decorative blooms subtle on it */
   :global([data-theme='light']) .biome { opacity: 0.7; }
 
-  @media (prefers-reduced-motion: reduce) {
+  /* always-animate (owner's choice): never-match so biome motion is never reduced */
+  @media (prefers-reduced-motion: reduce) and (prefers-reduced-motion: no-preference) {
     .biome *, .biome::before, .biome::after { animation: none !important; }
   }
   @media (max-width: 820px) {
