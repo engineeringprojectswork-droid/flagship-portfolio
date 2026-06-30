@@ -88,7 +88,7 @@ const brandDots = Array.from({ length: 16 }, (_, i) => {
       </div>
       <div class="bm-tag" style="--c:#2997ff"><span class="bm-num">01</span><span class="bm-sl">/</span><span>{ar ? 'إعلانات مدفوعة' : 'Paid Social'}</span><span class="bm-sl">·</span><span style="opacity:.7">{ar ? 'يقفل على الهدف' : 'lock on target'}</span></div>
       <div class="bm-copy">
-        <p data-step data-glow class="bm-h">{ar ? 'أُدير الإعلانات.' : 'I run the ads.'}</p>
+        <p data-glow class="bm-h" data-fx="lock" data-split="letter">{ar ? 'أُدير الإعلانات.' : 'I run the ads.'}</p>
         <div data-step class="bm-pillrow"><span data-glow class="bm-pill">{ar ? '٢٠٦ عميل واتساب · ٠٫٨٤$ للعميل' : '206 WhatsApp leads · $0.84 each'}</span></div>
       </div>
     </div>
@@ -121,7 +121,7 @@ const brandDots = Array.from({ length: 16 }, (_, i) => {
       </div>
       <div class="bm-tag" style="--c:#30d158"><span class="bm-num">03</span><span class="bm-sl">/</span><span>{ar ? 'عمليات التسويق · CRM' : 'Marketing Ops · CRM'}</span><span class="bm-sl">·</span><span style="opacity:.7">{ar ? 'الكوكب يرتفع' : 'the planet rises'}</span></div>
       <div class="bm-copy">
-        <p data-step data-glow class="bm-h">{ar ? 'أبني الأنظمة.' : 'I build the systems.'}</p>
+        <p data-glow class="bm-h" data-fx="build">{ar ? 'أبني الأنظمة.' : 'I build the systems.'}</p>
         <div data-step class="bm-pillrow"><span data-glow class="bm-pill">{ar ? 'نظام CRM ثنائي اللغة بـ١٢ جدولًا' : 'a 12-tab bilingual CRM'}</span></div>
       </div>
     </div>
@@ -142,37 +142,43 @@ const brandDots = Array.from({ length: 16 }, (_, i) => {
       </div>
       <div class="bm-tag" style="--c:#a259ff"><span class="bm-num">04</span><span class="bm-sl">/</span><span>{ar ? 'العلامة والمحتوى' : 'Brand & Content'}</span><span class="bm-sl">·</span><span style="opacity:.7">{ar ? 'يتشكّل' : 'it takes shape'}</span></div>
       <div class="bm-copy">
-        <p data-step data-glow class="bm-h">{ar ? 'أصوغ العلامة.' : 'I shape the brand.'}</p>
+        <p data-glow class="bm-h" data-fx="shape">{ar ? 'أصوغ العلامة.' : 'I shape the brand.'}</p>
         <div data-step class="bm-pillrow"><span data-glow class="bm-pill">{ar ? 'الصوت · القصة · الإخراج الفني' : 'voice · story · art direction'}</span></div>
       </div>
     </div>
   </section>
 
-  <!-- ============ SELECTED WORK · horizontal pinned strip ============ -->
-  <section id="work" data-pin style="position:relative;z-index:1;height:300vh">
-    <div data-stage style="position:sticky;top:0;height:100svh;min-height:580px;display:flex;flex-direction:column;justify-content:center;gap:26px;overflow:hidden">
-      <div class="bm-tag" style="--c:#64d2ff"><span class="bm-num">★</span><span class="bm-sl">/</span><span>{ar ? 'أعمال مختارة' : 'Selected Work'}</span><span class="bm-sl strip-hint">·</span><span class="strip-hint" style="opacity:.7">{ar ? 'الشريط يتحرّك جانبًا' : 'the strip travels sideways'}</span></div>
-      <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;padding-inline:clamp(20px,5vw,40px)">
-        <h2 data-glow style="font-size:clamp(30px,6vw,64px);font-weight:900;letter-spacing:-.035em;color:var(--ink,#f3f4ff);margin:0;filter:drop-shadow(0 0 calc(var(--glow,0)*20px) rgba(var(--text-glow,170,195,255), calc(var(--glow,0)*.7)));transition:filter .18s linear">{ar ? 'أعمال مختارة.' : 'Selected work.'}</h2>
-        <span style="font-family:var(--mono,ui-monospace,Menlo,monospace);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2,#aab0d6);display:flex;gap:8px;align-items:center"><span style="width:8px;height:8px;border-radius:50%;background:#30d158;box-shadow:0 0 10px #30d158"></span>{ar ? 'مباشر' : 'Live'}<span class="strip-hint">{ar ? ' · مرّر للتصفّح ←' : ' · scroll to scrub →'}</span></span>
+  <!-- ============ SELECTED WORK · cinematic horizontal showcase (Claude Design) ============ -->
+  <section id="work" data-pin class="sw" style="position:relative;z-index:1;height:560vh">
+    <div data-stage class="sw-stage" style="position:sticky;top:0;height:100svh;min-height:580px;display:flex;flex-direction:column;overflow:hidden">
+      <header class="sw-head">
+        <div class="bm-tag" style="--c:#64d2ff;position:static;transform:none;justify-content:flex-start"><span class="bm-num">★</span><span class="bm-sl">/</span><span>{ar ? 'أعمال مختارة' : 'Selected Work'}</span></div>
+        <div class="sw-headrow">
+          <h2 class="sw-title" data-glow>{ar ? 'أعمال مختارة.' : 'Selected work.'}</h2>
+          <span class="sw-live"><span class="sw-livedot" aria-hidden="true"></span>{ar ? 'مباشر' : 'Live'}<span class="sw-counter"> · <b id="sw-count">01</b> / {String(cards.length).padStart(2, '0')}</span></span>
+        </div>
+      </header>
+
+      <div class="sw-stripwrap">
+        <div data-track class="sw-strip">
+          {cards.map((c) => (
+            <a href={workPath(lang, c.slug)} class="sw-tile" style={`--a:${c.ca};--b:${c.cb}`} aria-label={c.title}>
+              <span class="sw-idx" aria-hidden="true">{c.n}</span>
+              <span class="sw-go" aria-hidden="true">{ar ? '←' : '→'}</span>
+              <div class="sw-tag">{c.tag}</div>
+              <div class="sw-ti">{c.title}</div>
+              <div class="sw-bl">{c.sub}</div>
+              <div class="sw-foot">
+                <span class="sw-stat">{c.stat}</span>
+                <span class="sw-note">{c.note}</span>
+              </div>
+            </a>
+          ))}
+        </div>
       </div>
-      <div data-track style="display:flex;gap:22px;width:max-content;padding-inline:clamp(20px,5vw,40px);will-change:transform">
-        {cards.map((c) => (
-          <a href={workPath(lang, c.slug)} data-glow class="wcard" style={`--ca:${c.ca};--cb:${c.cb}`}>
-            <span class="wcard__wash" aria-hidden="true"></span>
-            <span class="wcard__num" aria-hidden="true">{c.n}</span>
-            <span class="wcard__bar" aria-hidden="true"></span>
-            <span class="wcard__tag">{c.tag}</span>
-            <div class="wcard__main">
-              <h3 class="wcard__t">{c.title}</h3>
-              <p class="wcard__s">{c.sub}</p>
-            </div>
-            <div class="wcard__foot">
-              <span class="wcard__stat">{c.stat}<small>{c.note}</small></span>
-              <span class="wcard__go">{ar ? 'القصة' : 'Story'}<i>→</i></span>
-            </div>
-          </a>
-        ))}
+
+      <div class="sw-prog">
+        <div class="sw-dots" id="sw-dots">{cards.map((_, i) => (<i class={i === 0 ? 'on' : ''}></i>))}</div>
       </div>
     </div>
   </section>
@@ -201,7 +207,7 @@ const brandDots = Array.from({ length: 16 }, (_, i) => {
       </div>
       <div class="bm-tag" style="--c:#64d2ff"><span class="bm-num">05</span><span class="bm-sl">/</span><span>{ar ? 'البرمجيات' : 'Software'}</span><span class="bm-sl">·</span><span style="opacity:.7">{ar ? 'الكرة تتجمّع' : 'the globe assembles'}</span></div>
       <div class="bm-copy">
-        <p data-step data-glow class="bm-h">{ar ? 'أُطلق التطبيقات.' : 'I ship the software.'}</p>
+        <p data-glow class="bm-h" data-fx="compile">{ar ? 'أُطلق التطبيقات.' : 'I ship the software.'}</p>
         <div data-step class="bm-pillrow"><span data-glow class="bm-pill">{ar ? 'تطبيق سطح مكتب بـ١٥ جدولًا · ٥٩/٥٩ اختبارًا' : 'a 15-table desktop app · 59/59 tests'}</span></div>
       </div>
     </div>
@@ -223,7 +229,7 @@ const brandDots = Array.from({ length: 16 }, (_, i) => {
       </div>
       <div class="bm-tag" style="--c:#ffd60a"><span class="bm-num">06</span><span class="bm-sl">/</span><span>{ar ? 'الأتمتة' : 'Automation'}</span><span class="bm-sl">·</span><span style="opacity:.7">{ar ? 'يعمل تلقائيًا' : 'it runs itself'}</span></div>
       <div class="bm-copy">
-        <p data-step data-glow class="bm-h" style="font-size:clamp(38px,8vw,100px)">{ar ? 'وأُشغّل الباقي آليًا بالذكاء الاصطناعي.' : 'I automate the rest with AI.'}</p>
+        <p data-glow class="bm-h" data-fx="pipeline" style="font-size:clamp(38px,8vw,100px)">{ar ? 'وأُشغّل الباقي آليًا بالذكاء الاصطناعي.' : 'I automate the rest with AI.'}</p>
         <div data-step class="bm-pillrow"><span data-glow class="bm-pill">{ar ? '١٤٢ سيرة ذاتية · ٧ نصوص برمجية · ٣ مهام مجدولة' : '142 résumés · 7 scripts · 3 scheduled jobs'}</span></div>
       </div>
     </div>
@@ -247,7 +253,7 @@ const brandDots = Array.from({ length: 16 }, (_, i) => {
       </div>
       <div class="bm-tag" style="--c:#7574ee"><span class="bm-num">07</span><span class="bm-sl">/</span><span>{ar ? 'الويب · مباشر' : 'Web · Live'}</span><span class="bm-sl">·</span><span style="opacity:.7">{ar ? 'يُنشر مباشرةً' : 'deploys live'}</span></div>
       <div class="bm-copy">
-        <p data-step data-glow class="bm-h">{ar ? 'وأنشره على الويب.' : 'I put it on the web.'}</p>
+        <p data-glow class="bm-h" data-fx="render">{ar ? 'وأنشره على الويب.' : 'I put it on the web.'}</p>
         <div data-step class="bm-pillrow"><span data-glow class="bm-pill">{ar ? 'مباشر · مُطلق · في الإنتاج' : 'live · shipped · in production'}</span></div>
       </div>
     </div>
@@ -265,7 +271,7 @@ const brandDots = Array.from({ length: 16 }, (_, i) => {
       </div>
       <div class="bm-tag" style="--c:#ff9f0a"><span class="bm-num">08</span><span class="bm-sl">/</span><span>{ar ? 'نموذج تشغيل بالذكاء' : 'AI Operating Model'}</span><span class="bm-sl">·</span><span style="opacity:.7">{ar ? 'كلٌّ يتلاقى' : 'everything converges'}</span></div>
       <div class="bm-copy">
-        <p data-step data-glow class="bm-h">{ar ? 'نموذج تشغيلٍ واحد.' : 'One operating model.'}</p>
+        <p data-glow class="bm-h" data-fx="unify">{ar ? 'نموذج تشغيلٍ واحد.' : 'One operating model.'}</p>
         <div data-step class="bm-pillrow"><span data-glow class="bm-pill">{ar ? 'إعلانات · جمهور · أنظمة · أتمتة ← شخص واحد' : 'paid · audience · systems · automation → one'}</span></div>
       </div>
     </div>
@@ -289,56 +295,78 @@ const brandDots = Array.from({ length: 16 }, (_, i) => {
   .bm-sl{opacity:.45}
   .bm-copy{position:relative;z-index:5;width:100%;max-width:1100px;margin-inline:auto;padding-inline:clamp(20px,5vw,40px)}
   .bm-h{font-size:clamp(40px,8.5vw,108px);font-weight:850;line-height:1;letter-spacing:-.035em;color:var(--ink,#f3f4ff);opacity:0;transform:translateY(34px);will-change:transform,opacity;filter:drop-shadow(0 0 calc(var(--glow,0)*22px) rgba(var(--text-glow,170,195,255), calc(var(--glow,0)*.72)));transition:filter .18s linear}
+
+  /* Per-line entrance technique (lib/lineanim.ts): a data-fx headline is kept
+     fully opaque (the split units own the entrance); no-JS leaves plain text. */
+  .bm-h[data-fx]{opacity:1;transform:none}
+  .bm-h .u{display:inline-block;will-change:transform,opacity;backface-visibility:hidden}
+  .bm-h .u-word{display:inline-block;white-space:nowrap}
+  .bm-h .u-sp{display:inline-block;width:.28em}
+  .bm-h .u-skelw{position:relative;display:inline-block}
+  .bm-h .u-skel{position:absolute;inset:6% -4%;border-radius:7px;pointer-events:none;will-change:opacity,transform;
+    background:linear-gradient(100deg,rgba(255,255,255,.10),rgba(255,255,255,.20),rgba(255,255,255,.10));background-size:200% 100%}
+  .bm-h .u-cursor{display:inline-block;width:.5em;height:1em;vertical-align:-.12em;margin-inline-start:.04em;border-radius:2px;background:currentColor;opacity:0;will-change:opacity,transform}
   .bm-pillrow{opacity:0;transform:translateY(34px);will-change:transform,opacity;margin-top:28px}
   .bm-pill{display:inline-block;font-family:var(--font-mono);font-size:clamp(12px,1.5vw,15px);letter-spacing:.04em;color:var(--ink,#f3f4ff);padding:12px 20px;border-radius:999px;background:var(--glass-bg,rgba(255,255,255,.05));border:1px solid var(--glass-brd,rgba(255,255,255,.12));backdrop-filter:saturate(160%) blur(20px);-webkit-backdrop-filter:saturate(160%) blur(20px);box-shadow:0 0 calc(8px + var(--glow,0)*16px) rgba(255,94,138,calc((.08 + var(--glow,0)*.30)*var(--aura-k,1))), 0 0 calc(16px + var(--glow,0)*30px) rgba(162,89,255,calc((.08 + var(--glow,0)*.30)*var(--aura-k,1))), 0 0 calc(26px + var(--glow,0)*48px) rgba(41,151,255,calc((.06 + var(--glow,0)*.26)*var(--aura-k,1)));transition:box-shadow .18s linear}
   /* Arabic pills: render larger so the captions under the big headings stay clear. */
   [dir="rtl"] .bm-pill{font-size:clamp(15px,2vw,18px);padding:13px 22px}
 
-  /* ---- Selected-work cinematic poster cards (per-project accent) ----
-     Each card is a tall poster keyed to its story's accent (--ca/--cb): a soft
-     accent bloom from the top, a huge ghosted index numeral, the title, and the
-     hero stat in accent. Scrubs horizontally (desktop) / swipes (mobile). ---- */
-  .wcard{--ca:#2997ff;--cb:#64d2ff;position:relative;flex:0 0 332px;width:332px;height:440px;
-    border-radius:24px;overflow:hidden;text-align:start;text-decoration:none;isolation:isolate;
-    display:flex;flex-direction:column;padding:26px;
-    border:1px solid color-mix(in srgb,var(--ca) 30%,var(--glass-brd,rgba(255,255,255,.12)));
-    background:linear-gradient(180deg,color-mix(in srgb,var(--ca) 7%,#0c0c14),#0a0a10 62%);
-    box-shadow:0 18px 50px -30px #000, 0 0 calc(var(--glow,0)*34px) color-mix(in srgb,var(--ca) 60%,transparent);
-    transition:transform .45s var(--ease,cubic-bezier(.2,.7,.2,1)),box-shadow .35s,border-color .35s}
-  .wcard:hover{transform:translateY(-8px);border-color:color-mix(in srgb,var(--ca) 60%,transparent);
-    box-shadow:0 30px 70px -28px color-mix(in srgb,var(--ca) 55%,#000)}
-  /* accent bloom wash from the top corner */
-  .wcard__wash{position:absolute;inset:0;z-index:-1;pointer-events:none;
-    background:radial-gradient(120% 70% at 84% -8%,color-mix(in srgb,var(--ca) 40%,transparent),transparent 60%),
-      radial-gradient(90% 60% at 6% 108%,color-mix(in srgb,var(--cb) 22%,transparent),transparent 58%)}
-  /* huge ghosted numeral (parallax-feel: drifts up on hover) */
-  .wcard__num{position:absolute;top:-22px;inset-inline-end:6px;z-index:0;pointer-events:none;
-    font-family:var(--mono,ui-monospace,Menlo,monospace);font-weight:800;font-size:150px;line-height:1;
-    letter-spacing:-.06em;color:color-mix(in srgb,var(--ca) 16%,transparent);
-    transition:transform .5s var(--ease,ease),color .35s}
-  .wcard:hover .wcard__num{transform:translateY(-8px);color:color-mix(in srgb,var(--ca) 26%,transparent)}
-  .wcard__bar{position:absolute;top:0;left:0;right:0;height:4px;z-index:2;
-    background:linear-gradient(90deg,var(--ca),var(--cb));opacity:.9}
-  .wcard__tag{position:relative;z-index:1;font-family:var(--mono,ui-monospace,Menlo,monospace);font-size:11px;
-    font-weight:600;letter-spacing:.14em;text-transform:uppercase;
-    color:color-mix(in srgb,var(--ca) 70%,var(--ink,#f3f4ff))}
-  .wcard__main{position:relative;z-index:1;margin-top:auto;display:flex;flex-direction:column;gap:8px}
-  .wcard__t{font-size:27px;font-weight:800;letter-spacing:-.025em;line-height:1.04;color:var(--ink,#f3f4ff)}
-  .wcard__s{color:var(--ink-2,#aab0d6);font-size:14.5px;line-height:1.45;max-width:30ch}
-  .wcard__foot{position:relative;z-index:1;margin-top:20px;padding-top:16px;
-    border-top:1px solid color-mix(in srgb,var(--ca) 20%,rgba(255,255,255,.08));
-    display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
-  .wcard__stat{display:flex;flex-direction:column;font-weight:800;font-size:30px;letter-spacing:-.03em;line-height:1;
-    color:transparent;background:linear-gradient(100deg,var(--ca),var(--cb));-webkit-background-clip:text;background-clip:text}
-  .wcard__stat small{margin-top:7px;font-weight:500;font-size:11px;letter-spacing:.02em;
-    color:var(--ink-2,#aab0d6);-webkit-text-fill-color:var(--ink-2,#aab0d6)}
-  .wcard__go{flex:0 0 auto;display:inline-flex;align-items:center;gap:7px;font-family:var(--mono,ui-monospace,Menlo,monospace);
-    font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
-    color:color-mix(in srgb,var(--ca) 72%,var(--ink,#f3f4ff))}
-  .wcard__go i{font-style:normal;transition:transform .3s var(--ease,ease)}
-  .wcard:hover .wcard__go i{transform:translateX(5px)}
-  [dir="rtl"] .wcard__go i{transform:scaleX(-1)}
-  [dir="rtl"] .wcard:hover .wcard__go i{transform:scaleX(-1) translateX(5px)}
+  /* ---- Selected-work cinematic showcase (Claude Design pack #1) ----
+     A horizontal strip scrubbed by vertical scroll (biome [data-track]); the
+     tile nearest viewport-centre scales up + lights its accent, the watermark
+     index parallaxes, and progress dots track position. Mobile = native swipe. */
+  .sw-head{padding:clamp(74px,11vh,104px) clamp(20px,5vw,44px) 0;z-index:4}
+  .sw-headrow{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-top:8px}
+  .sw-title{font-size:clamp(30px,6vw,60px);font-weight:900;letter-spacing:-.035em;line-height:1;margin:0;
+    color:var(--ink,#f3f4ff);filter:drop-shadow(0 0 calc(var(--glow,0)*20px) rgba(var(--text-glow,170,195,255),calc(var(--glow,0)*.7)));transition:filter .18s linear}
+  [dir="rtl"] .sw-title{letter-spacing:0;line-height:1.2}
+  .sw-live{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono,ui-monospace,Menlo,monospace);
+    font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2,#aab0d6)}
+  .sw-livedot{width:8px;height:8px;border-radius:50%;background:#30d158;box-shadow:0 0 10px #30d158;animation:swPulse 2.4s ease infinite}
+  .sw-counter{direction:ltr}
+  .sw-counter b{color:var(--ink,#f3f4ff)}
+  @keyframes swPulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+  .sw-stripwrap{position:relative;flex:1 1 auto;min-height:0;display:flex;align-items:center;overflow:hidden}
+  .sw-strip{display:flex;align-items:center;gap:clamp(18px,3vw,40px);width:max-content;
+    padding-inline:max(20px,calc(50vw - min(42vw,200px)));will-change:transform}
+  .sw-tile{position:relative;flex:0 0 auto;width:clamp(248px,80vw,392px);height:clamp(286px,52vh,452px);
+    border-radius:24px;overflow:hidden;text-decoration:none;color:inherit;isolation:isolate;
+    display:flex;flex-direction:column;justify-content:flex-end;padding:clamp(20px,3.4vw,30px);
+    background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.02));
+    border:1px solid var(--glass-brd,rgba(255,255,255,.12));backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+    transform:scale(.92);opacity:.5;transition:opacity .5s var(--ease,cubic-bezier(.16,1,.3,1)),transform .5s var(--ease,cubic-bezier(.16,1,.3,1));
+    box-shadow:0 30px 80px rgba(0,0,0,.4)}
+  .sw-tile.act{opacity:1;transform:scale(1)}
+  .sw-tile::before{content:"";position:absolute;inset:0 0 auto 0;height:4px;background:linear-gradient(90deg,var(--a),var(--b))}
+  .sw-tile::after{content:"";position:absolute;inset:0;z-index:-1;opacity:.16;transition:opacity .5s;
+    background:radial-gradient(120% 90% at 50% 0%,color-mix(in srgb,var(--a) 70%,transparent),transparent 60%)}
+  .sw-tile.act::after{opacity:.34}
+  .sw-tile:hover{opacity:1}
+  .sw-idx{position:absolute;top:clamp(-8px,-1vw,-2px);inset-inline-end:clamp(8px,2vw,20px);z-index:-1;
+    font-weight:900;font-size:clamp(118px,24vw,196px);line-height:.82;letter-spacing:-.04em;will-change:transform;
+    color:transparent;background:linear-gradient(160deg,var(--a),var(--b));-webkit-background-clip:text;background-clip:text;opacity:.14}
+  .sw-tag{font-family:var(--mono,ui-monospace,Menlo,monospace);font-size:clamp(9.5px,2.2vw,11.5px);
+    letter-spacing:.14em;text-transform:uppercase;color:var(--b);margin-bottom:auto}
+  [dir="rtl"] .sw-tag{letter-spacing:.04em}
+  .sw-ti{font-weight:800;letter-spacing:-.02em;line-height:1.08;font-size:clamp(21px,4.6vw,27px);margin-top:14px;color:var(--ink,#f3f4ff)}
+  [dir="rtl"] .sw-ti{letter-spacing:0;line-height:1.3}
+  .sw-bl{color:var(--ink-2,#aab0d6);font-size:clamp(13px,3vw,14.5px);line-height:1.5;margin-top:10px}
+  .sw-foot{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-top:18px;padding-top:16px;
+    border-top:1px solid var(--glass-brd,rgba(255,255,255,.12))}
+  .sw-stat{font-weight:900;font-size:clamp(22px,5vw,30px);letter-spacing:-.02em;font-variant-numeric:tabular-nums;
+    background:linear-gradient(120deg,var(--a),var(--b));-webkit-background-clip:text;background-clip:text;color:transparent;white-space:nowrap}
+  .sw-note{font-family:var(--mono,ui-monospace,Menlo,monospace);font-size:10px;letter-spacing:.04em;color:var(--ink-3,#6f74a0);text-align:end}
+  .sw-go{position:absolute;top:16px;inset-inline-end:clamp(14px,2.6vw,20px);width:32px;height:32px;border-radius:50%;
+    display:grid;place-items:center;color:var(--ink,#f3f4ff);background:rgba(10,11,18,.5);border:1px solid var(--glass-brd,rgba(255,255,255,.12));
+    opacity:0;transform:translateY(-6px);transition:opacity .4s,transform .4s;font-size:14px}
+  .sw-tile.act .sw-go{opacity:1;transform:none}
+  [dir="rtl"] .sw-tile .sw-go{transform:translateY(-6px) scaleX(-1)}
+  [dir="rtl"] .sw-tile.act .sw-go{transform:scaleX(-1)}
+  .sw-prog{padding:clamp(12px,2.2vh,20px) 0 clamp(18px,3.4vh,34px);display:flex;justify-content:center}
+  .sw-dots{display:flex;gap:8px}
+  .sw-dots i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.16);transition:all .4s var(--ease,ease)}
+  .sw-dots i.on{width:22px;border-radius:4px;background:linear-gradient(90deg,#2997ff,#a259ff)}
 
   /* =====================================================================
      MEANINGFUL BIOME SCENES — each line's background reads as the work it
@@ -479,53 +507,48 @@ const brandDots = Array.from({ length: 16 }, (_, i) => {
        drift without long dead scroll between scenes. */
     section[data-pin]{height:150vh !important}
 
-    /* The biome scene tag sits absolute at top:84px — fine inside a full-height
-       sticky stage, but the #work stage becomes a static block on mobile, so the
-       tag would overlap "Selected work." Pin it back into normal flow there. */
-    #work .bm-tag{position:static !important;transform:none !important;justify-content:flex-start;margin-bottom:4px}
-
-    /* 2. Selected-Work strip: native horizontal swipe instead of stacked cards.
-          The JS transform is blocked (biome.ts skips track.style.transform when
-          innerWidth ≤ 820); overflow-x:auto + scroll-snap take over. */
+    /* Selected-Work showcase → native horizontal swipe on phones. The biome
+       scrub is skipped (biome.ts bails ≤820px); overflow-x + scroll-snap take
+       over, and every tile is fully visible (no centre-scale focus). */
     #work[data-pin]{height:auto !important}
-    #work [data-stage]{
+    #work .sw-head{padding-top:54px !important}
+    #work .sw-stage{
       position:relative !important;height:auto !important;min-height:0 !important;
-      display:flex !important;flex-direction:column !important;gap:20px !important;
-      overflow:visible !important;padding-block:54px !important;
+      display:flex !important;flex-direction:column !important;gap:16px !important;
+      overflow:visible !important;padding-bottom:24px !important;
     }
-    #work [data-track]{
-      flex-wrap:nowrap !important;width:100% !important;transform:none !important;
+    #work .sw-stripwrap{overflow:visible !important;display:block !important}
+    #work .sw-strip{
+      width:auto !important;transform:none !important;
       overflow-x:auto;-webkit-overflow-scrolling:touch;
-      scroll-snap-type:x mandatory;
-      scroll-padding-inline:clamp(20px,5vw,40px);
-      gap:14px !important;scrollbar-width:none;
+      scroll-snap-type:x mandatory;scroll-padding-inline:20px;
+      gap:14px !important;padding-inline:20px !important;scrollbar-width:none;
     }
-    #work [data-track]::-webkit-scrollbar{display:none}
-    #work .wcard{
+    #work .sw-strip::-webkit-scrollbar{display:none}
+    #work .sw-tile{
       flex:0 0 82vw !important;width:82vw !important;
-      height:auto !important;min-height:380px !important;
-      scroll-snap-align:start;
+      height:auto !important;min-height:360px !important;
+      scroll-snap-align:center;opacity:1 !important;transform:none !important;
     }
-    /* cards are immediately visible — no stagger animation in swipe mode */
-    html.js #work .wcard{opacity:1 !important;transform:none !important;transition:none !important}
-    html.js #work .wcard.in{opacity:1 !important;transform:none !important}
-    /* hide the "scroll to scrub →" desktop hint; the swipe UX is self-evident */
-    .strip-hint{display:none}
+    #work .sw-tile .sw-go{opacity:1;transform:none}
+    [dir="rtl"] #work .sw-tile .sw-go{transform:scaleX(-1)}
   }
 </style>
 
 <script>
   import { initBiome } from '../../lib/biome';
+  import { initSelectedWork } from '../../lib/selectedwork';
+  import { initLineAnim } from '../../lib/lineanim';
   let teardown: (() => void) | undefined;
-  // Mobile: cards are in a native swipe strip — immediately visible, no stagger.
-  function revealWorkCards() {
-    if (window.innerWidth > 820) return;
-    document.querySelectorAll<HTMLElement>('#work .wcard').forEach((c) => c.classList.add('in'));
-  }
+  let swTeardown: (() => void) | undefined;
+  let laTeardown: (() => void) | undefined;
   function boot() {
     teardown?.();
     teardown = initBiome();
-    revealWorkCards();
+    swTeardown?.();
+    swTeardown = initSelectedWork();
+    laTeardown?.();
+    laTeardown = initLineAnim();
   }
   boot();
   document.addEventListener('astro:page-load', boot);
