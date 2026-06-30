@@ -277,46 +277,49 @@ const cards = projects.map((p, i) => ({
      cards off the side of a narrow screen (they "disappear") — on mobile, stack
      all 9 cards vertically instead. */
   @media (max-width:820px){
+    /* 1. iOS viewport fix: use dvh so the biome stage always fills the full
+          dynamic viewport — even after the address bar collapses on scroll.
+          !important overrides the inline height:100svh on every [data-stage]. */
+    [data-stage]{height:100dvh !important}
     section[data-pin]{height:180vh !important}
 
+    /* 2. Selected-Work strip: native horizontal swipe instead of stacked cards.
+          The JS transform is blocked (biome.ts skips track.style.transform when
+          innerWidth ≤ 820); overflow-x:auto + scroll-snap take over. */
     #work[data-pin]{height:auto !important}
-    #work [data-stage]{position:relative !important;height:auto !important;min-height:0 !important;display:block !important;padding-block:54px}
-    #work [data-track]{flex-wrap:wrap;width:100% !important;transform:none !important;gap:14px}
-    #work .bm-card{flex:1 1 100% !important;width:100% !important;height:auto;min-height:168px}
-
-    /* the strip doesn't travel sideways on mobile (cards are stacked) — hide the
-       hints that say it does, and rise each card in as it scrolls into view. */
+    #work [data-stage]{
+      position:relative !important;height:auto !important;min-height:0 !important;
+      display:flex !important;flex-direction:column !important;gap:20px !important;
+      overflow:visible !important;padding-block:54px !important;
+    }
+    #work [data-track]{
+      flex-wrap:nowrap !important;width:100% !important;transform:none !important;
+      overflow-x:auto;-webkit-overflow-scrolling:touch;
+      scroll-snap-type:x mandatory;
+      scroll-padding-inline:clamp(20px,5vw,40px);
+      gap:14px !important;scrollbar-width:none;
+    }
+    #work [data-track]::-webkit-scrollbar{display:none}
+    #work .bm-card{
+      flex:0 0 82vw !important;width:82vw !important;
+      height:auto !important;min-height:168px !important;
+      scroll-snap-align:start;
+    }
+    /* cards are immediately visible — no stagger animation in swipe mode */
+    html.js #work .bm-card{opacity:1 !important;transform:none !important;transition:none !important}
+    html.js #work .bm-card.in{opacity:1 !important;transform:none !important}
+    /* hide the "scroll to scrub →" desktop hint; the swipe UX is self-evident */
     .strip-hint{display:none}
-    html.js #work .bm-card{opacity:0;transform:translateY(34px) scale(.97);transition:opacity .7s var(--ease),transform .7s var(--ease)}
-    html.js #work .bm-card.in{opacity:1;transform:none}
   }
 </style>
 
 <script>
   import { initBiome } from '../../lib/biome';
   let teardown: (() => void) | undefined;
-  // Mobile: the Selected-Work cards are stacked (not a sideways strip), so rise
-  // each one in as it scrolls into view for a gentle vertical parallax.
+  // Mobile: cards are in a native swipe strip — immediately visible, no stagger.
   function revealWorkCards() {
     if (window.innerWidth > 820) return;
-    const cards = document.querySelectorAll<HTMLElement>('#work .bm-card');
-    if (!cards.length) return;
-    if (!('IntersectionObserver' in window)) {
-      cards.forEach((c) => c.classList.add('in'));
-      return;
-    }
-    const io = new IntersectionObserver(
-      (entries) => {
-        for (const e of entries) {
-          if (e.isIntersecting) {
-            e.target.classList.add('in');
-            io.unobserve(e.target);
-          }
-        }
-      },
-      { threshold: 0.14, rootMargin: '0px 0px -8% 0px' },
-    );
-    cards.forEach((c) => io.observe(c));
+    document.querySelectorAll<HTMLElement>('#work .bm-card').forEach((c) => c.classList.add('in'));
   }
   function boot() {
     teardown?.();

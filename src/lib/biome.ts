@@ -59,7 +59,7 @@ export function initBiome(): () => void {
       }
 
       const track = pin.querySelector<HTMLElement>('[data-track]');
-      if (track && !reduce) {
+      if (track && !reduce && innerWidth > 820) {
         const extra = Math.max(0, track.scrollWidth - innerWidth + 40);
         track.style.transform = `translate3d(${(-p * extra).toFixed(1)}px,0,0)`;
       }
