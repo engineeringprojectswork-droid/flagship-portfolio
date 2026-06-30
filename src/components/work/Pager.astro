@@ -15,8 +15,8 @@ const { prev, next } = neighbours(slug);
   <div class="wrap">
     <hr class="divider" style="margin-bottom:34px" />
     <div class="pager">
-      <a href={workPath(lang, prev.slug)}>← {t('work.prev')}: {pick(lang, prev.title)}</a>
-      <a href={workPath(lang, next.slug)}>{t('work.next')}: {pick(lang, next.title)} →</a>
+      <a href={workPath(lang, prev.slug)}>{lang === 'ar' ? '→' : '←'} {t('work.prev')}: {pick(lang, prev.title)}</a>
+      <a href={workPath(lang, next.slug)}>{t('work.next')}: {pick(lang, next.title)} {lang === 'ar' ? '←' : '→'}</a>
     </div>
   </div>
 </section>

@@ -2,8 +2,12 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
-// Production URL — update before deploy (drives sitemap, canonical, hreflang, OG).
-const SITE = 'https://mohamed-mahmoud-kw.vercel.app';
+// Production URL — drives sitemap, canonical, hreflang, OG. This MUST be the
+// public, crawlable origin. The Vercel host (mohamed-mahmoud-kw.vercel.app) is
+// behind Vercel Deployment Protection (a login wall), so pointing canonical/OG
+// there makes every public page declare an uncrawlable canonical and breaks
+// link previews. Netlify is the truly-public host → it is the SEO canonical.
+const SITE = 'https://mohamed-mahmoud-kuwait.netlify.app';
 
 // https://astro.build/config
 export default defineConfig({

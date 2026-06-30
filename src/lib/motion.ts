@@ -24,7 +24,9 @@ export const clamp01 = (n: number): number => (n < 0 ? 0 : n > 1 ? 1 : n);
 let gsap: any = null;
 let ST: any = null;
 let lenis: any = null;
-let engineReady = false;
+let LenisCtor: any = null;
+let tickerCb: ((time: number) => void) | null = null;
+let modulesReady = false;
 
 /** The ScrollTrigger constructor, or null until the engine is loaded. */
 export function getST(): any {
@@ -32,19 +34,35 @@ export function getST(): any {
 }
 
 async function loadEngine(): Promise<void> {
-  if (engineReady) return;
-  const [g, s, L] = await Promise.all([import('gsap'), import('gsap/ScrollTrigger'), import('lenis')]);
-  gsap = g.gsap;
-  ST = s.ScrollTrigger;
-  const Lenis = L.default;
-  gsap.registerPlugin(ST);
-  lenis = new Lenis({ lerp: 0.1, wheelMultiplier: 1, smoothWheel: true, autoRaf: false });
-  lenis.on('scroll', ST.update);
-  gsap.ticker.add((time: number) => {
-    if (lenis) lenis.raf(time * 1000);
-  });
-  gsap.ticker.lagSmoothing(0);
-  engineReady = true;
+  if (!modulesReady) {
+    const [g, s, L] = await Promise.all([import('gsap'), import('gsap/ScrollTrigger'), import('lenis')]);
+    gsap = g.gsap;
+    ST = s.ScrollTrigger;
+    LenisCtor = L.default;
+    gsap.registerPlugin(ST);
+    gsap.ticker.lagSmoothing(0);
+    modulesReady = true;
+  }
+  // (re)create Lenis only when it's actually wanted (desktop + motion)
+  if (!lenis) {
+    lenis = new LenisCtor({ lerp: 0.1, wheelMultiplier: 1, smoothWheel: true, autoRaf: false });
+    lenis.on('scroll', ST.update);
+    tickerCb = (time: number) => {
+      if (lenis) lenis.raf(time * 1000);
+    };
+    gsap.ticker.add(tickerCb);
+  }
+}
+
+/** Tear Lenis down so mobile / reduced-motion uses NATIVE scroll, and resizing
+ *  desktop→mobile doesn't leave smooth-scroll hijacking the now-static layout. */
+function destroyLenis(): void {
+  if (!lenis) return;
+  if (tickerCb && gsap) gsap.ticker.remove(tickerCb);
+  if (ST) lenis.off('scroll', ST.update);
+  lenis.destroy();
+  lenis = null;
+  tickerCb = null;
 }
 
 export function killTriggers(): void {
@@ -98,8 +116,10 @@ export async function initMotion(): Promise<void> {
   initParallaxDepth();
 
   if (heavyOff()) {
-    // mobile / reduced-motion → static end-state, no GSAP/Lenis loaded
+    // mobile / reduced-motion → static end-state; kill pins AND stop Lenis so
+    // native scroll resumes (covers a desktop→mobile resize, not just first load)
     killTriggers();
+    destroyLenis();
     renderStoryStatic();
     renderHomeStatic();
   } else {

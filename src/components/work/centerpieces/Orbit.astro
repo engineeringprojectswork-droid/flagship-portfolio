@@ -247,7 +247,7 @@ const nodes = [
   }
 
   /* real screenshot drops in below the orbit, no layout shift */
-  .orb__stage > .asset-slot {
+  .orb__stage > :global(.asset-slot) {
     position: absolute;
     inset-inline: 0;
     bottom: -14%;
@@ -322,7 +322,7 @@ const nodes = [
     [dir='rtl'] .orb__arrow {
       transform: scaleX(-1) !important;
     }
-    .orb__stage > .asset-slot {
+    .orb__stage > :global(.asset-slot) {
       position: static;
       width: 100%;
       margin-top: 34px;

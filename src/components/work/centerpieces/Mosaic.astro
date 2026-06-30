@@ -107,7 +107,10 @@ const tiles = [
 
   /* ---- the wall: scattered at --q=0, assembled grid at --q=1 ---- */
   .mosaic__wall {
-    --q: 0;
+    /* NOTE: do NOT declare --q here — it would shadow the engine-driven --q the
+       proof pin sets on the [data-proof] section, freezing the tiles scattered.
+       Inheriting it lets the scrub reach the tiles; an unset --q (before the pin
+       engages) makes the calc()s invalid → tiles fall back to the assembled grid. */
     position: relative;
     display: grid;
     grid-template-columns: repeat(3, 1fr);

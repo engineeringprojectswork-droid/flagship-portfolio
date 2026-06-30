@@ -89,12 +89,18 @@ let parallaxBound = false;
 function initParallax() {
   if (reduce() || parallaxBound) return;
   parallaxBound = true;
-  window.addEventListener('scroll', () => {
+  let ticking = false;
+  const apply = () => {
+    ticking = false;
     const y = window.scrollY || 0;
     document.querySelectorAll<HTMLElement>('[data-parallax]').forEach((l) => {
       const s = parseFloat(l.getAttribute('data-parallax') || '0.2') || 0.2;
       l.style.transform = 'translate3d(0,' + (y * s) + 'px,0)';
     });
+  };
+  // rAF-batched so it fires once per frame, not on every (Lenis-multiplied) scroll event
+  window.addEventListener('scroll', () => {
+    if (!ticking) { ticking = true; requestAnimationFrame(apply); }
   }, { passive: true });
 }
 

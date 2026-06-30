@@ -1,8 +1,10 @@
 ---
 /**
- * Marked placeholder for a real screenshot (16:10 / 16:11 etc).
- * Renders the dashed + hatch + domain-glow placeholder until a real `src`
- * is supplied — then it drops in a cover image with no layout shift.
+ * A media slot inside the work centerpieces + home film strip.
+ * With a real `src` it drops in a cover image (no layout shift). Without one it
+ * renders an intentional accent-tinted "glass" panel (see .asset-slot in
+ * tokens.css) — a designed cover, not a "missing screenshot" placeholder.
+ * `label` is still used as the image alt once a real src is supplied.
  */
 import { pick, type Lang } from '../../../i18n/utils';
 
@@ -10,14 +12,13 @@ interface Props {
   lang: Lang;
   /** aspect ratio, e.g. "16/10" | "16/11" | "16/9" */
   ratio?: string;
-  /** describes the real screenshot that belongs here */
+  /** describes the media that belongs here (used as alt when `src` is set) */
   label: { en: string; ar: string };
   /** real image path once supplied (e.g. /img/work/meta-ads-ads-manager.png) */
   src?: string;
   alt?: string;
 }
 const { lang, ratio = '16/10', label, src, alt } = Astro.props;
-const ratioLabel = ratio.replace('/', ':');
 ---
 
 <div class="asset-slot" style={`aspect-ratio:${ratio}`}>
@@ -25,10 +26,7 @@ const ratioLabel = ratio.replace('/', ':');
     src ? (
       <img src={src} alt={alt ?? pick(lang, label)} loading="lazy" decoding="async" />
     ) : (
-      <div class="asset-slot__txt">
-        <span class="mark" aria-hidden="true">▦</span>
-        <span class="sub">{pick(lang, label)} · {ratioLabel}</span>
-      </div>
+      <div class="asset-slot__art" aria-hidden="true"></div>
     )
   }
 </div>

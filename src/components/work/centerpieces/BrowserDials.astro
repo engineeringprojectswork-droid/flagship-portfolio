@@ -133,14 +133,14 @@ const dials = [
     will-change: transform;
     /* --q=0 → tilted; --q=1 → flat. RTL flips the rotateY sign below. */
     transform: perspective(1400px)
-      rotateX(calc((1 - var(--q, 0)) * 14deg))
-      rotateY(calc((1 - var(--q, 0)) * -18deg));
+      rotateX(calc((1 - var(--q, 1)) * 14deg))
+      rotateY(calc((1 - var(--q, 1)) * -18deg));
   }
   [dir='rtl'] .bd__frame {
     box-shadow: 24px 30px 70px -24px rgba(0, 0, 0, 0.8);
     transform: perspective(1400px)
-      rotateX(calc((1 - var(--q, 0)) * 14deg))
-      rotateY(calc((1 - var(--q, 0)) * 18deg));
+      rotateX(calc((1 - var(--q, 1)) * 14deg))
+      rotateY(calc((1 - var(--q, 1)) * 18deg));
   }
   .bd__bar {
     height: 40px;
@@ -241,7 +241,7 @@ const dials = [
     place-items: center;
     /* sweep: angle = (real score%) * current scrub progress --q */
     background: conic-gradient(
-      var(--accent) calc(var(--score) * var(--q, 0) * 1%),
+      var(--accent) calc(var(--score) * var(--q, 1) * 1%),
       color-mix(in srgb, var(--ink) 14%, transparent) 0
     );
   }
@@ -261,7 +261,7 @@ const dials = [
     letter-spacing: -0.02em;
     color: var(--ink);
     /* the number reads its full real value once the sweep has caught up */
-    opacity: calc(0.25 + 0.75 * var(--q, 0));
+    opacity: calc(0.25 + 0.75 * var(--q, 1));
   }
   .bd__lbl {
     font-family: var(--font-mono);
