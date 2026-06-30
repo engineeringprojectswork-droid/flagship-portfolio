@@ -2,8 +2,9 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Hero from '../../components/Hero.astro';
 import Contact from '../../components/Contact.astro';
-import { useTranslations, workPath, type Lang } from '../../i18n/utils';
+import { useTranslations, workPath, pick, type Lang } from '../../i18n/utils';
 import { locales } from '../../i18n/utils';
+import { projects } from '../../data/projects';
 
 export function getStaticPaths() {
   return locales.map((lang) => ({ params: { lang } }));
@@ -13,44 +14,16 @@ const { lang } = Astro.params as { lang: Lang };
 const t = useTranslations(lang);
 const ar = lang === 'ar';
 
-// Selected-work strip — each card deep-links to its case story.
-const cards = [
-  {
-    slug: 'meta-ads',
-    n: '01',
-    title: ar ? 'إعلانات ميتا تُربح' : 'Meta ads that pay',
-    sub: ar ? 'عملاء واتساب بأقل من دولار.' : 'WhatsApp leads under a dollar.',
-    stat: ar ? '٠.٨٤$ / عميل' : '$0.84 / lead',
-  },
-  {
-    slug: 'al-maali',
-    n: '02',
-    title: ar ? '٠ ← +١مليون متابع' : '0 → 1M+ followers',
-    sub: ar ? 'قناة نمت إلى المليون.' : 'A channel grown to a million.',
-    stat: ar ? '+١مليون' : '1M+',
-  },
-  {
-    slug: 'crm',
-    n: '03',
-    title: ar ? 'CRM من الصفر' : 'A CRM from scratch',
-    sub: ar ? '١٢ تبويبًا ثنائي اللغة، من البداية للنهاية.' : '12 bilingual tabs, end to end.',
-    stat: ar ? '١٢ تبويبًا' : '12 tabs',
-  },
-  {
-    slug: 'sheep-app',
-    n: '04',
-    title: ar ? 'تطبيق سطح مكتب' : 'A desktop app',
-    sub: ar ? 'بلا إنترنت، مُختبَر، ببناء CI.' : 'Offline, tested, CI-built.',
-    stat: ar ? '٥٩/٥٩ اختبارًا' : '59/59 tests',
-  },
-  {
-    slug: 'hr-system',
-    n: '05',
-    title: ar ? 'توظيف آلي' : 'Hiring on autopilot',
-    sub: ar ? 'تنقية وتقييم يومي بالذكاء.' : 'Deduped & scored daily by AI.',
-    stat: ar ? '١٤٢ ← ١٠٠' : '142 → 100',
-  },
-];
+// Selected-work strip — ALL 9 case stories, in canonical order, deep-linking to
+// each story page. Built from src/data/projects.ts (single source of truth) so
+// the strip never drifts out of sync with the story routes/copy/numbers.
+const cards = projects.map((p, i) => ({
+  slug: p.slug,
+  n: String(i + 1).padStart(2, '0'),
+  title: pick(lang, p.title),
+  sub: pick(lang, p.blurb),
+  stat: pick(lang, p.stat),
+}));
 ---
 
 <BaseLayout
