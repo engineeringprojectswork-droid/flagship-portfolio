@@ -173,7 +173,7 @@ const note = {
         {
           secondaryMetrics.map((m, i) => (
             <div class={`metric reveal${i ? ` d${i}` : ''}`}>
-              <div class="metric__num tnum" data-count={m.count} data-decimals={m.decimals} data-prefix={m.prefix} data-suffix={m.suffix}>
+              <div class="metric__num tnum" data-px={(0.03 + (i % 2) * 0.03).toFixed(2)} data-count={m.count} data-decimals={m.decimals} data-prefix={m.prefix} data-suffix={m.suffix}>
                 {m.text}
               </div>
               <div class="metric__lbl">{typeof m.label === 'string' ? m.label : pick(lang, m.label)}</div>

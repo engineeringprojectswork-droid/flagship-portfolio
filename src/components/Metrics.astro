@@ -43,6 +43,7 @@ const { lang, items, eyebrow } = Astro.props;
         )}
         <div
           class="metric__num gradient-text tnum"
+          data-px={(0.03 + (i % 2) * 0.03).toFixed(2)}
           data-count={m.count}
           data-format={m.format}
           data-decimals={m.decimals}
