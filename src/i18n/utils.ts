@@ -32,24 +32,40 @@ export function otherLang(lang: Lang): Lang {
   return lang === 'ar' ? 'en' : 'ar';
 }
 
+/**
+ * Deployment base path (e.g. "/flagship-portfolio" on a GitHub Pages project
+ * site, or "" at a domain root). Astro injects this via `base` in the config;
+ * every internal link is built on top of it so the site works at any subpath.
+ */
+const BASE = (import.meta.env.BASE_URL || '/').replace(/\/$/, '');
+
+/** Strip the deployment base from a pathname so locale logic sees a clean path. */
+function stripBase(p: string): string {
+  if (BASE && (p === BASE || p.startsWith(BASE + '/'))) {
+    return p.slice(BASE.length) || '/';
+  }
+  return p;
+}
+
 /** Home path for a language. */
 export function homePath(lang: Lang): string {
-  return `/${lang}`;
+  return `${BASE}/${lang}`;
 }
 
 /** Story path for a language + slug. */
 export function workPath(lang: Lang, slug: string): string {
-  return `/${lang}/work/${slug}`;
+  return `${BASE}/${lang}/work/${slug}`;
 }
 
 /**
  * Given the CURRENT pathname and a TARGET language, return the mirror URL so the
  * language toggle keeps you on the same page (home or a specific story).
+ * Base-aware: tolerates an incoming path with or without the deployment base.
  */
 export function mirrorPath(currentPath: string, target: Lang): string {
-  const parts = currentPath.replace(/\/+$/, '').split('/').filter(Boolean);
+  const parts = stripBase(currentPath).replace(/\/+$/, '').split('/').filter(Boolean);
   // parts[0] is the current lang; swap it, keep the rest.
-  if (parts.length === 0) return `/${target}`;
+  if (parts.length === 0) return `${BASE}/${target}`;
   parts[0] = target;
-  return '/' + parts.join('/');
+  return `${BASE}/` + parts.join('/');
 }

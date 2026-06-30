@@ -1,15 +1,8 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Hero from '../../components/Hero.astro';
-import Statements from '../../components/Statements.astro';
-import Metrics, { type MetricItem } from '../../components/Metrics.astro';
-import ProjectsGrid from '../../components/ProjectsGrid.astro';
-import Team from '../../components/Team.astro';
-import About from '../../components/About.astro';
 import Contact from '../../components/Contact.astro';
-import RailNav from '../../components/RailNav.astro';
-import Biome from '../../components/Biome.astro';
-import { useTranslations, type Lang } from '../../i18n/utils';
+import { useTranslations, workPath, type Lang } from '../../i18n/utils';
 import { locales } from '../../i18n/utils';
 
 export function getStaticPaths() {
@@ -18,45 +11,45 @@ export function getStaticPaths() {
 
 const { lang } = Astro.params as { lang: Lang };
 const t = useTranslations(lang);
+const ar = lang === 'ar';
 
-const metricItems: MetricItem[] = [
+// Selected-work strip — each card deep-links to its case story.
+const cards = [
   {
-    count: 1000000,
-    format: 'abbr',
-    suffix: '+',
-    label: { en: 'Followers grown', ar: 'متابع تم بناؤهم' },
-    sub: { en: 'Al-Ma’ali · 2021–2025', ar: 'قناة المعالي · ٢٠٢١–٢٠٢٥' },
-    receipt: 'M0,58 C45,55 75,32 115,22 C155,12 190,7 220,5', // the climb
+    slug: 'meta-ads',
+    n: '01',
+    title: ar ? 'إعلانات ميتا تُربح' : 'Meta ads that pay',
+    sub: ar ? 'عملاء واتساب بأقل من دولار.' : 'WhatsApp leads under a dollar.',
+    stat: ar ? '٠.٨٤$ / عميل' : '$0.84 / lead',
   },
   {
-    count: 0.84,
-    decimals: 2,
-    prefix: '$',
-    label: { en: 'Cost per WhatsApp lead', ar: 'تكلفة العميل عبر واتساب' },
-    sub: { en: 'Meta pilot · 206 leads · 2026', ar: 'تجربة ميتا · ٢٠٦ عميلًا · ٢٠٢٦' },
-    receipt: 'M0,8 C45,11 75,30 115,40 C155,50 190,56 220,58', // cost sliding down
+    slug: 'al-maali',
+    n: '02',
+    title: ar ? '٠ ← +١مليون متابع' : '0 → 1M+ followers',
+    sub: ar ? 'قناة نمت إلى المليون.' : 'A channel grown to a million.',
+    stat: ar ? '+١مليون' : '1M+',
   },
   {
-    count: 4,
-    label: { en: 'Production systems shipped', ar: 'أنظمة تم إطلاقها' },
-    sub: { en: 'AI-assisted, under my direction', ar: 'بمساعدة الذكاء الاصطناعي بإدارتي' },
-    receipt: 'M0,58 L52,58 L52,42 L104,42 L104,26 L156,26 L156,10 L220,10', // stepping up
+    slug: 'crm',
+    n: '03',
+    title: ar ? 'CRM من الصفر' : 'A CRM from scratch',
+    sub: ar ? '١٢ تبويبًا ثنائي اللغة، من البداية للنهاية.' : '12 bilingual tabs, end to end.',
+    stat: ar ? '١٢ تبويبًا' : '12 tabs',
   },
   {
-    count: 4,
-    suffix: '+',
-    label: { en: 'Years growing channels', ar: 'سنوات في بناء القنوات' },
-    sub: { en: 'social & content', ar: 'سوشيال ومحتوى' },
-    receipt: 'M0,52 C70,48 130,28 220,12', // steady rise
+    slug: 'sheep-app',
+    n: '04',
+    title: ar ? 'تطبيق سطح مكتب' : 'A desktop app',
+    sub: ar ? 'بلا إنترنت، مُختبَر، ببناء CI.' : 'Offline, tested, CI-built.',
+    stat: ar ? '٥٩/٥٩ اختبارًا' : '59/59 tests',
   },
-];
-
-const railItems = [
-  { id: 'intro', label: { en: 'Top', ar: 'البداية' } },
-  { id: 'work', label: { en: 'Work', ar: 'الأعمال' } },
-  { id: 'team', label: { en: 'Team', ar: 'الفريق' } },
-  { id: 'about', label: { en: 'About', ar: 'نبذة' } },
-  { id: 'contact', label: { en: 'Contact', ar: 'تواصل' } },
+  {
+    slug: 'hr-system',
+    n: '05',
+    title: ar ? 'توظيف آلي' : 'Hiring on autopilot',
+    sub: ar ? 'تنقية وتقييم يومي بالذكاء.' : 'Deduped & scored daily by AI.',
+    stat: ar ? '١٤٢ ← ١٠٠' : '142 → 100',
+  },
 ];
 ---
 
@@ -68,32 +61,248 @@ const railItems = [
   accent="blue"
   home={true}
 >
-  <RailNav lang={lang} items={railItems} />
-  <Hero lang={lang} />
-  <Statements lang={lang} />
+  <!-- scroll-progress meter (driven by initBiome) -->
+  <div
+    data-bm-progress
+    aria-hidden="true"
+    style="position:fixed;top:0;inset-inline-start:0;height:2px;width:0;z-index:60;background:linear-gradient(100deg,#ff5e8a,#a259ff,#2997ff,#64d2ff);box-shadow:0 0 12px #a259ff;pointer-events:none"
+  >
+  </div>
 
-  <section class="section" style="position:relative" aria-label={lang === 'ar' ? 'الأرقام' : 'Proof in numbers'}>
-    <Biome kind="aurora" tint="#64d2ff" />
-    <div class="wrap" style="position:relative;z-index:1">
-      <Metrics
-        lang={lang}
-        eyebrow={{ en: 'Receipts, not adjectives', ar: 'أرقامٌ لا صفات' }}
-        items={metricItems}
-      />
+  <!-- film grain — cinematic finish shared across every biome -->
+  <div
+    aria-hidden="true"
+    style="position:fixed;inset:0;z-index:42;pointer-events:none;mix-blend-mode:soft-light;opacity:.28"
+  >
+    <svg width="100%" height="100%" preserveAspectRatio="none" style="position:absolute;inset:0">
+      <filter id="bmGrain"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter>
+      <rect width="100%" height="100%" filter="url(#bmGrain)"></rect>
+    </svg>
+  </div>
+
+  <Hero lang={lang} />
+
+  <!-- ============ BIOME 01 · PAID SOCIAL · blue nebula bloom ============ -->
+  <section data-pin style="position:relative;z-index:1;height:280vh">
+    <div data-stage style="position:sticky;top:0;height:100svh;min-height:580px;display:grid;place-items:center;text-align:center;overflow:hidden">
+      <div style="position:absolute;width:62vw;height:62vw;left:50%;top:46%;transform:translate(-50%,-50%) scale(calc(.55 + var(--p,0)*.8));border-radius:50%;filter:blur(56px);background:radial-gradient(circle,rgba(41,151,255,.55),transparent 62%);opacity:calc(.22 + var(--p,0)*.72);pointer-events:none"></div>
+      <div style="position:absolute;width:42vw;height:42vw;left:64%;top:39%;transform:translate(-50%,-50%) scale(calc(.7 + var(--p,0)*.7));border-radius:50%;filter:blur(48px);background:radial-gradient(circle,rgba(100,210,255,.5),transparent 62%);opacity:calc(.18 + var(--p,0)*.75);pointer-events:none"></div>
+      <div style="position:absolute;width:30vw;height:30vw;left:38%;top:57%;transform:translate(-50%,-50%) scale(calc(.6 + var(--p,0)*.6));border-radius:50%;filter:blur(58px);background:radial-gradient(circle,rgba(162,89,255,.32),transparent 64%);opacity:calc(.14 + var(--p,0)*.6);pointer-events:none"></div>
+      <div style="position:absolute;left:50%;top:46%;width:min(34vw,360px);height:min(34vw,360px);transform:translate(-50%,-50%) scale(calc(.5 + var(--p,0)*.7));border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.8),rgba(150,196,255,.4) 24%,transparent 60%);filter:blur(4px);opacity:calc(.18 + var(--p,0)*.8);pointer-events:none"></div>
+      <div class="bm-tag" style="--c:#2997ff"><span class="bm-num">01</span><span class="bm-sl">/</span><span>{ar ? 'إعلانات مدفوعة' : 'Paid Social'}</span><span class="bm-sl">·</span><span style="opacity:.7">{ar ? 'مرّر لتشغيل' : 'scroll to play'}</span></div>
+      <div class="bm-copy">
+        <p data-step data-glow class="bm-h">{ar ? 'أُدير الإعلانات.' : 'I run the ads.'}</p>
+        <div data-step class="bm-pillrow"><span data-glow class="bm-pill">{ar ? '٢٠٦ عميل واتساب · ٠.٨٤$ لكلٍّ' : '206 WhatsApp leads · $0.84 each'}</span></div>
+      </div>
     </div>
   </section>
 
-  <ProjectsGrid lang={lang} />
-  <div style="position:relative">
-    <Biome kind="constellation" tint="#7574ee" />
-    <Team lang={lang} />
-  </div>
-  <div style="position:relative">
-    <Biome kind="warp" tint="#a259ff" />
-    <About lang={lang} />
-  </div>
-  <div style="position:relative">
-    <Biome kind="comet" tint="#ffd60a" />
-    <Contact lang={lang} />
-  </div>
+  <!-- ============ BIOME 02 · AUDIENCE GROWTH · star-warp + scrubbed count ============ -->
+  <section data-pin style="position:relative;z-index:1;height:330vh">
+    <div data-stage style="position:sticky;top:0;height:100svh;min-height:580px;display:grid;place-items:center;text-align:center;overflow:hidden">
+      <div style="position:absolute;left:50%;top:50%;width:200vmax;height:200vmax;transform:translate(-50%,-50%) rotate(calc(var(--p,0)*90deg)) scale(calc(.7 + var(--p,0)*.6));background:repeating-conic-gradient(from 0deg, transparent 0 .5deg, rgba(255,94,138,.5) .5deg .85deg, transparent .85deg 1.9deg);mask:radial-gradient(circle, transparent 10%, #000 46%, transparent 86%);-webkit-mask:radial-gradient(circle, transparent 10%, #000 46%, transparent 86%);opacity:calc(.16 + var(--p,0)*.6);pointer-events:none"></div>
+      <div style="position:absolute;left:50%;top:50%;width:200vmax;height:200vmax;transform:translate(-50%,-50%) rotate(calc(var(--p,0)*-70deg)) scale(calc(.6 + var(--p,0)*.7));background:repeating-conic-gradient(from 12deg, transparent 0 .55deg, rgba(162,89,255,.45) .55deg .95deg, transparent .95deg 2.2deg);mask:radial-gradient(circle, transparent 12%, #000 50%, transparent 88%);-webkit-mask:radial-gradient(circle, transparent 12%, #000 50%, transparent 88%);opacity:calc(.12 + var(--p,0)*.5);pointer-events:none"></div>
+      <div style="position:absolute;left:50%;top:50%;width:42vw;height:42vw;transform:translate(-50%,-50%) scale(calc(.5 + var(--p,0)*1));border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.55),rgba(255,94,138,.22) 30%,transparent 64%);filter:blur(8px);opacity:calc(.14 + var(--p,0)*.6);pointer-events:none"></div>
+      <div class="bm-tag" style="--c:#ff5e8a"><span class="bm-num">02</span><span class="bm-sl">/</span><span>{ar ? 'نموّ الجمهور' : 'Audience Growth'}</span><span class="bm-sl">·</span><span style="opacity:.7">{ar ? 'الرقم يتسلّق' : 'the number climbs'}</span></div>
+      <div class="bm-copy">
+        <div data-step data-glow data-climb style="font-size:clamp(64px,15vw,200px);font-weight:900;letter-spacing:-.05em;line-height:.9;font-variant-numeric:tabular-nums;color:var(--ink,#f3f4ff);opacity:0;transform:translateY(34px);will-change:transform,opacity;filter:drop-shadow(0 0 calc(var(--glow,0)*24px) rgba(var(--text-glow,170,195,255), calc(var(--glow,0)*.75)));transition:filter .18s linear">9.2K</div>
+        <p data-step data-glow style="font-size:clamp(26px,5vw,52px);font-weight:850;line-height:1;letter-spacing:-.03em;color:var(--ink,#f3f4ff);margin-top:14px;opacity:0;transform:translateY(34px);will-change:transform,opacity;filter:drop-shadow(0 0 calc(var(--glow,0)*18px) rgba(var(--text-glow,170,195,255), calc(var(--glow,0)*.7)));transition:filter .18s linear">{ar ? 'أُنمّي الجمهور.' : 'I grow the audience.'}</p>
+        <div data-step class="bm-pillrow"><span data-glow class="bm-pill">{ar ? '٩.٢ألف ← +١مليون متابع · ٢٠٢١–٢٠٢٥' : '9.2K → 1M+ followers · 2021–2025'}</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BIOME 03 · MARKETING OPS · CRM · synthwave grid + rising planet ============ -->
+  <section data-pin style="position:relative;z-index:1;height:300vh">
+    <div data-stage style="position:sticky;top:0;height:100svh;min-height:580px;display:grid;place-items:center;text-align:center;overflow:hidden">
+      <div style="position:absolute;inset:auto 0 0 0;height:56%;overflow:hidden;opacity:calc(.4 + var(--p,0)*.6);pointer-events:none;perspective:340px">
+        <div style="position:absolute;inset:0;transform-origin:bottom;transform:rotateX(76deg);background:repeating-linear-gradient(90deg, transparent 0 42px, color-mix(in srgb, #64d2ff 60%, transparent) 42px 44px), repeating-linear-gradient(0deg, transparent 0 42px, color-mix(in srgb, #a259ff 52%, transparent) 42px 44px);mask:linear-gradient(transparent, #000 40%);-webkit-mask:linear-gradient(transparent, #000 40%)"></div>
+      </div>
+      <div style="position:absolute;left:0;right:0;top:44%;height:2px;background:linear-gradient(90deg,transparent,#64d2ff,transparent);filter:blur(1px);opacity:calc(.35 + var(--p,0)*.5);box-shadow:0 0 30px #64d2ff;pointer-events:none"></div>
+      <div style="position:absolute;left:50%;top:calc(60% - var(--p,0)*40%);transform:translate(-50%,-50%);width:min(30vw,300px);height:min(30vw,300px);border-radius:50%;background:radial-gradient(circle at 36% 30%, #d7ffe9, #3bd6a0 32%, #1f8f7a 56%, #123a52 80%, #0a1f33);box-shadow:0 0 80px -6px rgba(48,209,88,.5), inset -18px -12px 56px rgba(0,0,0,.55);pointer-events:none">
+        <div style="position:absolute;left:50%;top:50%;width:154%;height:42%;transform:translate(-50%,-50%) rotate(-22deg);border-radius:50%;border:2px solid rgba(120,230,200,.42);box-shadow:0 0 20px rgba(100,210,255,.3)"></div>
+      </div>
+      <div class="bm-tag" style="--c:#30d158"><span class="bm-num">03</span><span class="bm-sl">/</span><span>{ar ? 'عمليات التسويق · CRM' : 'Marketing Ops · CRM'}</span><span class="bm-sl">·</span><span style="opacity:.7">{ar ? 'الكوكب يرتفع' : 'the planet rises'}</span></div>
+      <div class="bm-copy">
+        <p data-step data-glow class="bm-h">{ar ? 'أبني الأنظمة.' : 'I build the systems.'}</p>
+        <div data-step class="bm-pillrow"><span data-glow class="bm-pill">{ar ? 'نظام CRM ثنائي اللغة بـ١٢ تبويبًا' : 'a 12-tab bilingual CRM'}</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BIOME 04 · BRAND & CONTENT · aurora ribbons ============ -->
+  <section data-pin style="position:relative;z-index:1;height:280vh">
+    <div data-stage style="position:sticky;top:0;height:100svh;min-height:580px;display:grid;place-items:center;text-align:center;overflow:hidden">
+      <div style="position:absolute;inset:-10%;filter:blur(12px);opacity:calc(.3 + var(--p,0)*.6);pointer-events:none;transform-origin:50% 40%;animation:bmAuroraA 26s ease-in-out infinite;background:radial-gradient(60% 32% at 30% 38%, rgba(162,89,255,.42), transparent 70%), radial-gradient(52% 28% at 70% 54%, rgba(100,210,255,.34), transparent 70%), radial-gradient(44% 24% at 52% 30%, rgba(255,94,138,.3), transparent 72%)"></div>
+      <div style="position:absolute;inset:-12%;filter:blur(26px);opacity:calc(.18 + var(--p,0)*.55);pointer-events:none;transform-origin:60% 50%;animation:bmAuroraB 31s ease-in-out infinite;background:radial-gradient(50% 26% at 64% 44%, rgba(162,89,255,.3), transparent 72%), radial-gradient(40% 22% at 38% 58%, rgba(120,180,255,.26), transparent 72%)"></div>
+      <div class="bm-tag" style="--c:#a259ff"><span class="bm-num">04</span><span class="bm-sl">/</span><span>{ar ? 'العلامة والمحتوى' : 'Brand & Content'}</span><span class="bm-sl">·</span><span style="opacity:.7">{ar ? 'شفق' : 'aurora'}</span></div>
+      <div class="bm-copy">
+        <p data-step data-glow class="bm-h">{ar ? 'أصوغ العلامة.' : 'I shape the brand.'}</p>
+        <div data-step class="bm-pillrow"><span data-glow class="bm-pill">{ar ? 'الصوت · القصة · الإخراج الفني' : 'voice · story · art direction'}</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SELECTED WORK · horizontal pinned strip ============ -->
+  <section id="work" data-pin style="position:relative;z-index:1;height:300vh">
+    <div data-stage style="position:sticky;top:0;height:100svh;min-height:580px;display:flex;flex-direction:column;justify-content:center;gap:26px;overflow:hidden">
+      <div class="bm-tag" style="--c:#64d2ff"><span class="bm-num">★</span><span class="bm-sl">/</span><span>{ar ? 'أعمال مختارة' : 'Selected Work'}</span><span class="bm-sl">·</span><span style="opacity:.7">{ar ? 'الشريط يتحرّك جانبًا' : 'the strip travels sideways'}</span></div>
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;padding-inline:clamp(20px,5vw,40px)">
+        <h2 data-glow style="font-size:clamp(30px,6vw,64px);font-weight:900;letter-spacing:-.035em;color:var(--ink,#f3f4ff);margin:0;filter:drop-shadow(0 0 calc(var(--glow,0)*20px) rgba(var(--text-glow,170,195,255), calc(var(--glow,0)*.7)));transition:filter .18s linear">{ar ? 'أعمال مختارة.' : 'Selected work.'}</h2>
+        <span style="font-family:var(--mono,ui-monospace,Menlo,monospace);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2,#aab0d6);display:flex;gap:8px;align-items:center"><span style="width:8px;height:8px;border-radius:50%;background:#30d158;box-shadow:0 0 10px #30d158"></span>{ar ? 'مباشر · مرّر للتصفّح ←' : 'Live · scroll to scrub →'}</span>
+      </div>
+      <div data-track style="display:flex;gap:20px;width:max-content;padding-inline:clamp(20px,5vw,40px);will-change:transform">
+        {cards.map((c) => (
+          <a href={workPath(lang, c.slug)} data-glow class="bm-card">
+            <div class="bm-card__bar"></div>
+            <div class="bm-card__n">{c.n}</div>
+            <h3 class="bm-card__t">{c.title}</h3>
+            <p class="bm-card__s">{c.sub}</p>
+            <div class="bm-card__stat">{c.stat}</div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BIOME 05 · SOFTWARE · orbital wireframe globe ============ -->
+  <section data-pin style="position:relative;z-index:1;height:280vh">
+    <div data-stage style="position:sticky;top:0;height:100svh;min-height:580px;display:grid;place-items:center;text-align:center;overflow:hidden">
+      <div style="position:absolute;left:50%;top:45%;transform:translate(-50%,-50%) scale(calc(.7 + var(--p,0)*.42));opacity:calc(.5 + var(--p,0)*.5);pointer-events:none">
+        <svg width="420" height="420" viewBox="0 0 420 420" style="filter:drop-shadow(0 0 12px rgba(100,210,255,.5));overflow:visible">
+          <g fill="none" stroke="#64d2ff" stroke-opacity=".5" stroke-width="1.3">
+            <circle cx="210" cy="210" r="180" stroke-opacity=".7"/>
+            <ellipse cx="210" cy="210" rx="180" ry="60"/>
+            <ellipse cx="210" cy="210" rx="180" ry="120"/>
+            <ellipse cx="210" cy="210" rx="180" ry="170"/>
+            <line x1="30" y1="210" x2="390" y2="210"/>
+            <ellipse cx="210" cy="210" rx="60" ry="180"/>
+            <ellipse cx="210" cy="210" rx="120" ry="180"/>
+            <ellipse cx="210" cy="210" rx="170" ry="180"/>
+            <line x1="210" y1="30" x2="210" y2="390"/>
+          </g>
+          <g style="transform-box:view-box;transform-origin:210px 210px;animation:bmRingSpin 26s linear infinite">
+            <ellipse cx="210" cy="210" rx="206" ry="80" fill="none" stroke="#a259ff" stroke-opacity=".55" stroke-width="1.6"/>
+            <circle cx="416" cy="210" r="5.5" fill="#64d2ff" style="filter:drop-shadow(0 0 8px #64d2ff)"/>
+          </g>
+        </svg>
+      </div>
+      <div class="bm-tag" style="--c:#64d2ff"><span class="bm-num">05</span><span class="bm-sl">/</span><span>{ar ? 'البرمجيات' : 'Software'}</span><span class="bm-sl">·</span><span style="opacity:.7">{ar ? 'الكرة تتجمّع' : 'the globe assembles'}</span></div>
+      <div class="bm-copy">
+        <p data-step data-glow class="bm-h">{ar ? 'أُطلق البرمجيات.' : 'I ship the software.'}</p>
+        <div data-step class="bm-pillrow"><span data-glow class="bm-pill">{ar ? 'تطبيق سطح مكتب بـ١٥ جدولًا · ٥٩/٥٩ اختبارًا' : 'a 15-table desktop app · 59/59 tests'}</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BIOME 06 · AUTOMATION · comet stream ============ -->
+  <section data-pin style="position:relative;z-index:1;height:280vh">
+    <div data-stage style="position:sticky;top:0;height:100svh;min-height:580px;display:grid;place-items:center;text-align:center;overflow:hidden">
+      <div style="position:absolute;left:0;top:34%;opacity:calc(.55 + var(--p,0)*.45);animation:bmCometFly 7.5s linear infinite;pointer-events:none">
+        <div style="position:relative;width:340px;height:4px">
+          <div style="position:absolute;right:14px;top:50%;transform:translateY(-50%);width:320px;height:3px;background:linear-gradient(90deg, transparent, rgba(255,214,10,.7));filter:blur(1.5px);border-radius:3px"></div>
+          <div style="position:absolute;right:0;top:50%;transform:translateY(-50%);width:16px;height:16px;border-radius:50%;background:radial-gradient(circle,#fff,rgba(255,214,10,.9) 40%,transparent 72%);box-shadow:0 0 22px 5px rgba(255,214,10,.55)"></div>
+        </div>
+      </div>
+      <div style="position:absolute;left:0;top:58%;opacity:calc(.3 + var(--p,0)*.4);animation:bmCometFly 11s linear infinite;animation-delay:-3s;pointer-events:none">
+        <div style="position:relative;width:220px;height:3px">
+          <div style="position:absolute;right:9px;top:50%;transform:translateY(-50%);width:210px;height:2px;background:linear-gradient(90deg, transparent, rgba(255,214,10,.5));filter:blur(1.5px);border-radius:3px"></div>
+          <div style="position:absolute;right:0;top:50%;transform:translateY(-50%);width:9px;height:9px;border-radius:50%;background:radial-gradient(circle,#fff,rgba(255,214,10,.85) 40%,transparent 72%);box-shadow:0 0 14px 3px rgba(255,214,10,.45)"></div>
+        </div>
+      </div>
+      <div class="bm-tag" style="--c:#ffd60a"><span class="bm-num">06</span><span class="bm-sl">/</span><span>{ar ? 'الأتمتة' : 'Automation'}</span><span class="bm-sl">·</span><span style="opacity:.7">{ar ? 'المذنّب ينطلق' : 'the comet streaks'}</span></div>
+      <div class="bm-copy">
+        <p data-step data-glow class="bm-h" style="font-size:clamp(38px,8vw,100px)">{ar ? 'وأُؤتمت الباقي بالذكاء الاصطناعي.' : 'I automate the rest with AI.'}</p>
+        <div data-step class="bm-pillrow"><span data-glow class="bm-pill">{ar ? '١٤٢ سيرة · ٧ سكربتات · ٣ مهام مجدولة' : '142 résumés · 7 scripts · 3 scheduled jobs'}</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BIOME 07 · WEB · LIVE · constellation network ============ -->
+  <section data-pin style="position:relative;z-index:1;height:280vh">
+    <div data-stage style="position:sticky;top:0;height:100svh;min-height:580px;display:grid;place-items:center;text-align:center;overflow:hidden">
+      <div style="position:absolute;inset:0;pointer-events:none;animation:bmDriftY 14s ease-in-out infinite">
+        <svg viewBox="0 0 1200 760" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0;width:100%;height:100%">
+          <g stroke="#7574ee" stroke-width="1.1" style="opacity:calc(.08 + var(--p,0)*.7)">
+            <line x1="180" y1="180" x2="430" y2="120"/><line x1="430" y1="120" x2="640" y2="250"/><line x1="640" y1="250" x2="900" y2="160"/><line x1="900" y1="160" x2="1040" y2="330"/><line x1="640" y1="250" x2="560" y2="480"/><line x1="560" y1="480" x2="320" y2="560"/><line x1="320" y1="560" x2="180" y2="380"/><line x1="180" y1="380" x2="180" y2="180"/><line x1="560" y1="480" x2="820" y2="540"/><line x1="820" y1="540" x2="1040" y2="330"/><line x1="430" y1="120" x2="180" y2="380"/><line x1="900" y1="160" x2="640" y2="250"/>
+          </g>
+          <g fill="#9d9cff" style="opacity:calc(.4 + var(--p,0)*.6)">
+            <circle cx="180" cy="180" r="4.5"/><circle cx="430" cy="120" r="6"/><circle cx="640" cy="250" r="7"/><circle cx="900" cy="160" r="5"/><circle cx="1040" cy="330" r="5.5"/><circle cx="560" cy="480" r="6.5"/><circle cx="320" cy="560" r="5"/><circle cx="180" cy="380" r="4.5"/><circle cx="820" cy="540" r="5.5"/>
+          </g>
+          <g fill="#ffffff" style="opacity:calc(.5 + var(--p,0)*.5)">
+            <circle cx="640" cy="250" r="2.6"/><circle cx="560" cy="480" r="2.4"/><circle cx="430" cy="120" r="2.2"/>
+          </g>
+        </svg>
+      </div>
+      <div class="bm-tag" style="--c:#7574ee"><span class="bm-num">07</span><span class="bm-sl">/</span><span>{ar ? 'الويب · مباشر' : 'Web · Live'}</span><span class="bm-sl">·</span><span style="opacity:.7">{ar ? 'الشبكة تُضيء' : 'the network lights up'}</span></div>
+      <div class="bm-copy">
+        <p data-step data-glow class="bm-h">{ar ? 'وأنشره على الويب.' : 'I put it on the web.'}</p>
+        <div data-step class="bm-pillrow"><span data-glow class="bm-pill">{ar ? 'مباشر · مُطلق · في الإنتاج' : 'live · shipped · in production'}</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BIOME 08 · AI OPERATING MODEL · convergence finale ============ -->
+  <section data-pin style="position:relative;z-index:1;height:340vh">
+    <div data-stage style="position:sticky;top:0;height:100svh;min-height:580px;display:grid;place-items:center;text-align:center;overflow:hidden">
+      <div style="position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);width:min(86vw,920px);height:min(86vw,920px);pointer-events:none">
+        <div style="position:absolute;left:50%;top:50%;width:44%;height:44%;transform:translate(-50%,-50%) scale(calc(.28 + var(--p,0)*1.05));border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.95),rgba(255,159,10,.5) 18%,rgba(162,89,255,.3) 42%,transparent 66%);filter:blur(6px);opacity:calc(.18 + var(--p,0)*.82);animation:corePulse 6s ease-in-out infinite"></div>
+        <div style="position:absolute;left:50%;top:50%;width:16%;height:16%;transform:translate(-50%,-50%) scale(calc(.4 + var(--p,0)*1));border-radius:50%;border:1px solid rgba(255,255,255,calc(.1 + var(--p,0)*.5));opacity:calc(var(--p,0))"></div>
+        <div style="position:absolute;left:50%;top:50%;width:18px;height:18px;border-radius:50%;background:#ff5e8a;box-shadow:0 0 22px 5px rgba(255,94,138,.7);transform:translate(-50%,-50%) translate(calc((1 - var(--p,0)) * -300px), calc((1 - var(--p,0)) * -160px))"></div>
+        <div style="position:absolute;left:50%;top:50%;width:18px;height:18px;border-radius:50%;background:#2997ff;box-shadow:0 0 22px 5px rgba(41,151,255,.7);transform:translate(-50%,-50%) translate(calc((1 - var(--p,0)) * 310px), calc((1 - var(--p,0)) * -120px))"></div>
+        <div style="position:absolute;left:50%;top:50%;width:18px;height:18px;border-radius:50%;background:#ff9f0a;box-shadow:0 0 22px 5px rgba(255,159,10,.7);transform:translate(-50%,-50%) translate(calc((1 - var(--p,0)) * 30px), calc((1 - var(--p,0)) * 300px))"></div>
+      </div>
+      <div class="bm-tag" style="--c:#ff9f0a"><span class="bm-num">08</span><span class="bm-sl">/</span><span>{ar ? 'نموذج تشغيل بالذكاء' : 'AI Operating Model'}</span><span class="bm-sl">·</span><span style="opacity:.7">{ar ? 'كلٌّ يتلاقى' : 'everything converges'}</span></div>
+      <div class="bm-copy">
+        <p data-step data-glow class="bm-h">{ar ? 'نموذج تشغيلٍ واحد.' : 'One operating model.'}</p>
+        <div data-step class="bm-pillrow"><span data-glow class="bm-pill">{ar ? 'مدفوع · جمهور · أنظمة · أتمتة ← واحد' : 'paid · audience · systems · automation → one'}</span></div>
+      </div>
+    </div>
+  </section>
+
+  <Contact lang={lang} />
 </BaseLayout>
+
+<style is:global>
+  /* Biome keyframes (those not already in tokens.css) */
+  @keyframes aiflow{to{background-position:300% 0}}
+  @keyframes bmAuroraA{0%,100%{transform:translate3d(0,0,0) scale(1.05)}50%{transform:translate3d(-3%,2%,0) scale(1.13)}}
+  @keyframes bmAuroraB{0%,100%{transform:translate3d(0,0,0) scale(1.08)}50%{transform:translate3d(4%,-2%,0) scale(1.0)}}
+  @keyframes bmRingSpin{to{transform:rotate(360deg)}}
+  @keyframes bmCometFly{0%{transform:translate(-32%,46%) rotate(-23deg);opacity:0}10%{opacity:1}86%{opacity:1}100%{transform:translate(128%,-34%) rotate(-23deg);opacity:0}}
+  @keyframes bmDriftY{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+
+  /* Biome scene chrome */
+  .bm-tag{position:absolute;top:84px;left:50%;transform:translateX(-50%);z-index:6;font-family:var(--mono,ui-monospace,Menlo,monospace);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-3,#6f74a0);display:flex;gap:10px;align-items:center;white-space:nowrap}
+  .bm-num{color:var(--c,#2997ff);font-weight:600}
+  .bm-sl{opacity:.45}
+  .bm-copy{position:relative;z-index:5;width:100%;max-width:1100px;margin-inline:auto;padding-inline:clamp(20px,5vw,40px)}
+  .bm-h{font-size:clamp(40px,8.5vw,108px);font-weight:850;line-height:1;letter-spacing:-.035em;color:var(--ink,#f3f4ff);opacity:0;transform:translateY(34px);will-change:transform,opacity;filter:drop-shadow(0 0 calc(var(--glow,0)*22px) rgba(var(--text-glow,170,195,255), calc(var(--glow,0)*.72)));transition:filter .18s linear}
+  .bm-pillrow{opacity:0;transform:translateY(34px);will-change:transform,opacity;margin-top:28px}
+  .bm-pill{display:inline-block;font-family:var(--mono,ui-monospace,Menlo,monospace);font-size:clamp(12px,1.5vw,15px);letter-spacing:.04em;color:var(--ink,#f3f4ff);padding:12px 20px;border-radius:999px;background:var(--glass-bg,rgba(255,255,255,.05));border:1px solid var(--glass-brd,rgba(255,255,255,.12));backdrop-filter:saturate(160%) blur(20px);-webkit-backdrop-filter:saturate(160%) blur(20px);box-shadow:0 0 calc(8px + var(--glow,0)*16px) rgba(255,94,138,calc((.08 + var(--glow,0)*.30)*var(--aura-k,1))), 0 0 calc(16px + var(--glow,0)*30px) rgba(162,89,255,calc((.08 + var(--glow,0)*.30)*var(--aura-k,1))), 0 0 calc(26px + var(--glow,0)*48px) rgba(41,151,255,calc((.06 + var(--glow,0)*.26)*var(--aura-k,1)));transition:box-shadow .18s linear}
+
+  /* Selected-work cards */
+  .bm-card{position:relative;flex:0 0 330px;width:330px;height:316px;border-radius:20px;border:1px solid var(--glass-brd,rgba(255,255,255,.12));background:var(--glass-bg,rgba(255,255,255,.05));backdrop-filter:saturate(160%) blur(20px);-webkit-backdrop-filter:saturate(160%) blur(20px);padding:24px;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;text-align:start;text-decoration:none;box-shadow:0 0 calc(8px + var(--glow,0)*16px) rgba(255,94,138,calc((.08 + var(--glow,0)*.30)*var(--aura-k,1))), 0 0 calc(16px + var(--glow,0)*30px) rgba(162,89,255,calc((.08 + var(--glow,0)*.30)*var(--aura-k,1))), 0 0 calc(26px + var(--glow,0)*48px) rgba(41,151,255,calc((.06 + var(--glow,0)*.26)*var(--aura-k,1)));transition:box-shadow .18s linear, transform .4s cubic-bezier(.2,.7,.2,1)}
+  .bm-card:hover{transform:translateY(-4px)}
+  .bm-card__bar{position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(100deg,#ff5e8a,#a259ff,#2997ff,#64d2ff,#a259ff,#ff5e8a);background-size:300% 100%;animation:aiflow 7s linear infinite}
+  .bm-card__n{position:absolute;top:18px;inset-inline-start:22px;font-family:var(--mono,ui-monospace,Menlo,monospace);font-size:12px;color:var(--ink-2,#aab0d6)}
+  .bm-card__t{font-size:22px;font-weight:800;letter-spacing:-.02em;color:var(--ink,#f3f4ff)}
+  .bm-card__s{color:var(--ink-2,#aab0d6);font-size:14px;margin-top:6px}
+  .bm-card__stat{margin-top:14px;font-weight:800;font-size:16px;color:var(--ink,#f3f4ff)}
+
+  /* The biomes own the scroll; the legacy rail/progress aren't needed here. */
+  @media (prefers-reduced-motion:reduce){
+    [data-pin]{height:auto !important}
+  }
+</style>
+
+<script>
+  import { initBiome } from '../../lib/biome';
+  let teardown: (() => void) | undefined;
+  function boot() {
+    teardown?.();
+    teardown = initBiome();
+  }
+  boot();
+  document.addEventListener('astro:page-load', boot);
+</script>

@@ -2,9 +2,11 @@
 // Root entry. Statically rendered, then redirects to /en or /ar based on the
 // visitor's saved choice or browser language. Crawlers/no-JS get the noscript
 // meta-refresh + hreflang (English default).
-const site = Astro.site ?? new URL('https://mohamed-mahmoud-kuwait.netlify.app');
-const enUrl = new URL('/en', site).href;
-const arUrl = new URL('/ar', site).href;
+// Base-aware: under a GitHub Pages project site everything lives at
+// `/flagship-portfolio/…`, so links + the JS redirect are built on BASE_URL.
+const base = import.meta.env.BASE_URL.replace(/\/$/, ''); // "" at root, "/flagship-portfolio" on Pages
+const enUrl = new URL(`${base}/en`, Astro.site).href;
+const arUrl = new URL(`${base}/ar`, Astro.site).href;
 ---
 
 <!doctype html>
@@ -18,7 +20,7 @@ const arUrl = new URL('/ar', site).href;
     <link rel="alternate" hreflang="ar" href={arUrl} />
     <link rel="alternate" hreflang="x-default" href={enUrl} />
     <meta name="robots" content="noindex, follow" />
-    <script is:inline>
+    <script is:inline define:vars={{ base }}>
       (() => {
         try {
           const saved = localStorage.getItem('mm-lang');
@@ -28,18 +30,18 @@ const arUrl = new URL('/ar', site).href;
               : (navigator.language || 'en').toLowerCase().startsWith('ar')
                 ? 'ar'
                 : 'en';
-          location.replace('/' + lang);
+          location.replace(base + '/' + lang);
         } catch (e) {
-          location.replace('/en');
+          location.replace(base + '/en');
         }
       })();
     </script>
-    <noscript><meta http-equiv="refresh" content="0; url=/en" /></noscript>
+    <noscript><meta http-equiv="refresh" content={`0; url=${base}/en`} /></noscript>
   </head>
   <body style="background:#000;color:#f5f5f7;font-family:system-ui">
     <p style="padding:2rem">
-      Redirecting… <a style="color:#2997ff" href="/en">English</a> ·
-      <a style="color:#2997ff" href="/ar">العربية</a>
+      Redirecting… <a style="color:#2997ff" href={`${base}/en`}>English</a> ·
+      <a style="color:#2997ff" href={`${base}/ar`}>العربية</a>
     </p>
   </body>
 </html>

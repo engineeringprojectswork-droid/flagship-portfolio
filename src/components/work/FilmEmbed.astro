@@ -34,7 +34,7 @@ const { lang, film, title } = Astro.props;
       <div class="cd-film">
         <iframe
           class="cd-frame"
-          src={`/films/${film}`}
+          src={`${import.meta.env.BASE_URL.replace(/\/$/, '')}/films/${film}`}
           title={pick(lang, title)}
           loading="lazy"
           allow="autoplay"></iframe>

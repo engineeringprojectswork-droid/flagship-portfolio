@@ -3,15 +3,18 @@ import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
 // Production URL — drives sitemap, canonical, hreflang, OG. This MUST be the
-// public, crawlable origin. The Vercel host (mohamed-mahmoud-kw.vercel.app) is
-// behind Vercel Deployment Protection (a login wall), so pointing canonical/OG
-// there makes every public page declare an uncrawlable canonical and breaks
-// link previews. Netlify is the truly-public host → it is the SEO canonical.
-const SITE = 'https://mohamed-mahmoud-kuwait.netlify.app';
+// public, crawlable origin. The site ships on GitHub Pages as a *project site*,
+// so it is served from the `/flagship-portfolio/` subpath. `base` is prepended
+// to every asset URL and to every internal-link helper, keeping the build
+// self-contained under that subpath. (Netlify, a root host, was the earlier
+// target, but its API is unreachable from this build environment.)
+const SITE = 'https://engineeringprojectswork-droid.github.io';
+const BASE = '/flagship-portfolio';
 
 // https://astro.build/config
 export default defineConfig({
   site: SITE,
+  base: BASE,
   trailingSlash: 'never',
   // Real, indexable routes per language. `/` does a client redirect to the
   // saved/preferred locale. Both /en and /ar are explicit, prerendered routes.
