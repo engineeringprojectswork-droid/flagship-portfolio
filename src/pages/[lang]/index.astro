@@ -20,9 +20,13 @@ const ar = lang === 'ar';
 const cards = projects.map((p, i) => ({
   slug: p.slug,
   n: String(i + 1).padStart(2, '0'),
+  tag: pick(lang, p.tag),
   title: pick(lang, p.title),
   sub: pick(lang, p.blurb),
   stat: pick(lang, p.stat),
+  note: pick(lang, p.statNote),
+  ca: p.cardA,
+  cb: p.cardB,
 }));
 
 // Biome 04 ("I shape the brand") — 16 dots that start scattered (--sx/--sy) and
@@ -152,14 +156,21 @@ const brandDots = Array.from({ length: 16 }, (_, i) => {
         <h2 data-glow style="font-size:clamp(30px,6vw,64px);font-weight:900;letter-spacing:-.035em;color:var(--ink,#f3f4ff);margin:0;filter:drop-shadow(0 0 calc(var(--glow,0)*20px) rgba(var(--text-glow,170,195,255), calc(var(--glow,0)*.7)));transition:filter .18s linear">{ar ? 'أعمال مختارة.' : 'Selected work.'}</h2>
         <span style="font-family:var(--mono,ui-monospace,Menlo,monospace);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2,#aab0d6);display:flex;gap:8px;align-items:center"><span style="width:8px;height:8px;border-radius:50%;background:#30d158;box-shadow:0 0 10px #30d158"></span>{ar ? 'مباشر' : 'Live'}<span class="strip-hint">{ar ? ' · مرّر للتصفّح ←' : ' · scroll to scrub →'}</span></span>
       </div>
-      <div data-track style="display:flex;gap:20px;width:max-content;padding-inline:clamp(20px,5vw,40px);will-change:transform">
+      <div data-track style="display:flex;gap:22px;width:max-content;padding-inline:clamp(20px,5vw,40px);will-change:transform">
         {cards.map((c) => (
-          <a href={workPath(lang, c.slug)} data-glow class="bm-card">
-            <div class="bm-card__bar"></div>
-            <div class="bm-card__n">{c.n}</div>
-            <h3 class="bm-card__t">{c.title}</h3>
-            <p class="bm-card__s">{c.sub}</p>
-            <div class="bm-card__stat">{c.stat}</div>
+          <a href={workPath(lang, c.slug)} data-glow class="wcard" style={`--ca:${c.ca};--cb:${c.cb}`}>
+            <span class="wcard__wash" aria-hidden="true"></span>
+            <span class="wcard__num" aria-hidden="true">{c.n}</span>
+            <span class="wcard__bar" aria-hidden="true"></span>
+            <span class="wcard__tag">{c.tag}</span>
+            <div class="wcard__main">
+              <h3 class="wcard__t">{c.title}</h3>
+              <p class="wcard__s">{c.sub}</p>
+            </div>
+            <div class="wcard__foot">
+              <span class="wcard__stat">{c.stat}<small>{c.note}</small></span>
+              <span class="wcard__go">{ar ? 'القصة' : 'Story'}<i>→</i></span>
+            </div>
           </a>
         ))}
       </div>
@@ -283,14 +294,51 @@ const brandDots = Array.from({ length: 16 }, (_, i) => {
   /* Arabic pills: render larger so the captions under the big headings stay clear. */
   [dir="rtl"] .bm-pill{font-size:clamp(15px,2vw,18px);padding:13px 22px}
 
-  /* Selected-work cards */
-  .bm-card{position:relative;flex:0 0 330px;width:330px;height:316px;border-radius:20px;border:1px solid var(--glass-brd,rgba(255,255,255,.12));background:var(--glass-bg,rgba(255,255,255,.05));backdrop-filter:saturate(160%) blur(20px);-webkit-backdrop-filter:saturate(160%) blur(20px);padding:24px;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;text-align:start;text-decoration:none;box-shadow:0 0 calc(8px + var(--glow,0)*16px) rgba(255,94,138,calc((.08 + var(--glow,0)*.30)*var(--aura-k,1))), 0 0 calc(16px + var(--glow,0)*30px) rgba(162,89,255,calc((.08 + var(--glow,0)*.30)*var(--aura-k,1))), 0 0 calc(26px + var(--glow,0)*48px) rgba(41,151,255,calc((.06 + var(--glow,0)*.26)*var(--aura-k,1)));transition:box-shadow .18s linear, transform .4s cubic-bezier(.2,.7,.2,1)}
-  .bm-card:hover{transform:translateY(-4px)}
-  .bm-card__bar{position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(100deg,#ff5e8a,#a259ff,#2997ff,#64d2ff,#a259ff,#ff5e8a);background-size:300% 100%;animation:aiflow 7s linear infinite}
-  .bm-card__n{position:absolute;top:18px;inset-inline-start:22px;font-family:var(--mono,ui-monospace,Menlo,monospace);font-size:12px;color:var(--ink-2,#aab0d6)}
-  .bm-card__t{font-size:22px;font-weight:800;letter-spacing:-.02em;color:var(--ink,#f3f4ff)}
-  .bm-card__s{color:var(--ink-2,#aab0d6);font-size:14px;margin-top:6px}
-  .bm-card__stat{margin-top:14px;font-weight:800;font-size:16px;color:var(--ink,#f3f4ff)}
+  /* ---- Selected-work cinematic poster cards (per-project accent) ----
+     Each card is a tall poster keyed to its story's accent (--ca/--cb): a soft
+     accent bloom from the top, a huge ghosted index numeral, the title, and the
+     hero stat in accent. Scrubs horizontally (desktop) / swipes (mobile). ---- */
+  .wcard{--ca:#2997ff;--cb:#64d2ff;position:relative;flex:0 0 332px;width:332px;height:440px;
+    border-radius:24px;overflow:hidden;text-align:start;text-decoration:none;isolation:isolate;
+    display:flex;flex-direction:column;padding:26px;
+    border:1px solid color-mix(in srgb,var(--ca) 30%,var(--glass-brd,rgba(255,255,255,.12)));
+    background:linear-gradient(180deg,color-mix(in srgb,var(--ca) 7%,#0c0c14),#0a0a10 62%);
+    box-shadow:0 18px 50px -30px #000, 0 0 calc(var(--glow,0)*34px) color-mix(in srgb,var(--ca) 60%,transparent);
+    transition:transform .45s var(--ease,cubic-bezier(.2,.7,.2,1)),box-shadow .35s,border-color .35s}
+  .wcard:hover{transform:translateY(-8px);border-color:color-mix(in srgb,var(--ca) 60%,transparent);
+    box-shadow:0 30px 70px -28px color-mix(in srgb,var(--ca) 55%,#000)}
+  /* accent bloom wash from the top corner */
+  .wcard__wash{position:absolute;inset:0;z-index:-1;pointer-events:none;
+    background:radial-gradient(120% 70% at 84% -8%,color-mix(in srgb,var(--ca) 40%,transparent),transparent 60%),
+      radial-gradient(90% 60% at 6% 108%,color-mix(in srgb,var(--cb) 22%,transparent),transparent 58%)}
+  /* huge ghosted numeral (parallax-feel: drifts up on hover) */
+  .wcard__num{position:absolute;top:-22px;inset-inline-end:6px;z-index:0;pointer-events:none;
+    font-family:var(--mono,ui-monospace,Menlo,monospace);font-weight:800;font-size:150px;line-height:1;
+    letter-spacing:-.06em;color:color-mix(in srgb,var(--ca) 16%,transparent);
+    transition:transform .5s var(--ease,ease),color .35s}
+  .wcard:hover .wcard__num{transform:translateY(-8px);color:color-mix(in srgb,var(--ca) 26%,transparent)}
+  .wcard__bar{position:absolute;top:0;left:0;right:0;height:4px;z-index:2;
+    background:linear-gradient(90deg,var(--ca),var(--cb));opacity:.9}
+  .wcard__tag{position:relative;z-index:1;font-family:var(--mono,ui-monospace,Menlo,monospace);font-size:11px;
+    font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+    color:color-mix(in srgb,var(--ca) 70%,var(--ink,#f3f4ff))}
+  .wcard__main{position:relative;z-index:1;margin-top:auto;display:flex;flex-direction:column;gap:8px}
+  .wcard__t{font-size:27px;font-weight:800;letter-spacing:-.025em;line-height:1.04;color:var(--ink,#f3f4ff)}
+  .wcard__s{color:var(--ink-2,#aab0d6);font-size:14.5px;line-height:1.45;max-width:30ch}
+  .wcard__foot{position:relative;z-index:1;margin-top:20px;padding-top:16px;
+    border-top:1px solid color-mix(in srgb,var(--ca) 20%,rgba(255,255,255,.08));
+    display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+  .wcard__stat{display:flex;flex-direction:column;font-weight:800;font-size:30px;letter-spacing:-.03em;line-height:1;
+    color:transparent;background:linear-gradient(100deg,var(--ca),var(--cb));-webkit-background-clip:text;background-clip:text}
+  .wcard__stat small{margin-top:7px;font-weight:500;font-size:11px;letter-spacing:.02em;
+    color:var(--ink-2,#aab0d6);-webkit-text-fill-color:var(--ink-2,#aab0d6)}
+  .wcard__go{flex:0 0 auto;display:inline-flex;align-items:center;gap:7px;font-family:var(--mono,ui-monospace,Menlo,monospace);
+    font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+    color:color-mix(in srgb,var(--ca) 72%,var(--ink,#f3f4ff))}
+  .wcard__go i{font-style:normal;transition:transform .3s var(--ease,ease)}
+  .wcard:hover .wcard__go i{transform:translateX(5px)}
+  [dir="rtl"] .wcard__go i{transform:scaleX(-1)}
+  [dir="rtl"] .wcard:hover .wcard__go i{transform:scaleX(-1) translateX(5px)}
 
   /* =====================================================================
      MEANINGFUL BIOME SCENES — each line's background reads as the work it
@@ -453,14 +501,14 @@ const brandDots = Array.from({ length: 16 }, (_, i) => {
       gap:14px !important;scrollbar-width:none;
     }
     #work [data-track]::-webkit-scrollbar{display:none}
-    #work .bm-card{
+    #work .wcard{
       flex:0 0 82vw !important;width:82vw !important;
-      height:auto !important;min-height:168px !important;
+      height:auto !important;min-height:380px !important;
       scroll-snap-align:start;
     }
     /* cards are immediately visible — no stagger animation in swipe mode */
-    html.js #work .bm-card{opacity:1 !important;transform:none !important;transition:none !important}
-    html.js #work .bm-card.in{opacity:1 !important;transform:none !important}
+    html.js #work .wcard{opacity:1 !important;transform:none !important;transition:none !important}
+    html.js #work .wcard.in{opacity:1 !important;transform:none !important}
     /* hide the "scroll to scrub →" desktop hint; the swipe UX is self-evident */
     .strip-hint{display:none}
   }
@@ -472,7 +520,7 @@ const brandDots = Array.from({ length: 16 }, (_, i) => {
   // Mobile: cards are in a native swipe strip — immediately visible, no stagger.
   function revealWorkCards() {
     if (window.innerWidth > 820) return;
-    document.querySelectorAll<HTMLElement>('#work .bm-card').forEach((c) => c.classList.add('in'));
+    document.querySelectorAll<HTMLElement>('#work .wcard').forEach((c) => c.classList.add('in'));
   }
   function boot() {
     teardown?.();
