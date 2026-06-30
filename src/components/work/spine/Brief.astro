@@ -20,12 +20,12 @@ const { lang, kicker, heading, body, ghostWord } = Astro.props;
     <div class="brief__grid">
       <div class="brief__col reveal">
         <span class="kicker">{pick(lang, kicker)}</span>
-        <h2>{pick(lang, heading)}</h2>
-        <p set:html={pick(lang, body)}></p>
+        <h2 data-read>{pick(lang, heading)}</h2>
+        <p data-read set:html={pick(lang, body)}></p>
         <slot name="aside" />
       </div>
       <div class="brief__col reveal d2">
-        <div class="brief__art" data-px="0.04"><slot /></div>
+        <div class="brief__art" data-px="0.05"><slot /></div>
       </div>
     </div>
   </div>

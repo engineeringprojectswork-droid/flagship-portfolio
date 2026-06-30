@@ -208,6 +208,90 @@ function initGlow() {
   updateGlow();
 }
 
+/* ---- Read-along: scroll-driven word highlight ----
+   Any [data-read] block has its text split into per-word spans (once). As the
+   block scrolls up through a "reading line", words light from muted → ink and
+   the word currently on the line tints to the page accent and lifts/zooms — a
+   karaoke read-through tied to scroll. HTML inside (e.g. <b>) is preserved; the
+   split walks text nodes only. RTL-safe (words are space-separated either way).
+   No-JS / pre-init state = fully readable (dimming only applies once .is-reading
+   is set). Runs on every width — it IS the parallax motion for the briefs. */
+function splitReadWords(el: HTMLElement): void {
+  if (el.dataset.readReady === '1') return;
+  const walk = (node: Node): void => {
+    const kids = Array.from(node.childNodes);
+    for (const k of kids) {
+      if (k.nodeType === Node.TEXT_NODE) {
+        const text = k.textContent || '';
+        if (!text.trim()) continue;
+        const frag = document.createDocumentFragment();
+        for (const part of text.split(/(\s+)/)) {
+          if (part === '') continue;
+          if (/^\s+$/.test(part)) {
+            frag.appendChild(document.createTextNode(part));
+          } else {
+            const span = document.createElement('span');
+            span.className = 'rw';
+            span.textContent = part;
+            frag.appendChild(span);
+          }
+        }
+        node.replaceChild(frag, k);
+      } else if (k.nodeType === Node.ELEMENT_NODE && (k as HTMLElement).childNodes.length) {
+        walk(k);
+      }
+    }
+  };
+  walk(el);
+  el.dataset.readReady = '1';
+  el.classList.add('is-reading');
+}
+let readEls: { el: HTMLElement; words: HTMLElement[] }[] = [];
+let readBound = false;
+function updateReadAlong(): void {
+  if (!readEls.length) return;
+  const vh = window.innerHeight || document.documentElement.clientHeight || 0;
+  const enter = vh * 0.86; // a word starts reading when it rises to here
+  const line = vh * 0.42; // …and is fully read once it passes this line
+  for (const { el, words } of readEls) {
+    const n = words.length;
+    if (!n) continue;
+    const r = el.getBoundingClientRect();
+    if (r.bottom < 0 || r.top > vh) continue; // offscreen — skip the per-word work
+    const span = enter - line + r.height || 1;
+    const p = (enter - r.top) / span; // 0 (untouched) → 1 (fully read)
+    const litRaw = p * n;
+    for (let i = 0; i < n; i++) {
+      const lit = litRaw - i < 0 ? 0 : litRaw - i > 1 ? 1 : litRaw - i; // 0..1 across this word
+      const act = 1 - Math.abs(lit - 0.5) * 2; // peaks while the word is on the line
+      const w = words[i];
+      w.style.setProperty('--lit', lit.toFixed(3));
+      w.style.setProperty('--act', (act < 0 ? 0 : act).toFixed(3));
+    }
+  }
+}
+function initReadAlong(): void {
+  const els = Array.from(document.querySelectorAll<HTMLElement>('[data-read]'));
+  els.forEach(splitReadWords);
+  readEls = els.map((el) => ({ el, words: Array.from(el.querySelectorAll<HTMLElement>('.rw')) }));
+  if (!readBound) {
+    readBound = true;
+    let ticking = false;
+    const onScroll = (): void => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(() => {
+          ticking = false;
+          updateReadAlong();
+        });
+      }
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+  }
+  updateReadAlong();
+}
+
 /* ---- nav scrolled state + scroll-progress bar ---- */
 let chromeBound = false;
 function initScrollChrome() {
@@ -235,5 +319,6 @@ export function initInteractions(): void {
   initParallax();
   initScrub();
   initGlow();
+  initReadAlong();
   initScrollChrome();
 }

@@ -45,9 +45,16 @@ export function initBiome(): () => void {
 
       const steps = Array.from(pin.querySelectorAll<HTMLElement>('[data-step]'));
       const n = steps.length || 1;
+      // Phones reveal almost immediately + assemble in the first third of the
+      // pin, so entering a 100dvh stage never shows an empty starfield with a
+      // lone tag. Desktop keeps the slower, more cinematic assembly window.
+      const mob = innerWidth <= 820;
+      const base = mob ? 0.015 : 0.10;
+      const spread = mob ? 0.30 : 0.62;
+      const dur = mob ? 0.12 : 0.20;
       for (let i = 0; i < steps.length; i++) {
-        const start = 0.10 + i * (0.62 / n);
-        const a = reduce ? 1 : Math.min(1, Math.max(0, (p - start) / 0.20));
+        const start = base + i * (spread / n);
+        const a = reduce ? 1 : Math.min(1, Math.max(0, (p - start) / dur));
         steps[i].style.opacity = String(a);
         steps[i].style.transform = `translateY(${((1 - a) * 34).toFixed(1)}px)`;
       }

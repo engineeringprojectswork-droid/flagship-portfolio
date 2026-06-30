@@ -217,8 +217,56 @@ h1,h2,h3{line-height:1.05;letter-spacing:-.03em;font-weight:800}
 /* opt-in living sheen for signature gradient headlines */
 .gradient-text.shimmer{background-size:220% 100%;animation:shimmer 9s var(--ease) infinite}
 @keyframes shimmer{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+
+/* ---- Spectrum text — the signature living multi-colour headline ----
+   A continuously flowing brand-spectrum (blue→violet→pink→cyan) clipped to the
+   text. Used for the hero "In one person." and any headline that should sing
+   with colour. On-brand (the resume identity gradient) but unmistakably alive. */
+.spectrum-text{
+  background:linear-gradient(100deg,#2997ff,#a259ff,#ff5e8a,#ffd60a,#30d158,#64d2ff,#2997ff);
+  background-size:300% 100%;
+  -webkit-background-clip:text;background-clip:text;
+  color:transparent;-webkit-text-fill-color:transparent;
+  animation:spectrumFlow 11s linear infinite;
+}
+@keyframes spectrumFlow{0%{background-position:0% 50%}100%{background-position:300% 50%}}
+
+/* Project Hook headlines: the gradient half (e.g. "a dollar.") flows in the
+   page accent so every story's hero number-line animates colour, not just the
+   blue one. Reuses --grad, which body[data-accent] rebinds per project. */
+.hook__title .gradient-text{background-size:230% 100%;animation:shimmer 8s var(--ease) infinite}
+
 /* always-animate (owner's choice): never-match so the motion is never reduced */
-@media (prefers-reduced-motion:reduce) and (prefers-reduced-motion:no-preference){.gradient-text.shimmer{animation:none}}
+@media (prefers-reduced-motion:reduce) and (prefers-reduced-motion:no-preference){
+  .gradient-text.shimmer,.spectrum-text,.hook__title .gradient-text{animation:none}
+}
+
+/* ---- Read-along words (lib/interactions.ts splits [data-read] into .rw) ----
+   Before JS inits the text reads normally (no .is-reading → no dimming, so
+   no-JS + crawlers + pre-scroll all stay fully legible + AA). Once reading,
+   each word interpolates muted→ink by --lit, and the word on the reading line
+   tints to the accent and lifts/zooms by --act. */
+.is-reading .rw{
+  --lit:0;--act:0;
+  display:inline-block;
+  color:color-mix(in srgb, var(--ink) calc(var(--lit)*100%), var(--ink-3));
+  transform:translateY(calc(var(--act)*-3px)) scale(calc(1 + var(--act)*.09));
+  transform-origin:center bottom;
+  transition:color .12s linear, transform .12s var(--ease-std), text-shadow .12s linear;
+  text-shadow:0 0 calc(var(--act)*16px) rgba(var(--text-glow), calc(var(--act)*.55));
+  will-change:transform;
+}
+/* the active word reads in the page accent (accent-ink keeps AA on light) */
+.is-reading .rw[style*="--act"]{
+  color:color-mix(in srgb, var(--accent-ink) calc(var(--act)*88%),
+        color-mix(in srgb, var(--ink) calc(var(--lit)*100%), var(--ink-3)));
+}
+/* keep any bold emphasis inside the brief reading as bold */
+.is-reading b .rw{font-weight:700}
+/* always-animate (owner's choice): never-match so the motion is never reduced */
+@media (prefers-reduced-motion:reduce) and (prefers-reduced-motion:no-preference){
+  .is-reading .rw{transform:none;text-shadow:none;transition:color .1s linear}
+}
 
 /* ---------- Layout ---------- */
 .wrap{width:100%;max-width:var(--maxw);margin-inline:auto;padding-inline:var(--pad)}

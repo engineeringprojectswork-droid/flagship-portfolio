@@ -281,7 +281,15 @@ const cards = projects.map((p, i) => ({
           dynamic viewport — even after the address bar collapses on scroll.
           !important overrides the inline height:100svh on every [data-stage]. */
     [data-stage]{height:100dvh !important}
-    section[data-pin]{height:180vh !important}
+    /* Shorter pins on phones: content now reveals near the top of each stage
+       (biome.ts mobile timing), so 150vh is enough hold to watch the biome
+       drift without long dead scroll between scenes. */
+    section[data-pin]{height:150vh !important}
+
+    /* The biome scene tag sits absolute at top:84px — fine inside a full-height
+       sticky stage, but the #work stage becomes a static block on mobile, so the
+       tag would overlap "Selected work." Pin it back into normal flow there. */
+    #work .bm-tag{position:static !important;transform:none !important;justify-content:flex-start;margin-bottom:4px}
 
     /* 2. Selected-Work strip: native horizontal swipe instead of stacked cards.
           The JS transform is blocked (biome.ts skips track.style.transform when
