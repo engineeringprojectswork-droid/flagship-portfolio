@@ -1,55 +1,67 @@
-# DEPLOY STATUS — Cosmic Keynote
+# DEPLOY STATUS — Cosmic Keynote (audit-fix pass)
 
-**Date:** 2026-06-30 · **Build:** ✅ green (`npm run build`, 22 pages) · **Commit:** `0e467fd`
+**Date:** 2026-06-30 · **Build:** ✅ green (`npm run build`, 22 pages) · **Commit:** `c12f7e2`
 
-## What shipped
-The full **Cosmic Keynote** overhaul (build spec from `flagship-handoff/claude-code-package/`):
-- Global deep-space field — fixed `#space` starfield canvas (`src/lib/space.ts`) + nebula body
-  background, theme-aware (night space / dawn-in-orbit), reduced-motion static, tab-pause, VT-safe.
-- The two-glow signature — scroll-driven `.glow-text` drop-shadow (clean ink, no constant animation)
-  + the Apple-Intelligence `.glow-frame` aura around shapes, both driven by `--glow` written per
-  element in `src/lib/interactions.ts` (viewport-centre proximity).
-- Light **ribbon hero** (dark theme keeps the converging-core canvas); the "hero always dark" hack
-  is retired and scoped to dark theme only.
-- Per-section **biomes** (`src/components/Biome.astro`): nebula / aurora / grid / constellation /
-  warp / comet / globe / singularity — behind the home sections and every `/work` hook,
-  accent-tinted per story.
+## What shipped this pass
+A full read-only audit (code + live site, 7 dimensions) plus a visual scroll-through
+found and fixed the issues behind the "full of issues on scroll" report:
 
-## Verification (Claude Preview, dev)
-✅ Build green · ✅ dark home (cosmic hero) · ✅ light home (ribbon hero) · ✅ theme toggle repaints
-canvases + re-tints stars · ✅ scroll-glow text live (`--glow` ramps; AA at rest) · ✅ shape aura live
-· ✅ `/work/meta-ads` accent biome + spine + glowing number · ✅ mobile (static, no pins) ·
-✅ AR / RTL mirrored · ✅ console clean (no errors/warnings) on home + work.
+**Critical / high (visible breakage)**
+- **SEO canonical** — `astro.config.mjs` `SITE` pointed at the login-walled Vercel host,
+  so every public page declared an **uncrawlable** canonical/OG/hreflang/JSON-LD. Now
+  points at the public **Netlify** origin (matches robots.txt + sitemap). One-line root fix.
+- **Mosaic** (brand-system Proof) — a local `--q:0` on `.mosaic__wall` shadowed the engine
+  scrub var, freezing the tiles **scattered + faded forever** on desktop. Removed it → tiles
+  assemble on scroll again.
+- **BrowserDials** (medmac Proof) — used `var(--q,0)` instead of `,1`, so the Lighthouse dials
+  rendered **empty rings + a fully-tilted frame at rest**. Now show the assembled 96/100/100/100.
+- **Metric sparklines** — `.metric` had no positioning context, so each `.metric__spark`
+  escaped and **stretched across the whole row**. `position:relative;overflow:hidden`.
+- **Biomes over text** — Team/About/Contact content sat *under* its sibling biome
+  (`.section` now `position:relative;z-index:1`).
+- **Light-theme AA** — accent small text (kickers/eyebrows/build numbers) was unreadable on
+  the pale surface. New `--accent-ink` token (darkened on light) + handoff override; hook
+  caption + railnav moved off hardcoded grays.
 
-## Hosts
+**Polish**
+- **AssetSlot redesign** — the empty state is no longer a dashed "screenshot · 16:10"
+  placeholder; it's an intentional accent **glass panel** (gradient + dot-grid + sheen). This
+  lifts the home film strip (9 cards) and every centerpiece "screen". `src=` still drops a real
+  image in with no layout shift.
+- Glow aura collapses **fully** at rest (was a permanent tri-colour halo floor).
+- Orbit AssetSlot rules needed `:global` (were dead, overlapped the hub).
+- Pager prev/next arrows flip in Arabic; Lenis is torn down on mobile/reduced-motion so a
+  desktop→mobile resize no longer leaves smooth-scroll hijacking; hero parallax rAF-batched;
+  `theme-color` light variant; Person JSON-LD localized on `/ar`; 404 `noindex` + valid accent.
+
+Verified in preview: EN/AR + RTL, light/dark, mobile, both fixed centerpieces, console clean.
+
+## Hosts (both live, both serving this build)
 
 | Host | URL | Status |
 |---|---|---|
-| **Netlify** (mirror) | https://mohamed-mahmoud-kuwait.netlify.app | ✅ **LIVE + PUBLIC** — serving the new build (verified `#space`, `hero__ribbons`, `biome`, HTTP 200). |
-| **Vercel** (primary) | https://mohamed-mahmoud-kw.vercel.app | ⚠️ New build deployed to **production** (current deployment, `● Ready`) **but gated by Deployment Protection** — the public sees a "Login – Vercel" wall. The owner sees the site because they're logged into Vercel. |
+| **Netlify** (public canonical) | https://mohamed-mahmoud-kuwait.netlify.app | ✅ **LIVE + PUBLIC** — canonical/OG now self-reference this origin. Verified HTTP 200, `asset-slot__art` present, no placeholder text. |
+| **Vercel** (mirror) | https://mohamed-mahmoud-kw.vercel.app | ✅ Deployed (production, READY) **but still gated by Deployment Protection** — the canonical domain returns a Vercel SSO wall to the public. The deploy's alias **https://flagship-rebuild.vercel.app is public (HTTP 200)** and serves the same build (canonical → Netlify). |
 
-### ⚠️ Action required for Vercel (owner, ~1 click)
-The `mohamed-mahmoud-kw` project has **Vercel Authentication / Deployment Protection** turned on, so
-every URL (production included) requires a Vercel login. This means the "primary/canonical" Vercel
-site is currently invisible to the public **and to search-engine crawlers** — and the canonical/OG
-tags point at this Vercel URL. To make it public:
+**Canonical strategy:** Netlify is now the single public canonical (SITE = Netlify). The Vercel
+mirror serves the same content with a canonical that points back at Netlify, so there's no
+duplicate-content conflict even while Vercel is protected.
 
-> Vercel dashboard → project **mohamed-mahmoud-kw** → **Settings → Deployment Protection** →
-> set **Vercel Authentication** to **Off** (or "Only Preview Deployments") → **Save**.
+### ⚠️ Optional owner action (1 click) — only if you want the Vercel domain public
+Vercel dashboard → project **mohamed-mahmoud-kw** → **Settings → Deployment Protection** →
+**Vercel Authentication → Off** (or "Only Preview Deployments") → Save. Not required: Netlify is
+already the public host and the SEO canonical. (Left untouched — it's an account security toggle.)
 
-Once off, `mohamed-mahmoud-kw.vercel.app` serves the exact same Cosmic Keynote build that's already
-live on Netlify — no redeploy needed. (I did not change this setting myself: it's an account-level
-security toggle, and disabling it also exposes preview deployments.)
+## Deploy commands (run from the long path)
+```
+npm run build
+npx --no-install netlify deploy --prod --dir dist
+npx --no-install vercel deploy --prod --yes
+```
 
-## Still pending (non-blocking — the site is live)
-1. **Real screenshots** for the marked `▦ ASSET SLOT` placeholders. The 8 existing
-   `public/img/work/*` ad creatives fill the Brand & Content slots; the owner still owes 6 private
-   shots (Meta Ads Manager, CRM workbook, Al-Maʿali analytics, SheepFarm app, HR tracker, a Claude
-   Cowork session) + 2 Brand (AI ad concept, restored legacy photo). Drop a `src` on each `AssetSlot`
-   → quick fill + redeploy.
-2. **Lighthouse re-check** on a clean machine (desktop was 100/100/100/100 pre-Cosmic; changes are
-   additive CSS + one cheap starfield rAF + a throttled, dataset-gated glow pass).
-3. **Pin model note:** the owner chose "pin every section." Shipped as the pinned filmstrip + all 9
-   work Build/Proof pins + cinematic statement scenes + biomes everywhere; connective home sections
-   use scrub-reveal-in-flow (left off hard-pin for mobile-Lighthouse safety). The `.pin`/`.pin__stage`
-   scaffold is in `tokens.css` to pin additional sections per-section when desired.
+## Known minor (non-blocking, pre-existing)
+- Netlify 301s `/en` → `/en/` (trailing slash) while the canonical is slash-less; Google
+  follows the 301 so it resolves fine. Not changed: flipping `trailingSlash` would ripple
+  through the custom path utils (workPath/mirrorPath) across 22 routes.
+- Real `AssetSlot` screenshots are still optional — the redesigned glass panels are a finished
+  look, but dropping a `src` on any slot fills it with a real image (no layout shift).

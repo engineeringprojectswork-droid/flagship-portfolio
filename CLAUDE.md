@@ -34,10 +34,13 @@ Both live under: `C:\Users\GAMING\Claude\Projects\MY Resume\`
 > static structure, confirm whether the owner wants it on the **live Astro site** (almost always yes)
 > and translate the change into this Astro project instead.
 
-## 3. Live deployment (DUAL host — Vercel primary, Netlify mirror)
+## 3. Live deployment (DUAL host — Netlify public canonical, Vercel mirror)
 
-- **Primary (canonical):** Vercel — https://mohamed-mahmoud-kw.vercel.app
-- **Mirror:** Netlify — https://mohamed-mahmoud-kuwait.netlify.app
+- **Public canonical:** Netlify — https://mohamed-mahmoud-kuwait.netlify.app
+  (`astro.config.mjs` `SITE` points here as of 2026-06-30 — see §7.7.)
+- **Mirror:** Vercel — https://mohamed-mahmoud-kw.vercel.app (still gated by Vercel
+  Deployment Protection → SSO wall for the public; the deploy alias
+  `flagship-rebuild.vercel.app` is public and serves the same build).
 - **Account:** `engineeringprojectswork@gmail.com`. Both folders are CLI-linked
   (`.vercel/` + `.netlify/` are gitignored). **No git remote — local repo only**,
   so deploy via the CLIs (NOT `git push`).
@@ -47,7 +50,9 @@ Both live under: `C:\Users\GAMING\Claude\Projects\MY Resume\`
   npx --no-install vercel deploy --prod --yes
   npx --no-install netlify deploy --prod --dir dist
   ```
-- `astro.config.mjs` `SITE` = the Vercel URL (drives canonical/sitemap/hreflang/OG).
+- `astro.config.mjs` `SITE` = the **Netlify** URL (drives canonical/sitemap/hreflang/OG).
+  It MUST be the public, crawlable origin — the Vercel host is login-walled, so canonical
+  must not name it. Update this (and the SSR fallbacks) only if the public domain changes.
 - Do **NOT** deploy unless the owner says so — they review locally, then say "deploy".
   (When they do say deploy, it's authorized.)
 
@@ -150,6 +155,18 @@ Commands: `npm run dev` (4321) · `npm run build` → `dist/` · `npm run previe
    utilities + the `.pin`/`.pin__stage` scene scaffold live in `tokens.css`. Built green (22
    pages), verified (EN/AR, light/dark, mobile, RTL, console clean), and **deployed to both hosts**.
    See `DEPLOY-STATUS.md`.
+7. **Audit-fix pass (2026-06-30) — commit `c12f7e2`, deployed to both hosts.** A 7-dimension
+   read-only audit + a visual scroll-through found the real issues behind "full of issues on
+   scroll": (a) **SEO** — `SITE` named the login-walled Vercel host → canonical now Netlify
+   (the public origin); (b) two **broken centerpieces** — Mosaic (brand-system) was frozen
+   scattered by a local `--q:0` shadowing the engine var, and BrowserDials (medmac) rendered
+   empty dials from `var(--q,0)` instead of `,1`; (c) **metric sparklines** escaped their cards
+   (`.metric` needed `position:relative;overflow:hidden`); (d) **biomes** painted over
+   Team/About/Contact text (`.section` z-index); (e) **light-theme AA** for accent small text
+   (new `--accent-ink`). Plus the **AssetSlot** empty state redesigned into an intentional accent
+   glass panel (no more dashed "screenshot" boxes), glow-halo floor zeroed, Orbit `:global` fix,
+   Arabic Pager arrows, Lenis teardown on mobile resize, theme-color light variant, localized
+   Person JSON-LD, 404 noindex. See `DEPLOY-STATUS.md`.
 
 ## 8. ACTIVE / PENDING (current)
 
