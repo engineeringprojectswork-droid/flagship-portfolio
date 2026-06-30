@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Meta Ads — $0.84 / lead</title>
+<style>
+  :root{
+    --bg:#0a0a0c;
+    --ink:#f5f5f7;
+    --muted:#86868b;
+    --accent:#2997ff;
+    --surface:#161619;
+    --line:rgba(255,255,255,.09);
+    --accent-soft:rgba(41,151,255,.15);
+    --font:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Helvetica,Arial,sans-serif;
+    --font-ar:"SF Arabic","Geeza Pro","Segoe UI","Tahoma","Arial",sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;background:#070708;color:var(--ink);font-family:var(--font);
+    display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+  }
+  .stage{width:100%;max-width:1120px}
+
+  .frame{
+    position:relative;width:100%;aspect-ratio:16/9;border-radius:16px;overflow:hidden;
+    background:radial-gradient(120% 100% at 50% -10%,#15151b 0%,#0a0a0c 52%,#08080a 100%);
+    box-shadow:0 40px 90px -24px rgba(0,0,0,.85),inset 0 0 0 1px rgba(255,255,255,.05);
+    container-type:inline-size;
+  }
+  @media (max-width:560px){ .frame{aspect-ratio:4/5} }
+
+  /* ambient accent glow */
+  .glow{
+    position:absolute;width:62%;height:62%;left:19%;top:6%;z-index:0;pointer-events:none;
+    background:radial-gradient(circle,rgba(41,151,255,.20),transparent 70%);
+    filter:blur(44px);opacity:.16;animation:bgDrift 16s ease-in-out infinite alternate;
+  }
+
+  /* top overlays */
+  .eyebrow{
+    position:absolute;top:4.4cqi;left:5cqi;z-index:3;display:flex;align-items:center;gap:1.4cqi;
+    font:700 clamp(9px,1.55cqi,13px)/1 var(--font);letter-spacing:.24em;color:var(--muted);
+  }
+  .eyebrow .ey-dot{width:1.2cqi;height:1.2cqi;min-width:6px;min-height:6px;border-radius:50%;
+    background:var(--accent);box-shadow:0 0 10px var(--accent)}
+  .nav{position:absolute;top:4.4cqi;right:5cqi;z-index:3;display:flex;align-items:center;gap:1.2cqi}
+  .nav i{width:2cqi;height:2cqi;min-width:7px;min-height:7px;border-radius:50%;
+    background:rgba(255,255,255,.18);transition:all .45s cubic-bezier(.16,1,.3,1)}
+  .nav i.on{width:6cqi;min-width:18px;border-radius:10px;background:var(--accent);box-shadow:0 0 10px rgba(41,151,255,.6)}
+
+  /* scenes */
+  .scene{
+    position:absolute;inset:0;z-index:1;display:flex;flex-direction:column;
+    padding:8.6cqi 5cqi 4.2cqi;opacity:0;transition:opacity .7s ease;
+  }
+  .scene.active{opacity:1}
+  .art{flex:1 1 auto;min-height:0;display:flex;align-items:center;justify-content:center}
+  .svg{width:100%;height:100%;overflow:visible}
+  .cap{flex:0 0 auto;text-align:center;padding-top:2cqi}
+  .cap .en{font:600 clamp(15px,4.4cqi,40px)/1.08 var(--font);letter-spacing:-.022em;color:var(--ink)}
+  .cap .ar{margin-top:.55em;font:500 clamp(12px,2.95cqi,26px)/1.25 var(--font-ar);color:var(--muted)}
+  .hl{color:var(--accent)}
+  .scene.active .cap{animation:capIn .7s cubic-bezier(.16,1,.3,1) .18s both}
+
+  /* svg text */
+  .count{fill:#fff;font:700 30px var(--font);letter-spacing:-1px;text-anchor:middle;font-variant-numeric:tabular-nums}
+  .flabel{fill:var(--ink);font:600 14px var(--font)}
+  .flabel-ar{fill:var(--muted);font:500 13px var(--font-ar)}
+  .leader{stroke:rgba(255,255,255,.22);stroke-width:1.4;stroke-dasharray:2 3.5}
+  .nlabel{fill:var(--muted);font:600 13px var(--font);text-anchor:middle;letter-spacing:.4px}
+  .micro-cta{fill:#06080d;font:700 11px var(--font);text-anchor:middle}
+  .micro-pill{fill:#06080d;font:700 12px var(--font);text-anchor:middle}
+
+  /* transform helpers for svg motion */
+  .pop-svg{transform-box:fill-box;transform-origin:center}
+  .stage{transform-box:fill-box;transform-origin:50% 0}
+  .s1-glow{filter:blur(34px);opacity:.16}
+
+  /* ====== SCENE 1 ====== */
+  .scene-1.active .s1-form{animation:s1form 6s cubic-bezier(.16,1,.3,1) both}
+  .scene-1.active .s1-strike{animation:drawLine .9s ease 2.4s both}
+  .scene-1.active .s1-glow{animation:glowPulse 4.5s ease-in-out 1.2s infinite}
+  .scene-1.active .s1-phone{animation:popIn .8s cubic-bezier(.2,.9,.3,1.2) 1.2s both}
+  .scene-1.active .s1-phone-f{animation:floaty 5s ease-in-out 2.1s infinite}
+  .scene-1.active .s1-inbound{animation:fadeUp .6s ease 1.7s both}
+  .scene-1.active .s1-bubble{animation:popIn .6s cubic-bezier(.2,.9,.3,1.3) 2.25s both}
+  .scene-1.active .s1-check{animation:popIn .5s cubic-bezier(.2,.9,.3,1.5) 2.75s both}
+
+  /* ====== SCENE 2 ====== */
+  .d1,.d2{opacity:0}
+  .scene-2.active .n-a{animation:popIn .6s cubic-bezier(.2,.9,.3,1.2) .1s both}
+  .scene-2.active .l1{animation:drawLine .6s ease .6s both}
+  .scene-2.active .d1{animation:travel1 1s ease .9s both}
+  .scene-2.active .n-b{animation:popIn .6s cubic-bezier(.2,.9,.3,1.2) 1.3s both}
+  .scene-2.active .n-b-f{animation:floaty 4.5s ease-in-out 1.9s infinite}
+  .scene-2.active .l2{animation:drawLine .6s ease 1.9s both}
+  .scene-2.active .d2{animation:travel2 1s ease 2.2s both}
+  .scene-2.active .n-c{animation:popIn .6s cubic-bezier(.2,.9,.3,1.2) 2.6s both}
+  .scene-2.active .pill{animation:popIn .55s cubic-bezier(.2,.9,.3,1.25) 3.05s both}
+
+  /* ====== SCENE 3 ====== */
+  .stage3{filter:drop-shadow(0 0 9px rgba(41,151,255,.5))}
+  .scene-3.active .stage1{animation:pour .7s cubic-bezier(.2,.8,.2,1) .15s both}
+  .scene-3.active .stage2{animation:pour .7s cubic-bezier(.2,.8,.2,1) .5s both}
+  .scene-3.active .stage3{animation:pour .7s cubic-bezier(.2,.8,.2,1) .85s both}
+  .scene-3.active .c1{animation:fadeIn .5s ease .4s both}
+  .scene-3.active .c2{animation:fadeIn .5s ease .76s both}
+  .scene-3.active .c3{animation:fadeIn .5s ease 1.12s both}
+  .scene-3.active .leader,.scene-3.active .flabel,.scene-3.active .flabel-ar{animation:fadeIn .6s ease 1.35s both}
+
+  /* ====== SCENE 4 ====== */
+  .s4{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2cqi;height:100%}
+  .s4-hero{font:800 20cqi/.9 var(--font);letter-spacing:-.045em;color:#fff}
+  .s4-hero .dollar{color:var(--accent);font-size:.58em;vertical-align:.2em;margin-right:.04em}
+  .s4-uline{width:26cqi;height:.7cqi;min-height:4px;border-radius:1cqi;background:var(--accent);box-shadow:0 0 16px rgba(41,151,255,.6)}
+  .s4-sub{font:500 3.1cqi var(--font);color:var(--muted)}
+  .s4-chip{display:inline-flex;gap:.5em;align-items:center;white-space:nowrap;font:600 3cqi var(--font);color:var(--ink);
+    background:var(--accent-soft);border:1px solid rgba(41,151,255,.4);padding:1.3cqi 3.4cqi;border-radius:100px}
+  .s4-chip b{color:var(--accent)}
+  .scene-4.active .s4-hero{animation:dropIn .9s cubic-bezier(.2,.9,.25,1.15) .1s both}
+  .scene-4.active .s4-uline{animation:uline .6s ease .72s both}
+  .scene-4.active .s4-chip{animation:popIn .6s cubic-bezier(.2,.9,.25,1.2) .9s both}
+
+  /* keyframes */
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+  @keyframes capIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  @keyframes popIn{0%{opacity:0;transform:scale(.82)}60%{opacity:1;transform:scale(1.05)}100%{opacity:1;transform:scale(1)}}
+  @keyframes drawLine{from{stroke-dashoffset:var(--len)}to{stroke-dashoffset:0}}
+  @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+  @keyframes glowPulse{0%,100%{opacity:.12}50%{opacity:.24}}
+  @keyframes pour{from{opacity:.25;transform:scaleY(0)}to{opacity:1;transform:scaleY(1)}}
+  @keyframes travel1{0%{transform:translateX(0);opacity:0}15%{opacity:1}85%{opacity:1}100%{transform:translateX(108px);opacity:0}}
+  @keyframes travel2{0%{transform:translateX(0);opacity:0}15%{opacity:1}85%{opacity:1}100%{transform:translateX(112px);opacity:0}}
+  @keyframes dropIn{0%{opacity:0;transform:translateY(-7cqi) scale(.8)}70%{opacity:1;transform:translateY(0) scale(1.05)}100%{transform:translateY(0) scale(1)}}
+  @keyframes uline{from{width:0}to{width:26cqi}}
+  @keyframes bgDrift{from{transform:translate(-8%,-4%)}to{transform:translate(10%,6%)}}
+
+  /* ====== REDUCED MOTION: static panels ====== */
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important}
+    body{align-items:flex-start}
+    .frame{aspect-ratio:auto}
+    .scene{position:relative;inset:auto;opacity:1;padding:9cqi 6cqi 5.5cqi}
+    .scene+.scene{border-top:1px solid var(--line)}
+    .art{height:46cqi}
+    .nav,.glow{display:none}
+    .d1,.d2{opacity:1}
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="frame" role="img" aria-label="Animated explainer: Kuwaiti B2B buyers prefer WhatsApp over web forms. Meta click-to-WhatsApp ads turned 172.78 dollars of spend and 85,132 impressions into 206 WhatsApp leads at 0.84 dollars per lead, with the best campaign at 0.50 dollars per lead.">
+    <div class="glow"></div>
+    <div class="eyebrow"><span class="ey-dot"></span>META ADS · CASE 01</div>
+    <div class="nav"><i></i><i></i><i></i><i></i></div>
+
+    <!-- ============ SCENE 1 ============ -->
+    <section class="scene scene-1 active">
+      <div class="art">
+        <svg class="svg" viewBox="0 0 680 360" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+          <!-- web form (ignored) -->
+          <g class="s1-form">
+            <rect x="92" y="70" width="208" height="220" rx="18" fill="var(--surface)" stroke="var(--line)"/>
+            <rect x="120" y="98" width="118" height="14" rx="7" fill="rgba(255,255,255,.16)"/>
+            <rect x="120" y="128" width="152" height="30" rx="9" fill="rgba(255,255,255,.03)" stroke="var(--line)"/>
+            <rect x="120" y="166" width="152" height="30" rx="9" fill="rgba(255,255,255,.03)" stroke="var(--line)"/>
+            <rect x="120" y="204" width="152" height="30" rx="9" fill="rgba(255,255,255,.03)" stroke="var(--line)"/>
+            <rect x="120" y="244" width="118" height="30" rx="9" fill="rgba(255,255,255,.10)"/>
+            <line class="s1-strike" x1="104" y1="84" x2="290" y2="280" stroke="rgba(255,255,255,.5)" stroke-width="3" stroke-linecap="round" style="--len:270;stroke-dasharray:270;stroke-dashoffset:0"/>
+          </g>
+          <!-- phone / chat (chosen) -->
+          <g class="s1-phone pop-svg">
+            <g class="s1-phone-f">
+              <ellipse class="s1-glow" cx="492" cy="182" rx="118" ry="118" fill="var(--accent)"/>
+              <rect x="392" y="50" width="200" height="260" rx="30" fill="#0c0c11" stroke="var(--accent)" stroke-opacity=".5"/>
+              <rect x="468" y="60" width="48" height="6" rx="3" fill="rgba(255,255,255,.18)"/>
+              <g class="s1-inbound">
+                <rect x="412" y="118" width="118" height="42" rx="14" fill="rgba(255,255,255,.07)"/>
+                <rect x="426" y="132" width="64" height="6" rx="3" fill="rgba(255,255,255,.28)"/>
+                <rect x="426" y="144" width="44" height="6" rx="3" fill="rgba(255,255,255,.16)"/>
+              </g>
+              <g class="s1-bubble pop-svg">
+                <rect x="452" y="186" width="120" height="48" rx="14" fill="var(--accent)"/>
+                <rect x="467" y="201" width="80" height="6" rx="3" fill="#fff" opacity=".95"/>
+                <rect x="467" y="215" width="54" height="6" rx="3" fill="#fff" opacity=".75"/>
+              </g>
+              <g class="s1-check pop-svg">
+                <circle cx="566" cy="174" r="16" fill="#fff"/>
+                <path d="M558 174 l5 6 l11 -13" fill="none" stroke="var(--accent)" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </g>
+            </g>
+          </g>
+        </svg>
+      </div>
+      <div class="cap">
+        <div class="en">Buyers here don't fill forms. They open <span class="hl">WhatsApp</span>.</div>
+        <div class="ar" dir="rtl" lang="ar">المشترون هنا لا يملؤون النماذج، بل يفتحون <span class="hl">واتساب</span>.</div>
+      </div>
+    </section>
+
+    <!-- ============ SCENE 2 ============ -->
+    <section class="scene scene-2">
+      <div class="art">
+        <svg class="svg" viewBox="0 0 680 360" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+          <!-- connectors -->
+          <line class="l1" x1="186" y1="180" x2="300" y2="180" stroke="var(--accent)" stroke-opacity=".5" stroke-width="2.5" stroke-linecap="round" style="--len:114;stroke-dasharray:114;stroke-dashoffset:0"/>
+          <line class="l2" x1="380" y1="180" x2="494" y2="180" stroke="var(--accent)" stroke-opacity=".5" stroke-width="2.5" stroke-linecap="round" style="--len:114;stroke-dasharray:114;stroke-dashoffset:0"/>
+          <circle class="d1" cx="186" cy="180" r="5.5" fill="#fff"/>
+          <circle class="d2" cx="380" cy="180" r="5.5" fill="#fff"/>
+          <!-- Node A: Meta ad -->
+          <g class="n-a pop-svg">
+            <rect x="70" y="106" width="116" height="150" rx="16" fill="var(--surface)" stroke="var(--line)"/>
+            <rect x="84" y="120" width="88" height="50" rx="9" fill="var(--accent-soft)"/>
+            <path d="M120 134 l16 9 l-16 9 z" fill="var(--accent)" opacity=".85"/>
+            <rect x="84" y="182" width="88" height="7" rx="3.5" fill="rgba(255,255,255,.22)"/>
+            <rect x="84" y="196" width="62" height="7" rx="3.5" fill="rgba(255,255,255,.12)"/>
+            <rect x="84" y="224" width="58" height="20" rx="10" fill="var(--accent)"/>
+            <text class="micro-cta" x="113" y="238">Chat</text>
+          </g>
+          <!-- Node B: WhatsApp chat -->
+          <g class="n-b pop-svg">
+            <circle cx="340" cy="180" r="46" fill="var(--surface)" stroke="var(--accent)" stroke-opacity=".5"/>
+            <g class="n-b-f">
+              <path d="M320 166 h40 a9 9 0 0 1 9 9 v12 a9 9 0 0 1 -9 9 h-26 l-13 11 v-11 h-1 a9 9 0 0 1 -9 -9 v-12 a9 9 0 0 1 9 -9 z" fill="var(--accent)"/>
+            </g>
+          </g>
+          <!-- Node C: CRM card -->
+          <g class="n-c pop-svg">
+            <rect x="494" y="98" width="120" height="164" rx="16" fill="var(--surface)" stroke="var(--line)"/>
+            <circle cx="524" cy="130" r="14" fill="var(--accent-soft)" stroke="var(--accent)" stroke-opacity=".5"/>
+            <rect x="546" y="122" width="54" height="8" rx="4" fill="rgba(255,255,255,.28)"/>
+            <rect x="546" y="136" width="38" height="7" rx="3.5" fill="rgba(255,255,255,.14)"/>
+            <rect x="510" y="166" width="88" height="8" rx="4" fill="rgba(255,255,255,.10)"/>
+            <rect x="510" y="184" width="70" height="8" rx="4" fill="rgba(255,255,255,.10)"/>
+            <g class="pill pop-svg">
+              <rect x="510" y="214" width="92" height="26" rx="13" fill="var(--accent)"/>
+              <text class="micro-pill" x="556" y="231">New lead</text>
+            </g>
+          </g>
+          <!-- node labels -->
+          <text class="nlabel" x="128" y="284">Meta ad</text>
+          <text class="nlabel" x="340" y="284">WhatsApp</text>
+          <text class="nlabel" x="554" y="284">CRM</text>
+        </svg>
+      </div>
+      <div class="cap">
+        <div class="en">Click-to-WhatsApp ads on <span class="hl">Meta</span>.</div>
+        <div class="ar" dir="rtl" lang="ar">إعلانات النقر للمحادثة على واتساب عبر <span class="hl">ميتا</span>.</div>
+      </div>
+    </section>
+
+    <!-- ============ SCENE 3 ============ -->
+    <section class="scene scene-3">
+      <div class="art">
+        <svg class="svg" viewBox="0 0 680 360" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+          <defs>
+            <linearGradient id="fg" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#2997ff" stop-opacity=".92"/>
+              <stop offset="1" stop-color="#2997ff" stop-opacity=".5"/>
+            </linearGradient>
+          </defs>
+          <!-- funnel stages -->
+          <path class="stage stage1" d="M70 64 L430 64 L390 146 L110 146 Z" fill="url(#fg)" stroke="var(--accent)" stroke-opacity=".55"/>
+          <path class="stage stage2" d="M110 154 L390 154 L350 236 L150 236 Z" fill="url(#fg)" stroke="var(--accent)" stroke-opacity=".55"/>
+          <path class="stage stage3" d="M150 244 L350 244 L310 326 L190 326 Z" fill="var(--accent)" stroke="var(--accent)" stroke-opacity=".7"/>
+          <!-- numbers -->
+          <text class="count c1" x="250" y="116" data-target="85132">85,132</text>
+          <text class="count c2" x="250" y="206" data-target="40460">40,460</text>
+          <text class="count c3" x="250" y="296" data-target="206">206</text>
+          <!-- leaders + bilingual labels -->
+          <line class="leader" x1="411" y1="105" x2="442" y2="105"/>
+          <text class="flabel" x="450" y="101">Impressions</text>
+          <text class="flabel-ar" x="450" y="120">مرات الظهور</text>
+          <line class="leader" x1="371" y1="195" x2="442" y2="195"/>
+          <text class="flabel" x="450" y="191">Reach</text>
+          <text class="flabel-ar" x="450" y="210">الوصول</text>
+          <line class="leader" x1="331" y1="285" x2="442" y2="285"/>
+          <text class="flabel" x="450" y="281">WhatsApp leads</text>
+          <text class="flabel-ar" x="450" y="300">عملاء واتساب</text>
+        </svg>
+      </div>
+      <div class="cap">
+        <div class="en"><span class="hl">$172.78</span> → <span class="hl">206</span> conversations.</div>
+        <div class="ar" dir="rtl" lang="ar">172.78 دولار ← 206 محادثة.</div>
+      </div>
+    </section>
+
+    <!-- ============ SCENE 4 ============ -->
+    <section class="scene scene-4">
+      <div class="art">
+        <div class="s4">
+          <div class="s4-hero"><span class="dollar">$</span>0.84</div>
+          <div class="s4-uline"></div>
+          <div class="s4-chip">Best campaign · <b>$0.50</b></div>
+        </div>
+      </div>
+      <div class="cap">
+        <div class="en">per lead. Best campaign: <span class="hl">$0.50</span>.</div>
+        <div class="ar" dir="rtl" lang="ar">لكل عميل محتمل · أفضل حملة: 0.50 دولار.</div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<script>
+(function(){
+  var DUR=[6500,7800,8200,6800];
+  var scenes=[].slice.call(document.querySelectorAll('.scene'));
+  var dots=[].slice.call(document.querySelectorAll('.nav i'));
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function fmt(n){return n.toLocaleString('en-US');}
+  function animateCount(el,target,dur){
+    var t0=performance.now();
+    function f(now){
+      var t=Math.min(1,(now-t0)/dur);
+      t=1-Math.pow(1-t,3);
+      el.textContent=fmt(Math.round(target*t));
+      if(t<1){requestAnimationFrame(f);}else{el.textContent=fmt(target);}
+    }
+    requestAnimationFrame(f);
+  }
+  function runFunnel(){
+    var cs=[].slice.call(document.querySelectorAll('.count'));
+    var delays=[400,760,1120];
+    cs.forEach(function(el){el.textContent='0';});
+    cs.forEach(function(el,i){
+      setTimeout(function(){animateCount(el,parseInt(el.dataset.target,10),1100);},delays[i]);
+    });
+  }
+  function show(i){
+    scenes.forEach(function(s,k){s.classList.toggle('active',k===i);});
+    dots.forEach(function(d,k){d.classList.toggle('on',k===i);});
+    if(i===2){runFunnel();}
+  }
+
+  if(reduce){
+    scenes.forEach(function(s){s.classList.add('active');});
+    return;
+  }
+
+  var cur=0;
+  function tick(){
+    show(cur);
+    var d=DUR[cur];
+    cur=(cur+1)%scenes.length;
+    setTimeout(tick,d);
+  }
+  tick();
+})();
+</script>
+</body>
+</html>

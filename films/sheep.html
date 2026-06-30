@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sheep Flock Management — Story</title>
+<style>
+  :root{
+    --bg:#000;
+    --fg:#ffffff;
+    --muted:rgba(255,255,255,.56);
+    --faint:rgba(255,255,255,.08);
+    --line:rgba(255,255,255,.14);
+    --green:#30d158;
+    --green2:#9bf0b4;
+    --grad:linear-gradient(135deg,#30d158,#9bf0b4);
+    --ease:cubic-bezier(.16,1,.3,1);
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:var(--bg);
+    color:var(--fg);
+    font-family:var(--sans);
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    display:grid;
+    place-items:center;
+    padding:max(12px,2.4vmin);
+    overflow:hidden;
+  }
+
+  /* ---------- Frame ---------- */
+  .frame{
+    position:relative;
+    width:min(95vw, calc(88vh * 16 / 9));
+    aspect-ratio:16/9;
+    border-radius:clamp(14px,1.6vmin,24px);
+    overflow:hidden;
+    background:#000;
+    border:1px solid var(--faint);
+    box-shadow:0 40px 120px -40px rgba(0,0,0,.9), inset 0 0 0 1px rgba(255,255,255,.02);
+    container-type:size;
+    isolation:isolate;
+  }
+  @media (max-width:640px){
+    .frame{ width:min(95vw, calc(86vh * 3 / 4)); aspect-ratio:3/4; }
+  }
+
+  .stage{
+    position:absolute; inset:0;
+    overflow:hidden;
+  }
+  /* ambient depth */
+  .stage::before{
+    content:""; position:absolute; inset:0; z-index:0; pointer-events:none;
+    background:
+      radial-gradient(130% 90% at 50% 36%, rgba(255,255,255,.045), transparent 58%),
+      radial-gradient(120% 80% at 50% 120%, rgba(48,209,88,.10), transparent 60%);
+  }
+
+  /* ---------- Chapters ---------- */
+  .chapter{
+    position:absolute; inset:0; z-index:1;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    text-align:center;
+    gap:clamp(14px,3.4cqmin,38px);
+    padding:clamp(26px,7cqmin,80px) clamp(22px,7cqmin,96px);
+    opacity:0; visibility:hidden; pointer-events:none;
+    transition:opacity .5s var(--ease);
+  }
+  .chapter.is-active{ opacity:1; visibility:visible; pointer-events:auto; }
+
+  .eyebrow{
+    font-size:clamp(11px,1.85cqmin,18px);
+    letter-spacing:.26em; text-transform:uppercase;
+    font-weight:600; color:var(--green);
+  }
+  .headline{
+    font-size:clamp(25px,6.3cqmin,66px);
+    font-weight:600; letter-spacing:-.022em; line-height:1.04;
+    max-width:20ch; text-wrap:balance;
+  }
+  .caption{
+    font-size:clamp(13.5px,2.45cqmin,24px);
+    color:var(--muted); font-weight:400; line-height:1.5;
+    max-width:46ch; text-wrap:pretty;
+  }
+  .caption .em{ color:rgba(255,255,255,.82); }
+
+  /* ---------- entrance system (gated on .is-active) ---------- */
+  .an{ opacity:0; }
+  .chapter.is-active .an{
+    animation-duration:.8s;
+    animation-timing-function:var(--ease);
+    animation-fill-mode:both;
+    animation-delay:calc(var(--i,0) * var(--step,.09s));
+  }
+  .chapter.is-active .a-rise { animation-name:riseIn; }
+  .chapter.is-active .a-pop  { animation-name:popIn; }
+  .chapter.is-active .a-slide{ animation-name:slideIn; }
+  .chapter.is-active .a-fade { animation-name:fadeIn; }
+  .chapter.is-active .a-grow { animation-name:growX; }
+  .chapter.is-active .a-neq  { animation-name:popBig; animation-duration:.9s; }
+  .chapter.is-active .a-sold { animation-name:tagSold; animation-duration:2s; }
+  .chapter.is-active .a-ring { animation-name:ringIn; }
+
+  @keyframes riseIn { from{opacity:0;transform:translateY(2.6cqmin)} to{opacity:1;transform:none} }
+  @keyframes popIn  { from{opacity:0;transform:scale(.82)} to{opacity:1;transform:scale(1)} }
+  @keyframes slideIn{ from{opacity:0;transform:translateX(5cqmin)} to{opacity:1;transform:none} }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+  @keyframes growX  { from{opacity:0;transform:scaleX(0)} to{opacity:1;transform:scaleX(1)} }
+  @keyframes popBig { 0%{opacity:0;transform:scale(.35)} 62%{opacity:1;transform:scale(1.14)} 100%{opacity:1;transform:scale(1)} }
+  @keyframes ringIn { from{opacity:0;transform:scale(.72)} to{opacity:1;transform:scale(1)} }
+  @keyframes tagSold{
+    0%{opacity:0;transform:translateY(2.6cqmin)}
+    20%{opacity:1;transform:none}
+    66%{opacity:1}
+    100%{opacity:.38}
+  }
+
+  /* ============ CH1 — ear tags ============ */
+  .ch1-tags{ display:flex; align-items:center; gap:clamp(14px,4cqmin,52px); }
+  .tag{
+    position:relative;
+    width:clamp(84px,16.5cqmin,184px);
+    aspect-ratio:3/4;
+    border-radius:clamp(12px,2.4cqmin,22px);
+    border:1.5px solid var(--line);
+    background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.02));
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:clamp(6px,1.4cqmin,14px);
+  }
+  .tag .stud{
+    position:absolute; top:clamp(8px,1.8cqmin,16px);
+    width:clamp(10px,2cqmin,18px); aspect-ratio:1; border-radius:50%;
+    border:1.5px solid var(--line); background:#0a0a0a;
+  }
+  .tag-num{
+    font-size:clamp(30px,7cqmin,72px); font-weight:600; letter-spacing:-.02em;
+    font-variant-numeric:tabular-nums; margin-top:clamp(8px,1.6cqmin,16px);
+  }
+  .tag-tag{
+    font-size:clamp(9px,1.55cqmin,14px); letter-spacing:.18em; text-transform:uppercase;
+    font-weight:700; padding:.32em .7em; border-radius:999px; border:1px solid var(--line);
+    color:var(--muted);
+  }
+  .tag--new{ border-color:rgba(48,209,88,.55); box-shadow:0 0 36px -6px rgba(48,209,88,.4); }
+  .tag--new .tag-tag--new{ color:var(--green); border-color:rgba(48,209,88,.5); background:rgba(48,209,88,.12); }
+  .neq{
+    font-size:clamp(34px,8.5cqmin,92px); font-weight:700; line-height:1;
+    background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+
+  /* ============ CH2 — identity timeline ============ */
+  .ch2-line{ display:flex; align-items:center; gap:clamp(8px,2cqmin,22px); flex-wrap:wrap; justify-content:center; }
+  .gen-chip{
+    font-family:var(--mono); font-size:clamp(16px,3.1cqmin,34px); font-weight:600;
+    letter-spacing:.02em;
+    padding:clamp(8px,1.7cqmin,18px) clamp(12px,2.6cqmin,28px);
+    border-radius:clamp(10px,1.8cqmin,16px);
+    border:1px solid var(--line); background:rgba(255,255,255,.04);
+  }
+  .gen-chip b{ color:var(--green); font-weight:600; }
+  .gen-conn{
+    width:clamp(28px,5cqmin,72px); height:2px; transform-origin:left center;
+    background:linear-gradient(90deg,rgba(48,209,88,.25),var(--green));
+    border-radius:2px; position:relative;
+  }
+  .gen-conn::after{
+    content:""; position:absolute; right:-1px; top:50%;
+    width:clamp(6px,1.1cqmin,9px); height:clamp(6px,1.1cqmin,9px);
+    border-top:2px solid var(--green); border-right:2px solid var(--green);
+    transform:translateY(-50%) rotate(45deg);
+  }
+
+  /* ============ CH3 — 15 table chips ============ */
+  .ch3-grid{
+    display:flex; flex-wrap:wrap; justify-content:center;
+    gap:clamp(7px,1.5cqmin,14px); max-width:min(92%,860px);
+  }
+  .tbl-chip{
+    display:inline-flex; align-items:center; gap:clamp(5px,1cqmin,9px);
+    font-family:var(--mono); font-size:clamp(11px,1.85cqmin,17px);
+    color:rgba(255,255,255,.78);
+    padding:clamp(6px,1.15cqmin,11px) clamp(9px,1.7cqmin,16px);
+    border-radius:999px; border:1px solid var(--faint); background:rgba(255,255,255,.035);
+  }
+  .tbl-chip::before{
+    content:""; width:clamp(4px,.85cqmin,7px); aspect-ratio:1; border-radius:50%;
+    background:var(--green); flex:none; box-shadow:0 0 8px rgba(48,209,88,.6);
+  }
+
+  /* ============ CH4 — alert cards ============ */
+  .ch4-cards{ display:flex; flex-direction:column; gap:clamp(9px,1.8cqmin,16px); width:min(86%,560px); }
+  .alert{
+    display:flex; align-items:center; gap:clamp(12px,2.4cqmin,20px);
+    padding:clamp(12px,2.4cqmin,22px) clamp(14px,2.8cqmin,26px);
+    border-radius:clamp(12px,1.8cqmin,18px);
+    border:1px solid var(--faint); background:rgba(255,255,255,.05);
+    text-align:left;
+  }
+  .alert-mark{
+    width:clamp(4px,.9cqmin,7px); align-self:stretch; min-height:clamp(28px,5cqmin,46px);
+    border-radius:99px; background:var(--grad); flex:none;
+    box-shadow:0 0 16px -2px rgba(48,209,88,.5);
+  }
+  .alert-body{ flex:1; min-width:0; }
+  .alert-title{ font-size:clamp(15px,2.7cqmin,27px); font-weight:600; letter-spacing:-.01em; }
+  .alert-note{ font-size:clamp(11px,1.7cqmin,15px); color:var(--muted); margin-top:.18em; }
+  .alert-chev{ color:var(--muted); font-size:clamp(18px,3cqmin,30px); flex:none; }
+
+  /* ============ CH5 — 59 / 59 ============ */
+  .ch5-num{
+    display:flex; align-items:baseline; gap:clamp(8px,2cqmin,24px);
+    font-weight:700; letter-spacing:-.03em; line-height:.9;
+    font-variant-numeric:tabular-nums;
+  }
+  .ch5-num .num{
+    font-size:clamp(62px,21cqmin,230px);
+    background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .ch5-num .slash{ font-size:clamp(40px,11cqmin,120px); color:rgba(255,255,255,.22); font-weight:300; }
+  .pass-pill{
+    display:inline-flex; align-items:center; gap:.5em;
+    font-size:clamp(11px,1.8cqmin,16px); font-weight:600; letter-spacing:.04em;
+    color:var(--green); padding:.45em .95em; border-radius:999px;
+    border:1px solid rgba(48,209,88,.4); background:rgba(48,209,88,.1);
+  }
+  .pass-pill .tick{ font-size:1.05em; }
+
+  /* ============ CH6 — OS badges ============ */
+  .ch6-badges{ display:flex; flex-wrap:wrap; justify-content:center; gap:clamp(10px,2.2cqmin,20px); }
+  .os-badge{
+    display:inline-flex; align-items:center; gap:clamp(8px,1.5cqmin,12px);
+    font-size:clamp(14px,2.5cqmin,26px); font-weight:600; letter-spacing:-.01em;
+    padding:clamp(11px,2.1cqmin,18px) clamp(15px,2.9cqmin,28px);
+    border-radius:999px; border:1px solid var(--line);
+    background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.02));
+  }
+  .os-badge .tick{
+    width:clamp(16px,2.7cqmin,24px); aspect-ratio:1; border-radius:50%; flex:none;
+    background:rgba(48,209,88,.14); border:1px solid rgba(48,209,88,.5);
+    color:var(--green); display:grid; place-items:center; font-size:.62em; font-weight:800;
+  }
+  .bilingual{
+    display:inline-flex; align-items:center; gap:.6em;
+    font-size:clamp(12px,2cqmin,18px); color:var(--muted);
+    padding:.5em 1.1em; border-radius:999px; border:1px solid var(--faint);
+  }
+  .bilingual .sep{ color:rgba(255,255,255,.3); }
+
+  /* ---------- HUD / controls ---------- */
+  .ui{ position:absolute; inset:0; z-index:5; pointer-events:none; }
+  .ui > *{ pointer-events:auto; }
+
+  .nav-arrow{
+    position:absolute; top:50%; transform:translateY(-50%);
+    width:clamp(34px,5cqmin,52px); aspect-ratio:1; border-radius:50%;
+    display:grid; place-items:center;
+    background:rgba(255,255,255,.05); border:1px solid var(--faint);
+    color:#fff; font-size:clamp(18px,3cqmin,28px); line-height:1; cursor:pointer;
+    backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+    transition:background .25s var(--ease), opacity .25s var(--ease), transform .25s var(--ease);
+  }
+  .nav-arrow:hover{ background:rgba(255,255,255,.13); }
+  .nav-prev{ left:clamp(10px,2.4cqmin,28px); }
+  .nav-next{ right:clamp(10px,2.4cqmin,28px); }
+  .nav-arrow.disabled{ opacity:.18; pointer-events:none; }
+  .nav-arrow span{ transform:translateY(-2px); }
+
+  .hud{
+    position:absolute; left:0; right:0; bottom:clamp(14px,3cqmin,34px);
+    display:flex; align-items:center; justify-content:center; gap:clamp(10px,2cqmin,18px);
+    pointer-events:none;
+  }
+  .dots{ display:flex; align-items:center; gap:clamp(7px,1.3cqmin,11px); pointer-events:auto; }
+  .dot{
+    width:clamp(7px,1.1cqmin,9px); height:clamp(7px,1.1cqmin,9px); border-radius:99px;
+    border:0; padding:0; cursor:pointer; background:rgba(255,255,255,.26);
+    transition:width .35s var(--ease), background .35s var(--ease);
+  }
+  .dot:hover{ background:rgba(255,255,255,.5); }
+  .dot.active{ width:clamp(22px,3.6cqmin,32px); background:var(--green); }
+
+  .counter{
+    position:absolute; right:clamp(14px,3cqmin,30px); bottom:clamp(14px,3cqmin,34px);
+    font-size:clamp(11px,1.7cqmin,15px); letter-spacing:.06em; color:var(--muted);
+    font-variant-numeric:tabular-nums; pointer-events:none;
+  }
+  .counter b{ color:#fff; font-weight:600; }
+
+  .hint{
+    position:absolute; left:50%; transform:translateX(-50%);
+    bottom:clamp(40px,7cqmin,76px);
+    display:inline-flex; align-items:center; gap:.6em;
+    font-size:clamp(11px,1.75cqmin,15px); color:var(--muted);
+    padding:.5em 1em; border-radius:999px;
+    border:1px solid var(--faint); background:rgba(0,0,0,.3);
+    backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+    opacity:0; transition:opacity .5s var(--ease); pointer-events:none;
+  }
+  .stage[data-current="0"] .hint{ opacity:1; }
+  .hint .arrow{ display:inline-block; animation:nudge 1.6s var(--ease) infinite; color:#fff; }
+  @keyframes nudge{ 0%,100%{transform:translateX(0)} 50%{transform:translateX(4px)} }
+
+  /* ---------- Reduced motion: static stacked cards ---------- */
+  @media (prefers-reduced-motion:reduce){
+    .stage{ overflow-y:auto; }
+    .stage::before{ display:none; }
+    .chapter{
+      position:static; inset:auto;
+      opacity:1; visibility:visible; pointer-events:auto;
+      min-height:100%; transition:none;
+      border-top:1px solid var(--faint);
+    }
+    .chapter:first-of-type{ border-top:0; }
+    .chapter .an{ animation:none !important; opacity:1 !important; transform:none !important; }
+    .gen-conn{ transform:none !important; }
+    .ui{ display:none; }
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <div class="stage" data-current="0">
+
+      <!-- CH 1 -->
+      <section class="chapter is-active" data-screen-label="01">
+        <div class="eyebrow an a-rise" style="--i:0">The problem</div>
+        <h2 class="headline an a-rise" style="--i:1">A sold sheep's ear tag gets reused.</h2>
+        <div class="ch1-tags">
+          <div class="tag an a-sold" style="--i:3">
+            <span class="stud"></span>
+            <span class="tag-num">55</span>
+            <span class="tag-tag tag-tag--sold an a-fade" style="--i:11">Sold</span>
+          </div>
+          <div class="neq an a-neq" style="--i:16">&ne;</div>
+          <div class="tag tag--new an a-rise" style="--i:3">
+            <span class="stud"></span>
+            <span class="tag-num">55</span>
+            <span class="tag-tag tag-tag--new an a-fade" style="--i:11">New</span>
+          </div>
+        </div>
+        <p class="caption an a-rise" style="--i:19">Old and new records must <span class="em">never</span> mix.</p>
+      </section>
+
+      <!-- CH 2 -->
+      <section class="chapter" data-screen-label="02">
+        <div class="eyebrow an a-rise" style="--i:0">The fix</div>
+        <h2 class="headline an a-rise" style="--i:1">One number, many generations.</h2>
+        <div class="ch2-line">
+          <div class="gen-chip an a-pop" style="--i:3">55-<b>A</b></div>
+          <div class="gen-conn an a-grow" style="--i:4"></div>
+          <div class="gen-chip an a-pop" style="--i:5">55-<b>B</b></div>
+          <div class="gen-conn an a-grow" style="--i:6"></div>
+          <div class="gen-chip an a-pop" style="--i:7">55-<b>C</b></div>
+        </div>
+        <p class="caption an a-rise" style="--i:9">Every record is keyed to <span class="em">one generation</span>, so they can't collide.</p>
+      </section>
+
+      <!-- CH 3 -->
+      <section class="chapter" data-screen-label="03" style="--step:.05s">
+        <div class="eyebrow an a-rise" style="--i:0">The data model</div>
+        <h2 class="headline an a-rise" style="--i:1">15 tables, one source of truth.</h2>
+        <div class="ch3-grid">
+          <span class="tbl-chip an a-pop" style="--i:4">animals</span>
+          <span class="tbl-chip an a-pop" style="--i:5">rams</span>
+          <span class="tbl-chip an a-pop" style="--i:6">births</span>
+          <span class="tbl-chip an a-pop" style="--i:7">diseases</span>
+          <span class="tbl-chip an a-pop" style="--i:8">pregnancy</span>
+          <span class="tbl-chip an a-pop" style="--i:9">lactation</span>
+          <span class="tbl-chip an a-pop" style="--i:10">abortions</span>
+          <span class="tbl-chip an a-pop" style="--i:11">vaccinations</span>
+          <span class="tbl-chip an a-pop" style="--i:12">deaths</span>
+          <span class="tbl-chip an a-pop" style="--i:13">sales</span>
+          <span class="tbl-chip an a-pop" style="--i:14">notes</span>
+          <span class="tbl-chip an a-pop" style="--i:15">lamb_moves</span>
+          <span class="tbl-chip an a-pop" style="--i:16">exited</span>
+          <span class="tbl-chip an a-pop" style="--i:17">monthly_census</span>
+          <span class="tbl-chip an a-pop" style="--i:18">app_meta</span>
+        </div>
+        <p class="caption an a-rise" style="--i:20"><span class="em">Non-destructive</span> migrations keep old data safe.</p>
+      </section>
+
+      <!-- CH 4 -->
+      <section class="chapter" data-screen-label="04">
+        <div class="eyebrow an a-rise" style="--i:0">Decision-support</div>
+        <h2 class="headline an a-rise" style="--i:1">It tells you what to do next.</h2>
+        <div class="ch4-cards">
+          <div class="alert an a-slide" style="--i:3">
+            <span class="alert-mark"></span>
+            <div class="alert-body"><div class="alert-title">Vaccination overdue</div></div>
+            <span class="alert-chev">&rsaquo;</span>
+          </div>
+          <div class="alert an a-slide" style="--i:5">
+            <span class="alert-mark"></span>
+            <div class="alert-body">
+              <div class="alert-title">Lambing due in 5 days</div>
+              <div class="alert-note">150-day gestation</div>
+            </div>
+            <span class="alert-chev">&rsaquo;</span>
+          </div>
+          <div class="alert an a-slide" style="--i:7">
+            <span class="alert-mark"></span>
+            <div class="alert-body"><div class="alert-title">Cull list: 2 ewes</div></div>
+            <span class="alert-chev">&rsaquo;</span>
+          </div>
+        </div>
+        <p class="caption an a-rise" style="--i:9">Each alert opens a <span class="em">pre-filled form</span>.</p>
+      </section>
+
+      <!-- CH 5 -->
+      <section class="chapter" data-screen-label="05">
+        <div class="eyebrow an a-rise" style="--i:0">Proven</div>
+        <div class="ch5-num an a-pop" style="--i:2">
+          <span class="num js-count" data-to="59">59</span>
+          <span class="slash">/</span>
+          <span class="num js-count" data-to="59">59</span>
+        </div>
+        <div class="pass-pill an a-rise" style="--i:5"><span class="tick">&#10003;</span> Zero failures</div>
+        <p class="caption an a-rise" style="--i:7">
+          Automated tests passing &mdash; <span class="em">zero failures</span>.
+          An adversarial review caught a data-loss bug before release.
+        </p>
+      </section>
+
+      <!-- CH 6 -->
+      <section class="chapter" data-screen-label="06">
+        <div class="eyebrow an a-rise" style="--i:0">Shipped</div>
+        <h2 class="headline an a-rise" style="--i:1">One-click. Offline. Bilingual.</h2>
+        <div class="ch6-badges">
+          <div class="os-badge an a-rise" style="--i:3"><span class="tick">&#10003;</span>Windows 10/11</div>
+          <div class="os-badge an a-rise" style="--i:4"><span class="tick">&#10003;</span>Windows 7</div>
+          <div class="os-badge an a-rise" style="--i:5"><span class="tick">&#10003;</span>macOS</div>
+        </div>
+        <div class="bilingual an a-rise" style="--i:7"><span dir="rtl">العربية</span><span class="sep">·</span><span>English</span></div>
+        <p class="caption an a-rise" style="--i:9">GitHub Actions builds the executables on <span class="em">every push</span>.</p>
+      </section>
+
+      <!-- HUD -->
+      <div class="ui">
+        <button class="nav-arrow nav-prev disabled" aria-label="Previous chapter"><span>&lsaquo;</span></button>
+        <button class="nav-arrow nav-next" aria-label="Next chapter"><span>&rsaquo;</span></button>
+        <div class="hud">
+          <div class="dots" role="tablist" aria-label="Chapters">
+            <button class="dot active" aria-label="Chapter 1"></button>
+            <button class="dot" aria-label="Chapter 2"></button>
+            <button class="dot" aria-label="Chapter 3"></button>
+            <button class="dot" aria-label="Chapter 4"></button>
+            <button class="dot" aria-label="Chapter 5"></button>
+            <button class="dot" aria-label="Chapter 6"></button>
+          </div>
+        </div>
+        <div class="counter" aria-live="polite"><b id="cur">1</b> / 6</div>
+        <div class="hint">click or <span class="arrow">&rarr;</span> to continue</div>
+      </div>
+
+    </div>
+  </div>
+
+<script>
+(function(){
+  var reduce = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  var stage   = document.querySelector('.stage');
+  var chapters= Array.prototype.slice.call(document.querySelectorAll('.chapter'));
+  var dots    = Array.prototype.slice.call(document.querySelectorAll('.dot'));
+  var curEl   = document.getElementById('cur');
+  var prevBtn = document.querySelector('.nav-prev');
+  var nextBtn = document.querySelector('.nav-next');
+  var last    = chapters.length - 1;
+  var i = 0;
+
+  function animateCount(el, to, dur){
+    var t0 = performance.now();
+    el.textContent = '0';
+    function frame(t){
+      var p = Math.min(1, (t - t0) / dur);
+      var e = 1 - Math.pow(1 - p, 3);
+      el.textContent = String(Math.round(e * to));
+      if(p < 1) requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  }
+
+  function onEnter(n){
+    var ch = chapters[n];
+    void ch.offsetWidth; // force reflow so .is-active animations replay
+    if(n === 4){
+      var nums = ch.querySelectorAll('.js-count');
+      for(var k=0;k<nums.length;k++){
+        animateCount(nums[k], parseInt(nums[k].dataset.to,10), 1150);
+      }
+    }
+  }
+
+  function render(){
+    for(var n=0;n<chapters.length;n++){
+      chapters[n].classList.toggle('is-active', n === i);
+      dots[n].classList.toggle('active', n === i);
+    }
+    curEl.textContent = String(i + 1);
+    stage.setAttribute('data-current', i);
+    prevBtn.classList.toggle('disabled', i === 0);
+    nextBtn.classList.toggle('disabled', i === last);
+    onEnter(i);
+  }
+
+  function go(n){
+    var m = Math.max(0, Math.min(last, n));
+    if(m === i) return;
+    i = m;
+    render();
+  }
+  function next(){ go(i + 1); }
+  function prev(){ go(i - 1); }
+
+  if(reduce) return; // CSS shows all chapters stacked; numbers already final
+
+  stage.addEventListener('click', function(e){
+    if(e.target.closest('button')) return;
+    next();
+  });
+  prevBtn.addEventListener('click', prev);
+  nextBtn.addEventListener('click', next);
+  dots.forEach(function(d, n){ d.addEventListener('click', function(){ go(n); }); });
+
+  window.addEventListener('keydown', function(e){
+    if(e.key === 'ArrowRight' || e.key === 'PageDown'){ e.preventDefault(); next(); }
+    else if(e.key === 'ArrowLeft' || e.key === 'PageUp'){ e.preventDefault(); prev(); }
+  });
+
+  onEnter(0); // kick first chapter's reveal cleanly
+})();
+</script>
+</body>
+</html>

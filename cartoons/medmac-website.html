@@ -1,0 +1,508 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SYSTEM 7 — Live production website</title>
+<style>
+  :root{
+    --bg:#0a0a0c;
+    --ink:#f4f5f8;
+    --mut:rgba(255,255,255,.46);
+    --line:rgba(255,255,255,.14);
+    --acc:#2997ff;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{
+    background:#060608;
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji",sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{min-height:100%;display:grid;place-items:center;padding:24px}
+
+  .frame{
+    position:relative;
+    width:min(1120px,100%);
+    aspect-ratio:16/9;
+    background:var(--bg);
+    border-radius:18px;
+    overflow:hidden;
+    box-shadow:0 40px 90px -30px rgba(0,0,0,.75), inset 0 0 0 1px rgba(255,255,255,.05);
+  }
+  .frame::after{ /* vignette */
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(130% 90% at 50% 32%, transparent 52%, rgba(0,0,0,.5) 100%);
+  }
+
+  /* fixed 1280x720 design surface, scaled to fit by JS */
+  .surface{
+    position:absolute;left:50%;top:50%;
+    width:1280px;height:720px;
+    transform:translate(-50%,-50%);
+    transform-origin:center center;
+  }
+  svg#stage{position:absolute;inset:0;width:1280px;height:720px;overflow:visible}
+
+  /* chrome */
+  .chrome{position:absolute;inset:0;pointer-events:none;font-feature-settings:"tnum"}
+  .brand{position:absolute;left:40px;top:34px;font-size:18px;font-weight:600;letter-spacing:.14em;color:var(--ink)}
+  .brand b{color:var(--acc);font-weight:700}
+  .livetag{position:absolute;right:40px;top:34px;display:flex;align-items:center;gap:9px;font-size:13px;letter-spacing:.22em;color:var(--mut);font-weight:600}
+  .livetag i{width:8px;height:8px;border-radius:50%;background:var(--acc);box-shadow:0 0 10px var(--acc);animation:blip 1.8s ease-in-out infinite}
+  @keyframes blip{0%,100%{opacity:.35}50%{opacity:1}}
+  .dots{position:absolute;left:50%;bottom:34px;transform:translateX(-50%);display:flex;gap:11px}
+  .dots span{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.18);transition:all .4s ease}
+  .dots span.on{width:30px;background:var(--acc);box-shadow:0 0 14px rgba(41,151,255,.55)}
+
+  /* captions */
+  .caption{position:absolute;left:50%;bottom:84px;transform:translateX(-50%);width:90%;height:118px;text-align:center;pointer-events:none}
+  .cap{position:absolute;left:0;right:0;bottom:0;opacity:0;will-change:opacity}
+  .cap-en{font-size:38px;line-height:1.12;font-weight:600;letter-spacing:-.01em;color:var(--ink);text-wrap:balance}
+  .cap-ar{margin-top:12px;font-size:25px;line-height:1.2;font-weight:500;color:var(--mut);direction:rtl;text-wrap:balance}
+
+  /* ---------- reduced-motion static panels ---------- */
+  .static{display:none}
+  .static-grid{
+    display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);
+    position:absolute;inset:0;
+  }
+  .panel{background:var(--bg);padding:30px 32px;display:flex;flex-direction:column;gap:16px}
+  .panel svg{width:100%;height:120px}
+  .panel .p-en{font-size:19px;font-weight:600;color:var(--ink);line-height:1.2}
+  .panel .p-ar{font-size:15px;color:var(--mut);direction:rtl;line-height:1.3}
+  .panel .p-kicker{font-size:11px;letter-spacing:.2em;color:var(--acc);font-weight:700}
+
+  @media (max-width:640px){
+    .frame{aspect-ratio:3/4}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .surface,.chrome{display:none !important}
+    .frame{aspect-ratio:auto}
+    .static{display:block;position:relative}
+    @media (max-width:680px){ .static-grid{grid-template-columns:1fr} }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="frame" id="frame">
+
+      <!-- ============ ANIMATED ============ -->
+      <div class="surface" id="surface">
+        <svg id="stage" viewBox="0 0 1280 720" aria-label="SYSTEM 7 — Live production website explainer">
+          <defs>
+            <radialGradient id="amb" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#2997ff" stop-opacity="0.20"/>
+              <stop offset="100%" stop-color="#2997ff" stop-opacity="0"/>
+            </radialGradient>
+            <filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
+              <feGaussianBlur stdDeviation="14"/>
+            </filter>
+            <clipPath id="s1clip"><rect id="s1clipR" x="386" y="154" width="508" height="0" rx="18"/></clipPath>
+          </defs>
+          <circle id="ambient" cx="640" cy="330" r="440" fill="url(#amb)"/>
+          <!-- scene groups injected by JS -->
+        </svg>
+
+        <div class="caption" id="caption"></div>
+
+        <div class="chrome">
+          <div class="brand">SYSTEM <b>7</b></div>
+          <div class="livetag"><i></i>LIVE</div>
+          <div class="dots" id="dots"></div>
+        </div>
+      </div>
+
+      <!-- ============ STATIC FALLBACK ============ -->
+      <div class="static">
+        <div class="static-grid">
+          <div class="panel">
+            <div class="p-kicker">01 · THE BRIEF</div>
+            <svg viewBox="0 0 240 120" fill="none">
+              <rect x="36" y="14" width="168" height="92" rx="10" fill="#0e0e12" stroke="rgba(255,255,255,.16)"/>
+              <line x1="36" y1="34" x2="204" y2="34" stroke="rgba(255,255,255,.16)"/>
+              <circle cx="48" cy="24" r="3" fill="rgba(255,255,255,.3)"/><circle cx="58" cy="24" r="3" fill="rgba(255,255,255,.3)"/><circle cx="68" cy="24" r="3" fill="rgba(255,255,255,.3)"/>
+              <rect x="48" y="46" width="70" height="9" rx="4" fill="#2997ff"/>
+              <rect x="48" y="62" width="120" height="7" rx="3" fill="rgba(255,255,255,.22)"/>
+              <rect x="48" y="74" width="96" height="7" rx="3" fill="rgba(255,255,255,.22)"/>
+              <rect x="48" y="86" width="110" height="7" rx="3" fill="rgba(255,255,255,.22)"/>
+              <rect x="150" y="20" width="44" height="9" rx="4.5" fill="none" stroke="#2997ff"/>
+              <text x="172" y="27.5" text-anchor="middle" font-size="7" fill="#2997ff" font-family="system-ui" font-weight="700" letter-spacing="1">AR⇄EN</text>
+            </svg>
+            <div class="p-en">Credible, bilingual, factually strict.</div>
+            <div class="p-ar">موثوق، ثنائي اللغة، دقيق في الحقائق.</div>
+          </div>
+
+          <div class="panel">
+            <div class="p-kicker">02 · THE STACK</div>
+            <svg viewBox="0 0 240 120" fill="none">
+              <rect x="20" y="20" width="78" height="20" rx="6" fill="rgba(255,255,255,.05)" stroke="rgba(255,255,255,.16)"/><circle cx="32" cy="30" r="3" fill="#2997ff"/><text x="44" y="33.5" font-size="9" fill="#f4f5f8" font-family="system-ui" font-weight="600">Astro</text>
+              <rect x="20" y="50" width="78" height="20" rx="6" fill="rgba(255,255,255,.05)" stroke="rgba(255,255,255,.16)"/><circle cx="32" cy="60" r="3" fill="#2997ff"/><text x="44" y="63.5" font-size="9" fill="#f4f5f8" font-family="system-ui" font-weight="600">TypeScript</text>
+              <rect x="20" y="80" width="78" height="20" rx="6" fill="rgba(255,255,255,.05)" stroke="rgba(255,255,255,.16)"/><circle cx="32" cy="90" r="3" fill="#2997ff"/><text x="44" y="93.5" font-size="9" fill="#f4f5f8" font-family="system-ui" font-weight="600">Tailwind</text>
+              <g>
+                <rect x="132" y="22" width="20" height="26" rx="3" fill="#0e0e12" stroke="rgba(255,255,255,.16)"/><rect x="158" y="22" width="20" height="26" rx="3" fill="#0e0e12" stroke="rgba(255,255,255,.16)"/><rect x="184" y="22" width="20" height="26" rx="3" fill="#0e0e12" stroke="rgba(255,255,255,.16)"/>
+              </g>
+              <g fill="rgba(41,151,255,.18)" stroke="rgba(41,151,255,.5)">
+                <rect x="132" y="64" width="14" height="14" rx="3"/><rect x="150" y="64" width="14" height="14" rx="3"/><rect x="168" y="64" width="14" height="14" rx="3"/><rect x="186" y="64" width="14" height="14" rx="3"/>
+                <rect x="132" y="82" width="14" height="14" rx="3"/><rect x="150" y="82" width="14" height="14" rx="3"/><rect x="168" y="82" width="14" height="14" rx="3"/><rect x="186" y="82" width="14" height="14" rx="3"/>
+              </g>
+            </svg>
+            <div class="p-en">10 localized templates · ~16 components.</div>
+            <div class="p-ar">10 قوالب مُوطّنة · ~16 مكوّنًا.</div>
+          </div>
+
+          <div class="panel">
+            <div class="p-kicker">03 · NEAR-PERFECT</div>
+            <svg viewBox="0 0 240 120" fill="none">
+              <g stroke-width="6" fill="none">
+                <circle cx="48" cy="44" r="22" stroke="rgba(255,255,255,.1)"/><circle cx="48" cy="44" r="22" stroke="#2997ff" stroke-linecap="round" stroke-dasharray="138" stroke-dashoffset="4" transform="rotate(-90 48 44)"/>
+                <circle cx="112" cy="44" r="22" stroke="rgba(255,255,255,.1)"/><circle cx="112" cy="44" r="22" stroke="#2997ff" stroke-linecap="round" stroke-dasharray="138" stroke-dashoffset="0" transform="rotate(-90 112 44)"/>
+                <circle cx="176" cy="44" r="22" stroke="rgba(255,255,255,.1)"/><circle cx="176" cy="44" r="22" stroke="#2997ff" stroke-linecap="round" stroke-dasharray="138" stroke-dashoffset="6" transform="rotate(-90 176 44)"/>
+              </g>
+              <text x="120" y="100" text-anchor="middle" font-size="30" font-weight="700" fill="#f4f5f8" font-family="system-ui" letter-spacing="-.5">96–100</text>
+            </svg>
+            <div class="p-en">Performance · Accessibility · Best-Practices · SEO.</div>
+            <div class="p-ar">الأداء · إمكانية الوصول · أفضل الممارسات · تحسين محركات البحث.</div>
+          </div>
+
+          <div class="panel">
+            <div class="p-kicker">04 · LIVE</div>
+            <svg viewBox="0 0 240 120" fill="none">
+              <rect x="24" y="34" width="52" height="52" rx="15" fill="rgba(41,151,255,.14)" stroke="#2997ff"/>
+              <rect x="38" y="50" width="24" height="17" rx="5" fill="none" stroke="#f4f5f8" stroke-width="2"/><path d="M44 67 l0 7 l7 -7" fill="#f4f5f8"/>
+              <circle cx="120" cy="30" r="4" fill="#2997ff"/><path d="M132 24 l7 12 l-14 0 z" fill="#f4f5f8"/>
+              <text x="150" y="34" font-size="12" fill="#f4f5f8" font-family="system-ui" font-weight="600">live on Vercel</text>
+              <g fill="rgba(41,151,255,.16)" stroke="rgba(41,151,255,.5)">
+                <rect x="120" y="56" width="16" height="16" rx="4"/><rect x="142" y="56" width="16" height="16" rx="4"/><rect x="164" y="56" width="16" height="16" rx="4"/>
+                <rect x="120" y="78" width="16" height="16" rx="4"/><rect x="142" y="78" width="16" height="16" rx="4"/><rect x="164" y="78" width="16" height="16" rx="4"/>
+                <rect x="186" y="56" width="16" height="16" rx="4"/><rect x="186" y="78" width="16" height="16" rx="4"/><rect x="208" y="56" width="16" height="16" rx="4"/>
+              </g>
+            </svg>
+            <div class="p-en">medmac-ui — 9 React + Storybook components.</div>
+            <div class="p-ar">medmac-ui — 9 مكوّنات React وStorybook.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+<script>
+(function(){
+  "use strict";
+  var NS="http://www.w3.org/2000/svg";
+  var stage=document.getElementById('stage');
+  var capWrap=document.getElementById('caption');
+  var dotsWrap=document.getElementById('dots');
+
+  /* ---------- helpers ---------- */
+  function E(tag,attrs,parent){
+    var e=document.createElementNS(NS,tag);
+    if(attrs){for(var k in attrs){ e.setAttribute(k,attrs[k]); }}
+    if(parent) parent.appendChild(e);
+    return e;
+  }
+  function setT(el,t){ el.setAttribute('transform',t); }
+  function setO(el,v){ el.setAttribute('opacity',v); }
+  var clamp01=function(x){return x<0?0:x>1?1:x;};
+  var lerp=function(a,b,t){return a+(b-a)*t;};
+  var seg=function(t,s,d){return clamp01((t-s)/d);};
+  var easeOutCubic=function(x){return 1-Math.pow(1-x,3);};
+  var easeInOutCubic=function(x){return x<0.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;};
+  var easeOutBack=function(x){var c1=1.70158,c3=c1+1;return 1+c3*Math.pow(x-1,3)+c1*Math.pow(x-1,2);};
+  var easeOutQuint=function(x){return 1-Math.pow(1-x,5);};
+  function E1(t,s,d,e){return (e||easeOutCubic)(seg(t,s,d));}
+
+  var INK="#f4f5f8", MUT="rgba(255,255,255,.46)", LINE="rgba(255,255,255,.16)",
+      WIN="#0e0e12", ACC="#2997ff", ACCS="rgba(41,151,255,.16)", ACCL="rgba(41,151,255,.5)";
+
+  function cap(en,ar){
+    var d=document.createElement('div'); d.className='cap';
+    var e=document.createElement('div'); e.className='cap-en'; e.textContent=en;
+    var a=document.createElement('div'); a.className='cap-ar'; a.setAttribute('dir','rtl'); a.textContent=ar;
+    d.appendChild(e); d.appendChild(a); capWrap.appendChild(d); return d;
+  }
+
+  /* ================= INTRO ================= */
+  function buildIntro(){
+    var g=E('g',{},stage);
+    var t1=E('text',{x:640,y:344,'text-anchor':'middle','font-family':'system-ui,sans-serif','font-weight':800,'font-size':108,'letter-spacing':'-2',fill:INK},g);
+    var a=document.createTextNode('SYSTEM '); t1.appendChild(a);
+    var sp=E('tspan',{fill:ACC}); sp.textContent='7'; t1.appendChild(sp);
+    var line=E('rect',{x:560,y:380,width:160,height:4,rx:2,fill:ACC},g);
+    var kick=E('text',{x:640,y:250,'text-anchor':'middle','font-family':'system-ui','font-weight':700,'font-size':16,'letter-spacing':'8',fill:MUT},g);
+    kick.textContent='CASE STUDY';
+    return {group:g,dur:2.6,cap:cap('Live production website','موقع إنتاج مباشر'),
+      render:function(t){
+        var p=E1(t,0,0.8,easeOutQuint);
+        setO(t1,p); setT(t1,'translate(0 '+lerp(26,0,p)+')');
+        var lp=E1(t,0.45,0.7,easeOutQuint);
+        line.setAttribute('x',640-160*lp); line.setAttribute('width',320*lp); setO(line,lp);
+        setO(kick,E1(t,0.2,0.6));
+      }};
+  }
+
+  /* ================= SCENE 1 — browser builds + AR/EN flip ================= */
+  function buildBrief(){
+    var g=E('g',{},stage);
+    var win=E('g',{'clip-path':'url(#s1clip)'},g);
+    var clipR=document.getElementById('s1clipR');
+    E('rect',{x:390,y:158,width:500,height:330,rx:18,fill:WIN,stroke:LINE,'stroke-width':2},win);
+    E('line',{x1:390,y1:206,x2:890,y2:206,stroke:LINE,'stroke-width':1.5},win);
+    var dot=[];
+    [0,1,2].forEach(function(i){ dot.push(E('circle',{cx:416+i*18,cy:182,r:5.5,fill:'rgba(255,255,255,.3)'},win)); });
+    var addr=E('rect',{x:476,y:171,width:380,height:24,rx:12,fill:'rgba(255,255,255,.05)',stroke:LINE},win);
+    var globe=E('circle',{cx:493,cy:183,r:5,fill:'none',stroke:ACC,'stroke-width':1.6},win);
+    var load=E('rect',{x:391,y:203.5,width:0,height:3,rx:1.5,fill:ACC},win);
+    // flipping content
+    var cg=E('g',{},win);
+    var head=E('rect',{x:414,y:244,width:210,height:18,rx:9,fill:ACC},cg);
+    var lw=[452,420,300,380,256], ly=[286,314,342,370,398], lines=[];
+    lw.forEach(function(w,i){ lines.push(E('rect',{x:414,y:ly[i],width:w,height:13,rx:6.5,fill:'rgba(255,255,255,.22)'},cg)); });
+    // badge (outside flip group)
+    var badge=E('rect',{x:806,y:170,width:54,height:26,rx:13,fill:'none',stroke:ACC,'stroke-width':1.5},win);
+    var btxt=E('text',{x:833,y:188,'text-anchor':'middle','font-family':'system-ui','font-weight':700,'font-size':13,'letter-spacing':'2',fill:ACC},win);
+    btxt.textContent='EN';
+    var CX=640;
+    function lay(side){ // 1 = EN(left), -1 mirrored handled by scale; we also realign for crispness
+      for(var i=0;i<lines.length;i++){
+        var w=lw[i];
+        lines[i].setAttribute('x', side>0? 414 : (866-w));
+      }
+      head.setAttribute('x', side>0? 414 : (866-210));
+    }
+    return {group:g,dur:6.0,cap:cap('Credible, bilingual, factually strict.','موثوق، ثنائي اللغة، دقيق في الحقائق.'),
+      render:function(t){
+        clipR.setAttribute('height', 334*E1(t,0,0.7,easeOutQuint));
+        var ui=E1(t,0.5,0.45);
+        dot.forEach(function(d,i){ setO(d, E1(t,0.5+i*0.06,0.3)); });
+        setO(addr,ui); setO(globe,ui);
+        var lo=E1(t,0.7,0.7); load.setAttribute('width',497*lo); setO(load, lo<1?1:(1-E1(t,1.5,0.3)));
+        // content entrance
+        setO(head,E1(t,1.0,0.5));
+        for(var i=0;i<lines.length;i++){ setO(lines[i],E1(t,1.15+i*0.1,0.5)); }
+        // flip logic
+        var sx=1, side=1;
+        if(t>=2.5 && t<3.1){ var p=easeInOutCubic(seg(t,2.5,0.6)); sx=Math.cos(p*Math.PI); side=p<0.5?1:-1; }
+        else if(t>=3.1 && t<3.9){ sx=-1; side=-1; }
+        else if(t>=3.9 && t<4.5){ var q=easeInOutCubic(seg(t,3.9,0.6)); sx=Math.cos(Math.PI+q*Math.PI); side=q<0.5?-1:1; }
+        else if(t>=4.5){ sx=1; side=1; }
+        lay(side);
+        var asx=Math.abs(sx)<0.02?0.02:Math.abs(sx);
+        setT(cg,'translate('+CX+' 0) scale('+(side<0?-asx:asx)+' 1) translate('+(-CX)+' 0)');
+        btxt.textContent= side<0?'AR':'EN';
+      }};
+  }
+
+  /* ================= SCENE 2 — stack assembles ================= */
+  function buildStack(){
+    var g=E('g',{},stage);
+    // connectors (drawn behind)
+    var c1=E('line',{x1:466,y1:300,x2:548,y2:262,stroke:ACCL,'stroke-width':1.5,pathLength:1,'stroke-dasharray':1,'stroke-dashoffset':1},g);
+    var c2=E('line',{x1:466,y1:312,x2:906,y2:300,stroke:ACCL,'stroke-width':1.5,pathLength:1,'stroke-dasharray':1,'stroke-dashoffset':1},g);
+    // tech blocks
+    var labels=['Astro','TypeScript','Tailwind'], by=[244,302,360], blocks=[];
+    labels.forEach(function(L,i){
+      var bg=E('g',{},g);
+      E('rect',{x:250,y:by[i],width:216,height:46,rx:11,fill:'rgba(255,255,255,.045)',stroke:LINE,'stroke-width':1.5},bg);
+      E('circle',{cx:272,cy:by[i]+23,r:5,fill:ACC},bg);
+      var tx=E('text',{x:290,y:by[i]+28,'font-family':'system-ui','font-weight':600,'font-size':18,fill:INK},bg); tx.textContent=L;
+      blocks.push(bg);
+    });
+    // labels
+    var tlab=E('text',{x:540,y:208,'font-family':'system-ui','font-weight':700,'font-size':12,'letter-spacing':'2.5',fill:MUT},g); tlab.textContent='TEMPLATES';
+    var clab=E('text',{x:902,y:198,'font-family':'system-ui','font-weight':700,'font-size':12,'letter-spacing':'2.5',fill:MUT},g); clab.textContent='COMPONENTS';
+    // templates 10 (5x2)
+    var temps=[];
+    for(var r=0;r<2;r++)for(var c=0;c<5;c++){
+      var x=540+c*70, y=222+r*98;
+      var tg=E('g',{},g);
+      E('rect',{x:x,y:y,width:58,height:80,rx:8,fill:WIN,stroke:LINE,'stroke-width':1.5},tg);
+      E('rect',{x:x+10,y:y+12,width:38,height:7,rx:3.5,fill:ACC},tg);
+      E('rect',{x:x+10,y:y+28,width:30,height:5,rx:2.5,fill:'rgba(255,255,255,.2)'},tg);
+      E('rect',{x:x+10,y:y+40,width:34,height:5,rx:2.5,fill:'rgba(255,255,255,.2)'},tg);
+      temps.push({g:tg,fx:x+29,fy:y+40});
+    }
+    // components 16 (4x4)
+    var comps=[];
+    for(var rr=0;rr<4;rr++)for(var cc=0;cc<4;cc++){
+      var cx=902+cc*48, cy=214+rr*48;
+      var sq=E('rect',{x:cx,y:cy,width:34,height:34,rx:8,fill:ACCS,stroke:ACCL,'stroke-width':1.5},g);
+      comps.push({el:sq,cx:cx+17,cy:cy+17});
+    }
+    return {group:g,dur:6.6,cap:cap('10 localized templates · ~16 components.','10 قوالب مُوطّنة · ~16 مكوّنًا.'),
+      render:function(t){
+        // blocks fly in
+        blocks.forEach(function(b,i){
+          var a=E1(t,i*0.18,0.7,easeOutBack);
+          var sx0=(i%2)?1560:-300;
+          setT(b,'translate('+lerp(sx0-250,0,a)+' 0)');
+          setO(b,clamp01(a*1.6));
+        });
+        // connectors
+        c1.setAttribute('stroke-dashoffset',1-E1(t,1.0,0.6)); c2.setAttribute('stroke-dashoffset',1-E1(t,1.1,0.7));
+        setO(c1,E1(t,1.0,0.4)*0.7); setO(c2,E1(t,1.1,0.4)*0.7);
+        // components pop
+        comps.forEach(function(o,k){
+          var cs=E1(t,1.2+k*0.05,0.45,easeOutBack);
+          setT(o.el,'translate('+o.cx+' '+o.cy+') scale('+cs+') translate('+(-o.cx)+' '+(-o.cy)+')');
+          setO(o.el,clamp01(cs*1.6));
+        });
+        // templates deal
+        temps.forEach(function(o,j){
+          var a=E1(t,2.5+j*0.07,0.55,easeOutCubic);
+          var px=lerp(360,o.fx,a), py=lerp(300,o.fy,a);
+          setT(o.g,'translate('+(px-o.fx)+' '+(py-o.fy)+')');
+          setO(o.g,a);
+        });
+        setO(tlab,E1(t,2.6,0.5)); setO(clab,E1(t,1.3,0.5));
+      }};
+  }
+
+  /* ================= SCENE 3 — Lighthouse gauges ================= */
+  function buildGauges(){
+    var g=E('g',{},stage);
+    var cxs=[330,540,750,960], cy=320, r=72, C=2*Math.PI*r;
+    var names=['Performance','Accessibility','Best-Practices','SEO'];
+    var targets=[0.98,1,0.97,1];
+    var arcs=[], tracks=[], labs=[];
+    cxs.forEach(function(cx,i){
+      tracks.push(E('circle',{cx:cx,cy:cy,r:r,fill:'none',stroke:'rgba(255,255,255,.09)','stroke-width':13},g));
+      var a=E('circle',{cx:cx,cy:cy,r:r,fill:'none',stroke:ACC,'stroke-width':13,'stroke-linecap':'round','stroke-dasharray':C,'stroke-dashoffset':C,transform:'rotate(-90 '+cx+' '+cy+')'},g);
+      arcs.push(a);
+      var l=E('text',{x:cx,y:cy+108,'text-anchor':'middle','font-family':'system-ui','font-weight':600,'font-size':17,fill:MUT},g); l.textContent=names[i]; labs.push(l);
+    });
+    var big=E('text',{x:645,y:170,'text-anchor':'middle','font-family':'system-ui','font-weight':800,'font-size':74,'letter-spacing':'-2',fill:INK},g);
+    big.textContent='0';
+    return {group:g,dur:6.0,cap:cap('Performance · Accessibility · Best-Practices · SEO.','الأداء · إمكانية الوصول · أفضل الممارسات · تحسين محركات البحث.'),
+      render:function(t){
+        var tf=E1(t,0,0.5);
+        tracks.forEach(function(tr){ setO(tr,tf*0.9); });
+        arcs.forEach(function(a,i){
+          var f=targets[i]*E1(t,0.55+i*0.16,1.3,easeOutCubic);
+          a.setAttribute('stroke-dashoffset', C*(1-f));
+          setO(a,E1(t,0.55+i*0.16,0.2));
+        });
+        labs.forEach(function(l,i){ setO(l,E1(t,0.7+i*0.16,0.5)); });
+        var sc=1;
+        if(t<2.55){ var n=Math.round(96*E1(t,0.9,1.5,easeOutCubic)); big.textContent=String(Math.min(96,n)); }
+        else { big.textContent='96–100'; sc=lerp(1.16,1,E1(t,2.55,0.4,easeOutCubic)); }
+        setO(big,E1(t,0.9,0.4));
+        setT(big,'translate(645 170) scale('+sc+') translate(-645 -170)');
+      }};
+  }
+
+  /* ================= SCENE 4 — live ================= */
+  function buildLive(){
+    var g=E('g',{},stage);
+    // glowing chat FAB
+    var bx=380, by=300;
+    var glow=E('circle',{cx:bx,cy:by,r:64,fill:ACC,filter:'url(#glow)',opacity:0},g);
+    var fab=E('g',{},g);
+    E('rect',{x:bx-44,y:by-44,width:88,height:88,rx:24,fill:'rgba(41,151,255,.12)',stroke:ACC,'stroke-width':2},fab);
+    E('rect',{x:bx-26,y:by-20,width:52,height:36,rx:11,fill:'none',stroke:INK,'stroke-width':2.4},fab);
+    E('path',{d:'M '+(bx-12)+' '+(by+16)+' l 0 12 l 13 -12 z',fill:INK},fab);
+    [-9,0,9].forEach(function(dx){ E('circle',{cx:bx+dx,cy:by-2,r:2.4,fill:INK},fab); });
+    // live on vercel row
+    var lr=E('g',{},g);
+    var ldot=E('circle',{cx:560,cy:150,r:6,fill:ACC},lr);
+    E('path',{d:'M 588 138 l 9 16 l -18 0 z',fill:INK},lr);
+    var ltx=E('text',{x:610,y:156,'font-family':'system-ui','font-weight':600,'font-size':24,fill:INK},lr); ltx.textContent='live on Vercel';
+    // medmac-ui + 9 chips + storybook
+    var med=E('text',{x:720,y:228,'font-family':'system-ui','font-weight':700,'font-size':20,fill:INK,'letter-spacing':'-.3'},g); med.textContent='medmac-ui';
+    var chips=[];
+    for(var r2=0;r2<3;r2++)for(var c2=0;c2<3;c2++){
+      var cx=720+c2*58, cy=252+r2*58;
+      var ch=E('g',{},g);
+      E('rect',{x:cx,y:cy,width:46,height:46,rx:11,fill:ACCS,stroke:ACCL,'stroke-width':1.5},ch);
+      E('circle',{cx:cx+23,cy:cy+23,r:5,fill:ACC},ch);
+      chips.push({g:ch,cx:cx+23,cy:cy+23});
+    }
+    var story=E('text',{x:720,y:460,'font-family':'system-ui','font-weight':500,'font-size':16,fill:MUT},g); story.textContent='+ Storybook';
+    return {group:g,dur:7.0,cap:cap('medmac-ui — 9 React + Storybook components.','medmac-ui — 9 مكوّنات React وStorybook.'),
+      render:function(t,abs){
+        var bp=E1(t,0.1,0.8,easeOutBack);
+        setT(fab,'translate('+bx+' '+by+') scale('+bp+') translate('+(-bx)+' '+(-by)+')');
+        setO(fab,clamp01(bp*1.4));
+        var pulse=0.5+0.5*Math.sin(abs*3.4);
+        setO(glow,(0.22+0.28*pulse)*clamp01(E1(t,0.1,0.8)));
+        glow.setAttribute('r',60+9*pulse);
+        var lp=E1(t,1.0,0.6); setO(lr,lp); setT(lr,'translate(0 '+lerp(-12,0,lp)+')');
+        setO(ldot,(0.4+0.6*(0.5+0.5*Math.sin(abs*4.2)))*lp);
+        chips.forEach(function(o,k){
+          var cs=E1(t,2.0+k*0.11,0.5,easeOutBack);
+          setT(o.g,'translate('+o.cx+' '+o.cy+') scale('+cs+') translate('+(-o.cx)+' '+(-o.cy)+')');
+          setO(o.g,clamp01(cs*1.5));
+        });
+        setO(med,E1(t,2.0,0.5)); setO(story,E1(t,3.4,0.5));
+      }};
+  }
+
+  /* ================= DIRECTOR ================= */
+  var ambient=document.getElementById('ambient');
+  var scenes=[buildIntro(),buildBrief(),buildStack(),buildGauges(),buildLive()];
+  var DISS=0.55;
+  var total=0; scenes.forEach(function(s){ total+=s.dur; });
+
+  // progress dots
+  scenes.forEach(function(){ dotsWrap.appendChild(document.createElement('span')); });
+  var dotEls=dotsWrap.children;
+
+  // start hidden
+  scenes.forEach(function(s){ s.group.style.display='none'; setO(s.group,0); s.cap.style.opacity=0; });
+
+  var start=performance.now();
+  window.__seek=function(sec){ start=performance.now()-sec*1000; };
+
+  function tick(now){
+    var T=(now-start)/1000;
+    var loopT=((T%total)+total)%total;
+    var acc=0, idx=0;
+    for(var i=0;i<scenes.length;i++){ if(loopT<acc+scenes[i].dur){ idx=i; break; } acc+=scenes[i].dur; }
+    var localT=loopT-acc;
+    var cur=scenes[idx];
+    var prev=scenes[(idx-1+scenes.length)%scenes.length];
+    var inA=clamp01(localT/DISS);
+
+    for(var j=0;j<scenes.length;j++){
+      var s=scenes[j];
+      if(s!==cur && s!==prev){ s.group.style.display='none'; setO(s.group,0); s.cap.style.opacity=0; }
+    }
+    cur.group.style.display=''; cur.render(localT,T);
+    setO(cur.group,inA); cur.cap.style.opacity=inA;
+    if(localT<DISS && prev!==cur){
+      prev.group.style.display=''; prev.render(prev.dur,T);
+      var pa=1-inA; setO(prev.group,pa); prev.cap.style.opacity=pa;
+    } else if(prev!==cur){
+      prev.group.style.display='none'; setO(prev.group,0); prev.cap.style.opacity=0;
+    }
+
+    // ambient drift
+    ambient.setAttribute('cx',640+Math.sin(T*0.16)*150);
+    ambient.setAttribute('cy',330+Math.cos(T*0.13)*80);
+
+    for(var k=0;k<dotEls.length;k++){ dotEls[k].className = k===idx?'on':''; }
+
+    raf=requestAnimationFrame(tick);
+  }
+
+  var raf;
+  var reduce=window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(!reduce){ raf=requestAnimationFrame(tick); }
+
+  /* ---------- responsive scale ---------- */
+  var frame=document.getElementById('frame');
+  var surface=document.getElementById('surface');
+  function fit(){
+    var r=frame.getBoundingClientRect();
+    var s=Math.min(r.width/1280, r.height/720);
+    surface.style.transform='translate(-50%,-50%) scale('+s+')';
+  }
+  if(window.ResizeObserver){ new ResizeObserver(fit).observe(frame); }
+  window.addEventListener('resize',fit); fit();
+})();
+</script>
+</body>
+</html>

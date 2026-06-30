@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SYSTEM 4 — Brand &amp; content engine</title>
+<style>
+/* ============================================================
+   SYSTEM 4 — Brand & content engine  ·  animated explainer
+   Self-contained. No external libraries or fonts.
+   Drop the .stage-wrap (or the whole .film block) into your site.
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root{
+  --bg:#0a0a0c;
+  --ink:#ffffff;
+  --accent:#ff9f0a;
+  --accent-2:#ffd27a;
+  --muted:rgba(255,255,255,.56);
+  --faint:rgba(255,255,255,.30);
+  --line:rgba(255,255,255,.12);
+  --line-2:rgba(255,255,255,.07);
+  --panel:rgba(255,255,255,.035);
+  --acc-soft:rgba(255,159,10,.14);
+  --acc-glow:rgba(255,159,10,.40);
+  --sans:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Segoe UI",system-ui,Roboto,Helvetica,Arial,sans-serif;
+  --ease:cubic-bezier(.22,1,.36,1);
+  --ease2:cubic-bezier(.65,0,.35,1);
+}
+
+html,body{ background:#070708; }
+body{
+  font-family:var(--sans);
+  min-height:100vh;
+  display:grid;
+  place-items:center;
+  padding:clamp(10px,3vw,40px);
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+
+/* ---- Frame -------------------------------------------------- */
+.film{
+  width:100%;
+  max-width:1120px;
+  position:relative;
+  border-radius:16px;
+  overflow:hidden;
+  background:var(--bg);
+  box-shadow:0 40px 120px -30px rgba(0,0,0,.8), 0 0 0 1px rgba(255,255,255,.06);
+}
+.stage{
+  position:relative;
+  width:100%;
+  aspect-ratio:16/9;
+  container-type:size;
+  background:
+    radial-gradient(120% 90% at 50% -10%, rgba(255,159,10,.06), transparent 55%),
+    var(--bg);
+  color:var(--ink);
+  overflow:hidden;
+}
+
+/* ---- Background texture ------------------------------------ */
+.vignette{
+  position:absolute; inset:0; pointer-events:none; z-index:6;
+  background:radial-gradient(130% 110% at 50% 42%, transparent 52%, rgba(0,0,0,.55) 100%);
+}
+.grain{
+  position:absolute; inset:-20%; pointer-events:none; z-index:7; opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode:overlay;
+}
+.glow{
+  position:absolute; z-index:0; pointer-events:none;
+  width:80cqmin; height:80cqmin; left:50%; top:46%;
+  transform:translate(-50%,-50%);
+  background:radial-gradient(circle, var(--acc-soft), transparent 62%);
+  opacity:.7; filter:blur(2cqmin);
+}
+
+/* ---- HUD --------------------------------------------------- */
+.hud{
+  position:absolute; z-index:9; inset:0 0 auto 0;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:3.4cqmin 4cqmin;
+  font-size:2.35cqmin;
+}
+.hud-brand{ display:flex; align-items:center; gap:1.6cqmin; letter-spacing:.04em; }
+.hud-brand .bdot{
+  width:1.5cqmin; height:1.5cqmin; border-radius:2px; background:var(--accent);
+  box-shadow:0 0 1.6cqmin var(--acc-glow);
+}
+.hud-brand b{ font-weight:650; letter-spacing:.16em; }
+.hud-brand span{ color:var(--faint); font-weight:500; letter-spacing:.02em; }
+.hud-dots{ display:flex; gap:1.5cqmin; align-items:center; }
+.dot{ width:1.5cqmin; height:1.5cqmin; border-radius:50%; background:rgba(255,255,255,.22); transition:all .5s var(--ease); }
+.dot.act{ width:4.6cqmin; border-radius:1cqmin; background:var(--accent); box-shadow:0 0 1.4cqmin var(--acc-glow); }
+
+/* ---- Loop progress ---------------------------------------- */
+.loopbar{ position:absolute; z-index:9; left:0; right:0; bottom:0; height:.5cqmin; background:rgba(255,255,255,.06); }
+.loopbar i{ display:block; height:100%; width:100%; transform-origin:left center; transform:scaleX(0);
+  background:linear-gradient(90deg,var(--accent),var(--accent-2)); box-shadow:0 0 1.4cqmin var(--acc-glow); }
+
+/* ---- Scenes ------------------------------------------------ */
+.scenes{ position:absolute; inset:0; z-index:2; }
+.scene{
+  position:absolute; inset:0;
+  container-type:size;
+  opacity:0; visibility:hidden;
+  transition:opacity .55s var(--ease), visibility .55s var(--ease);
+}
+.scene.on{ opacity:1; visibility:visible; }
+
+/* shared illustration + caption zones */
+.art{ position:absolute; left:0; right:0; top:7.5%; height:55%; display:flex; align-items:center; justify-content:center; }
+.cap{ position:absolute; left:0; right:0; bottom:9.5%; padding:0 7%; text-align:center; }
+.cap-en{
+  font-size:6.2cqmin; font-weight:640; line-height:1.12; letter-spacing:-.015em;
+  text-wrap:balance; color:var(--ink);
+}
+.cap-ar{
+  margin-top:1.9cqmin; font-size:4.05cqmin; font-weight:500; line-height:1.3;
+  color:var(--muted); direction:rtl; letter-spacing:0; text-wrap:balance;
+}
+
+/* shared entrance utilities (base = "out") */
+.u{ opacity:0; transform:translateY(2.8cqmin);
+  transition:opacity .8s var(--ease) var(--d,0s), transform .8s var(--ease) var(--d,0s); }
+.scene.on .u{ opacity:1; transform:none; }
+.pop{ opacity:0; transform:scale(.82);
+  transition:opacity .7s var(--ease) var(--d,0s), transform .9s var(--ease) var(--d,0s); }
+.scene.on .pop{ opacity:1; transform:scale(1); }
+.cap .cap-en{ transition-delay:.42s; }
+.cap .cap-ar{ transition-delay:.52s; }
+
+/* =================================================================
+   SCENE 0 — THE ASK : one person inside a tiny studio
+   ================================================================= */
+.studio{ position:relative; width:62cqmin; height:38cqmin; }
+.studio .room{
+  position:absolute; inset:0; border:.42cqmin solid var(--accent); border-radius:3cqmin;
+  box-shadow:inset 0 0 7cqmin rgba(255,159,10,.07);
+  opacity:0; transform:scale(.9);
+  transition:opacity .8s var(--ease), transform 1s var(--ease);
+}
+.scene.on .studio .room{ opacity:1; transform:scale(1); animation:roomGlow 4.5s var(--ease) 1s infinite; }
+.studio .floor{
+  position:absolute; left:8%; right:8%; bottom:20%; height:.3cqmin; background:linear-gradient(90deg,transparent,var(--line),transparent);
+  opacity:0; transition:opacity .7s var(--ease) .25s;
+}
+.scene.on .studio .floor{ opacity:1; }
+@keyframes roomGlow{ 0%,100%{ box-shadow:inset 0 0 7cqmin rgba(255,159,10,.06), 0 0 0 rgba(255,159,10,0);} 50%{ box-shadow:inset 0 0 11cqmin rgba(255,159,10,.13), 0 0 2.4cqmin rgba(255,159,10,.10);} }
+
+.person{ position:absolute; left:50%; bottom:21%; width:8.4cqmin; height:12cqmin; transform:translateX(-50%) scale(.5); opacity:0;
+  transition:opacity .6s var(--ease) .45s, transform .8s var(--ease) .45s; }
+.scene.on .person{ opacity:1; transform:translateX(-50%) scale(1); }
+.person .pbob{ position:absolute; inset:0; animation:bob 3.6s ease-in-out infinite; }
+.scene.on .person .pbob{ animation:bob 3.6s ease-in-out 1.1s infinite; }
+.person .head{ position:absolute; left:50%; top:0; transform:translateX(-50%); width:4.3cqmin; height:4.3cqmin; border-radius:50%; background:var(--ink); }
+.person .body{ position:absolute; left:50%; bottom:0; transform:translateX(-50%); width:7.6cqmin; height:6.6cqmin; border-radius:3.6cqmin 3.6cqmin 1.3cqmin 1.3cqmin; background:var(--ink); }
+@keyframes bob{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-.9cqmin);} }
+
+.gear{ position:absolute; opacity:0; transform:translate(var(--gx,0),var(--gy,0)) scale(.8);
+  transition:opacity .7s var(--ease) var(--d), transform .8s var(--ease) var(--d); }
+.scene.on .gear{ opacity:1; transform:translate(0,0) scale(1); }
+/* camera */
+.cam{ left:6%; bottom:16%; }
+.cam .body2{ width:9cqmin; height:5.4cqmin; border:.4cqmin solid var(--faint); border-radius:1cqmin; position:relative; background:rgba(255,255,255,.02); }
+.cam .lens{ position:absolute; right:-2cqmin; top:50%; transform:translateY(-50%); width:3.4cqmin; height:3.4cqmin; border-radius:50%; border:.4cqmin solid var(--accent); }
+.cam .vf{ position:absolute; left:1.4cqmin; top:-1.4cqmin; width:2.6cqmin; height:1.6cqmin; border:.4cqmin solid var(--faint); border-bottom:0; border-radius:.6cqmin .6cqmin 0 0; }
+.cam .leg{ position:absolute; left:50%; top:100%; width:.36cqmin; height:5cqmin; background:var(--faint); transform-origin:top center; }
+.cam .leg.l{ transform:translateX(-50%) rotate(20deg); }
+.cam .leg.r{ transform:translateX(-50%) rotate(-20deg); }
+/* light / softbox */
+.light{ right:7%; top:10%; }
+.light .panel2{ width:7cqmin; height:7cqmin; border-radius:1.2cqmin; background:linear-gradient(135deg,rgba(255,210,122,.9),var(--accent)); box-shadow:0 0 4cqmin var(--acc-glow); transform:rotate(-8deg); }
+.scene.on .light .panel2{ animation:lightPulse 3.8s ease-in-out 1.2s infinite; }
+@keyframes lightPulse{ 0%,100%{ box-shadow:0 0 3cqmin var(--acc-glow);} 50%{ box-shadow:0 0 6.5cqmin var(--acc-glow);} }
+.light .stand{ position:absolute; left:50%; top:90%; width:.36cqmin; height:6cqmin; background:var(--faint); transform:translateX(-50%); }
+/* clapperboard */
+.board{ right:10%; bottom:17%; }
+.board .b2{ width:8cqmin; height:6cqmin; border:.4cqmin solid var(--faint); border-radius:.8cqmin; background:rgba(255,255,255,.02); position:relative; overflow:hidden; }
+.board .top{ position:absolute; left:-.4cqmin; right:-.4cqmin; top:-.4cqmin; height:2cqmin; background:repeating-linear-gradient(115deg,var(--ink) 0 1.3cqmin, #0a0a0c 1.3cqmin 2.6cqmin); transform-origin:left center; }
+
+/* =================================================================
+   SCENE 1 — THE SYSTEM : Niagara Fog brand blueprint
+   ================================================================= */
+.sheet{
+  position:relative; width:69cqmin; height:43cqmin;
+  border-radius:2.6cqmin; border:.36cqmin solid var(--line); background:var(--panel);
+  padding:3.2cqmin 3.6cqmin; overflow:hidden;
+  display:grid; grid-template-rows:auto 1fr; gap:2.4cqmin;
+}
+.sheet .scan{ position:absolute; left:0; right:0; top:0; height:10cqmin; pointer-events:none;
+  background:linear-gradient(180deg,rgba(255,159,10,.16),transparent); opacity:0; }
+.scene.on .sheet .scan{ animation:scan 5.5s var(--ease) 1.2s infinite; }
+@keyframes scan{ 0%{ transform:translateY(-12cqmin); opacity:0;} 12%{opacity:.9;} 80%{opacity:.9;} 100%{ transform:translateY(46cqmin); opacity:0;} }
+
+.sheet .head2{ display:flex; align-items:center; gap:1.7cqmin; }
+.sheet .mark{ width:4.4cqmin; height:4.4cqmin; border-radius:1cqmin; background:linear-gradient(135deg,var(--accent-2),var(--accent)); box-shadow:0 0 2.4cqmin var(--acc-glow); position:relative; }
+.sheet .mark::after{ content:""; position:absolute; inset:1.3cqmin; border-radius:.4cqmin; background:#0a0a0c; opacity:.85; }
+.sheet .title2{ line-height:1; }
+.sheet .title2 b{ font-size:3.5cqmin; font-weight:680; letter-spacing:.01em; }
+.sheet .title2 small{ display:block; margin-top:.7cqmin; font-size:2.05cqmin; color:var(--faint); letter-spacing:.22em; text-transform:uppercase; }
+
+.sheet .cols{ display:grid; grid-template-columns:1fr 1fr; gap:3.4cqmin; align-content:start; }
+.lab{ font-size:1.95cqmin; letter-spacing:.2em; text-transform:uppercase; color:var(--faint); margin-bottom:1.5cqmin; }
+.grp{ margin-bottom:2.4cqmin; }
+
+/* tokens */
+.swatches{ display:flex; gap:1.4cqmin; }
+.swatches i{ width:3.6cqmin; height:3.6cqmin; border-radius:50%; }
+.swatches i:nth-child(1){ background:var(--accent); box-shadow:0 0 1.8cqmin var(--acc-glow); }
+.swatches i:nth-child(2){ background:#ffffff; }
+.swatches i:nth-child(3){ background:#8a8a93; }
+.swatches i:nth-child(4){ background:#45454c; }
+.swatches i:nth-child(5){ background:#23232a; border:.3cqmin solid var(--line); }
+/* type */
+.type{ display:flex; align-items:flex-end; gap:2cqmin; }
+.type .aa{ font-size:7.4cqmin; font-weight:700; line-height:.86; letter-spacing:-.02em; }
+.type .lines{ display:flex; flex-direction:column; gap:1cqmin; flex:1; padding-bottom:.6cqmin; }
+.type .lines b{ height:1.1cqmin; border-radius:1cqmin; background:rgba(255,255,255,.3); }
+.type .lines b:nth-child(1){ width:90%; }
+.type .lines b:nth-child(2){ width:64%; background:rgba(255,255,255,.16); }
+
+/* UI kit */
+.kit{ display:flex; flex-direction:column; gap:1.6cqmin; }
+.btnc{ display:inline-flex; align-self:flex-start; align-items:center; gap:1.2cqmin; padding:1.3cqmin 2.4cqmin; border-radius:1.4cqmin; background:var(--accent); box-shadow:0 .6cqmin 2cqmin rgba(255,159,10,.25); }
+.btnc i{ width:2cqmin; height:1.1cqmin; border-radius:1cqmin; background:rgba(0,0,0,.55); }
+.fieldc{ height:4cqmin; border-radius:1.2cqmin; border:.34cqmin solid var(--line); background:rgba(255,255,255,.02); display:flex; align-items:center; padding:0 1.4cqmin; }
+.fieldc i{ width:42%; height:1cqmin; border-radius:1cqmin; background:rgba(255,255,255,.22); }
+.togc{ display:flex; align-items:center; gap:1.3cqmin; }
+.togc .sw{ width:6.4cqmin; height:3.4cqmin; border-radius:2cqmin; background:var(--acc-soft); border:.3cqmin solid var(--accent); position:relative; }
+.togc .sw::after{ content:""; position:absolute; right:.5cqmin; top:50%; transform:translateY(-50%); width:2.4cqmin; height:2.4cqmin; border-radius:50%; background:var(--accent); }
+.togc b{ height:1cqmin; width:9cqmin; border-radius:1cqmin; background:rgba(255,255,255,.18); }
+/* catalog grid */
+.catalog{ display:grid; grid-template-columns:repeat(4,1fr); gap:1.1cqmin; }
+.catalog i{ aspect-ratio:1; border-radius:.8cqmin; background:rgba(255,255,255,.05); border:.28cqmin solid var(--line-2); }
+.catalog i:nth-child(3n){ background:var(--acc-soft); border-color:rgba(255,159,10,.35); }
+
+/* =================================================================
+   SCENE 2 — THE OUTPUT : burst + counter
+   ================================================================= */
+.output{ position:relative; width:84cqmin; height:46cqmin; }
+.source{ position:absolute; left:50%; top:50%; width:30cqmin; height:30cqmin; transform:translate(-50%,-50%);
+  background:radial-gradient(circle,var(--acc-soft),transparent 65%); opacity:0; }
+.scene.on .source{ opacity:1; transition:opacity .8s var(--ease) .2s; }
+
+.fly{ position:absolute; left:50%; top:50%; opacity:0;
+  transform:translate(-50%,-50%) scale(.18);
+  transition:opacity .55s var(--ease) var(--d), transform .95s var(--ease) var(--d); }
+.scene.on .fly{ opacity:1; transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) rotate(var(--r)) scale(1); }
+.fly .floaty{ animation:none; }
+.scene.on .fly .floaty{ animation:floaty 4.2s ease-in-out infinite; animation-delay:var(--fd,0s); }
+@keyframes floaty{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-1.2cqmin);} }
+
+.poster{ width:7cqmin; height:9.4cqmin; border-radius:1cqmin; background:rgba(255,255,255,.05); border:.3cqmin solid var(--line); padding:1cqmin; display:flex; flex-direction:column; gap:.8cqmin; }
+.poster b{ height:1.5cqmin; border-radius:.5cqmin; background:var(--accent); }
+.poster i{ height:.8cqmin; border-radius:.5cqmin; background:rgba(255,255,255,.22); }
+.poster i.sm{ width:60%; }
+.reel{ width:8.4cqmin; height:7.4cqmin; border-radius:1.2cqmin; background:rgba(255,255,255,.04); border:.3cqmin solid var(--line); display:grid; place-items:center; }
+.reel .play{ width:3cqmin; height:3.3cqmin; background:var(--accent); clip-path:polygon(0 0,100% 50%,0 100%); margin-left:.6cqmin; box-shadow:0 0 1.8cqmin var(--acc-glow); }
+.logo{ width:7.6cqmin; height:7.6cqmin; border-radius:50%; border:.34cqmin solid var(--line); background:rgba(255,255,255,.03); display:grid; place-items:center; }
+.logo i{ width:3cqmin; height:3cqmin; border-radius:.9cqmin; background:linear-gradient(135deg,var(--accent-2),var(--accent)); box-shadow:0 0 1.6cqmin var(--acc-glow); transform:rotate(45deg); }
+
+.counter{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  display:flex; align-items:center; gap:3.4cqmin; z-index:3; }
+.stat{ text-align:center; }
+.stat .num{ font-size:13cqmin; font-weight:730; line-height:.92; letter-spacing:-.03em; font-variant-numeric:tabular-nums;
+  background:linear-gradient(180deg,#fff,#cfcfd4); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.stat .lab2{ margin-top:.8cqmin; font-size:2.6cqmin; letter-spacing:.26em; text-transform:uppercase; color:var(--accent); }
+.csep{ width:.34cqmin; height:11cqmin; border-radius:1cqmin; background:linear-gradient(180deg,transparent,var(--line),transparent); }
+
+/* =================================================================
+   SCENE 3 — THE CRAFT : tools + GPU + restore
+   ================================================================= */
+.craft{ width:80cqmin; display:flex; flex-direction:column; align-items:center; gap:4.4cqmin; }
+.tools{ display:flex; flex-wrap:wrap; justify-content:center; gap:1.8cqmin; }
+.chip{ display:inline-flex; align-items:center; gap:1.4cqmin; padding:1.5cqmin 2.6cqmin; border-radius:5cqmin;
+  border:.34cqmin solid var(--line); background:rgba(255,255,255,.035); font-size:2.85cqmin; font-weight:560; letter-spacing:.005em; white-space:nowrap; }
+.chip i{ width:2cqmin; height:2cqmin; border-radius:.55cqmin; background:linear-gradient(135deg,var(--accent-2),var(--accent)); box-shadow:0 0 1.4cqmin var(--acc-glow); }
+
+.motifs{ display:flex; align-items:center; gap:6cqmin; }
+.motif{ display:flex; flex-direction:column; align-items:center; gap:1.8cqmin; }
+.motif .mlab{ font-size:2.05cqmin; letter-spacing:.2em; text-transform:uppercase; color:var(--faint); }
+
+/* GPU */
+.gpu{ position:relative; width:17cqmin; height:17cqmin; border-radius:2cqmin; border:.42cqmin solid rgba(255,255,255,.22);
+  background:rgba(255,255,255,.03); display:grid; place-items:center; }
+.gpu .die{ width:8.4cqmin; height:8.4cqmin; border-radius:1.2cqmin; background:radial-gradient(circle at 50% 38%,var(--accent-2),var(--accent)); }
+.scene.on .gpu .die{ animation:gpuPulse 2.6s ease-in-out 1s infinite; }
+@keyframes gpuPulse{ 0%,100%{ box-shadow:0 0 2cqmin var(--acc-glow);} 50%{ box-shadow:0 0 6.5cqmin var(--acc-glow);} }
+.gpu .pins{ position:absolute; background:repeating-linear-gradient(var(--dir,90deg),rgba(255,255,255,.32) 0 .9cqmin,transparent .9cqmin 2.3cqmin); }
+.gpu .pt{ left:22%; right:22%; top:-1.3cqmin; height:1.3cqmin; }
+.gpu .pb{ left:22%; right:22%; bottom:-1.3cqmin; height:1.3cqmin; }
+.gpu .pl{ top:22%; bottom:22%; left:-1.3cqmin; width:1.3cqmin; --dir:0deg; }
+.gpu .pr{ top:22%; bottom:22%; right:-1.3cqmin; width:1.3cqmin; --dir:0deg; }
+
+/* photo restore */
+.photo{ position:relative; width:20cqmin; height:14.5cqmin; border-radius:1.4cqmin; overflow:hidden; border:.42cqmin solid rgba(255,255,255,.2); background:#101015; }
+.photo .img{ position:absolute; inset:0; filter:grayscale(1) brightness(.62) contrast(.82) blur(.7cqmin);
+  transition:filter 1.5s var(--ease) .3s; background:linear-gradient(180deg,#3a3a44,#16161b); }
+.scene.on .photo .img{ filter:grayscale(0) brightness(1) contrast(1) blur(0); }
+.photo .sky{ position:absolute; inset:0; background:linear-gradient(180deg,#1d2740,#3b2a52 60%,#0e0e14); }
+.photo .sun{ position:absolute; left:24%; top:24%; width:5cqmin; height:5cqmin; border-radius:50%; background:radial-gradient(circle,var(--accent-2),var(--accent)); box-shadow:0 0 3cqmin var(--acc-glow); }
+.photo .hill{ position:absolute; left:-10%; right:-10%; bottom:0; height:46%; border-radius:50% 50% 0 0; background:#11131c; }
+.photo .hill.b{ left:30%; right:-20%; height:62%; background:#0a0b12; }
+.photo .sweep{ position:absolute; top:0; bottom:0; width:30%; left:-30%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.4),transparent); opacity:0; }
+.scene.on .photo .sweep{ animation:sweep 1.5s var(--ease) .35s; }
+@keyframes sweep{ 0%{ left:-30%; opacity:0;} 20%{opacity:.85;} 100%{ left:110%; opacity:0;} }
+
+/* =================================================================
+   END CARD
+   ================================================================= */
+.endcard{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:0 8%; }
+.endcard .kicker{ font-size:2.35cqmin; letter-spacing:.34em; text-transform:uppercase; color:var(--accent); margin-bottom:3.4cqmin; }
+.endcard .big{ font-size:9.4cqmin; font-weight:720; letter-spacing:-.02em; line-height:1; font-variant-numeric:tabular-nums; }
+.endcard .big .o{ color:var(--accent); }
+.endcard .big .dotm{ color:var(--faint); margin:0 1.4cqmin; font-weight:400; }
+.endcard .thesis{ margin-top:3.4cqmin; font-size:3.6cqmin; font-weight:560; color:rgba(255,255,255,.86); }
+.endcard .thesis-ar{ margin-top:1.4cqmin; font-size:2.95cqmin; color:var(--muted); direction:rtl; }
+
+/* =================================================================
+   REDUCED MOTION — static stacked panels
+   ================================================================= */
+@media (prefers-reduced-motion: reduce){
+  *{ animation:none !important; transition:none !important; }
+}
+.reduced .film{ aspect-ratio:auto; }
+.reduced .stage{ aspect-ratio:auto; container-type:normal; }
+.reduced .scenes{ position:static; }
+.reduced .scene{ position:relative; inset:auto; opacity:1 !important; visibility:visible !important;
+  aspect-ratio:16/9; container-type:size; border-top:.3cqmin solid var(--line); }
+.reduced .scene:first-child{ border-top:0; }
+.reduced .hud, .reduced .loopbar, .reduced .glow{ display:none; }
+.reduced .u, .reduced .pop, .reduced .person, .reduced .gear, .reduced .room, .reduced .floor, .reduced .fly, .reduced .source, .reduced .scan{ opacity:1 !important; transform:none !important; }
+.reduced .scene.on .fly{ transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) rotate(var(--r)) !important; }
+.reduced .person{ transform:translateX(-50%) !important; }
+.reduced .photo .img{ filter:grayscale(0) brightness(1) contrast(1) blur(0) !important; }
+.reduced .endcard{ position:relative; }
+
+/* =================================================================
+   RESPONSIVE — taller frame on narrow phones
+   ================================================================= */
+@media (max-width:560px){
+  .stage{ aspect-ratio:3/4; }
+  .cap-en{ font-size:5.4cqmin; }
+  .cap-ar{ font-size:3.7cqmin; }
+  .art{ top:9%; height:50%; }
+  .reduced .scene{ aspect-ratio:3/4; }
+}
+</style>
+</head>
+<body>
+
+<div class="film" id="film">
+  <div class="stage" id="stage">
+    <div class="glow"></div>
+    <div class="grain"></div>
+
+    <div class="hud">
+      <div class="hud-brand"><span class="bdot"></span><b>SYSTEM 4</b><span>· Brand &amp; content engine</span></div>
+      <div class="hud-dots">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      </div>
+    </div>
+
+    <div class="scenes" id="scenes">
+
+      <!-- ============ SCENE 0 — THE ASK ============ -->
+      <section class="scene" data-scene="0" data-screen-label="The ask">
+        <div class="art">
+          <div class="studio">
+            <div class="room"></div>
+            <div class="floor"></div>
+            <div class="gear cam" style="--gx:-4cqmin;--d:.62s">
+              <div class="body2">
+                <span class="vf"></span>
+                <span class="lens"></span>
+                <span class="leg l"></span><span class="leg r"></span>
+              </div>
+            </div>
+            <div class="gear light" style="--gx:4cqmin;--d:.74s">
+              <div class="panel2"></div><span class="stand"></span>
+            </div>
+            <div class="gear board" style="--gy:3cqmin;--d:.86s">
+              <div class="b2"><span class="top"></span></div>
+            </div>
+            <div class="person">
+              <div class="pbob">
+                <span class="head"></span><span class="body"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cap">
+          <div class="cap-en u">A B2B brand needed a whole studio.</div>
+          <div class="cap-ar u" lang="ar">احتاجت علامة B2B إلى استوديو كامل.</div>
+        </div>
+      </section>
+
+      <!-- ============ SCENE 1 — THE SYSTEM ============ -->
+      <section class="scene" data-scene="1" data-screen-label="The system">
+        <div class="art">
+          <div class="sheet">
+            <span class="scan"></span>
+            <div class="head2 u" style="--d:.05s">
+              <span class="mark"></span>
+              <span class="title2"><b>Niagara Fog</b><small>Brand system</small></span>
+            </div>
+            <div class="cols">
+              <div class="col">
+                <div class="grp">
+                  <div class="lab u" style="--d:.22s">Tokens</div>
+                  <div class="swatches">
+                    <i class="pop" style="--d:.3s"></i><i class="pop" style="--d:.36s"></i><i class="pop" style="--d:.42s"></i><i class="pop" style="--d:.48s"></i><i class="pop" style="--d:.54s"></i>
+                  </div>
+                </div>
+                <div class="grp">
+                  <div class="lab u" style="--d:.5s">Type</div>
+                  <div class="type">
+                    <span class="aa pop" style="--d:.56s">Aa</span>
+                    <span class="lines u" style="--d:.62s"><b></b><b></b></span>
+                  </div>
+                </div>
+              </div>
+              <div class="col">
+                <div class="grp">
+                  <div class="lab u" style="--d:.3s">UI kit</div>
+                  <div class="kit">
+                    <span class="btnc u" style="--d:.4s"><i></i><i></i></span>
+                    <span class="fieldc u" style="--d:.48s"><i></i></span>
+                    <span class="togc u" style="--d:.56s"><span class="sw"></span><b></b></span>
+                  </div>
+                </div>
+                <div class="grp">
+                  <div class="lab u" style="--d:.5s">Catalog</div>
+                  <div class="catalog">
+                    <i class="pop" style="--d:.6s"></i><i class="pop" style="--d:.64s"></i><i class="pop" style="--d:.68s"></i><i class="pop" style="--d:.72s"></i>
+                    <i class="pop" style="--d:.66s"></i><i class="pop" style="--d:.7s"></i><i class="pop" style="--d:.74s"></i><i class="pop" style="--d:.78s"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cap">
+          <div class="cap-en u">The Niagara Fog brand system.</div>
+          <div class="cap-ar u" lang="ar">نظام علامة Niagara Fog التجارية.</div>
+        </div>
+      </section>
+
+      <!-- ============ SCENE 2 — THE OUTPUT ============ -->
+      <section class="scene" data-scene="2" data-screen-label="The output">
+        <div class="art">
+          <div class="output">
+            <div class="source"></div>
+            <!-- flying items: posters / reels / logos -->
+            <div class="fly" style="--x:-34cqmin;--y:-12cqmin;--r:-9deg;--d:.06s"><div class="floaty" style="--fd:.2s"><div class="poster"><b></b><i></i><i class="sm"></i></div></div></div>
+            <div class="fly" style="--x:34cqmin;--y:-13cqmin;--r:8deg;--d:.12s"><div class="floaty" style="--fd:.6s"><div class="poster"><b></b><i></i><i class="sm"></i></div></div></div>
+            <div class="fly" style="--x:-39cqmin;--y:8cqmin;--r:6deg;--d:.18s"><div class="floaty" style="--fd:1s"><div class="reel"><span class="play"></span></div></div></div>
+            <div class="fly" style="--x:39cqmin;--y:7cqmin;--r:-7deg;--d:.1s"><div class="floaty" style="--fd:.4s"><div class="reel"><span class="play"></span></div></div></div>
+            <div class="fly" style="--x:-20cqmin;--y:-19cqmin;--r:-5deg;--d:.22s"><div class="floaty" style="--fd:.8s"><div class="logo"><i></i></div></div></div>
+            <div class="fly" style="--x:21cqmin;--y:-18cqmin;--r:5deg;--d:.16s"><div class="floaty" style="--fd:1.2s"><div class="logo"><i></i></div></div></div>
+            <div class="fly" style="--x:0cqmin;--y:18cqmin;--r:-4deg;--d:.26s"><div class="floaty" style="--fd:.5s"><div class="reel"><span class="play"></span></div></div></div>
+            <div class="fly" style="--x:-30cqmin;--y:18cqmin;--r:7deg;--d:.3s"><div class="floaty" style="--fd:.9s"><div class="logo"><i></i></div></div></div>
+            <div class="fly" style="--x:30cqmin;--y:18cqmin;--r:-8deg;--d:.28s"><div class="floaty" style="--fd:.3s"><div class="poster"><b></b><i></i><i class="sm"></i></div></div></div>
+
+            <div class="counter">
+              <div class="stat"><div class="num" id="files">~254</div><div class="lab2">files</div></div>
+              <div class="csep"></div>
+              <div class="stat"><div class="num" id="vids">~144</div><div class="lab2">videos</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="cap">
+          <div class="cap-en u">One person, the output of a studio.</div>
+          <div class="cap-ar u" lang="ar">شخص واحد، بإنتاج استوديو كامل.</div>
+        </div>
+      </section>
+
+      <!-- ============ SCENE 3 — THE CRAFT ============ -->
+      <section class="scene" data-scene="3" data-screen-label="The craft">
+        <div class="art">
+          <div class="craft">
+            <div class="tools">
+              <span class="chip u" style="--d:.06s"><i></i>Canva</span>
+              <span class="chip u" style="--d:.16s"><i></i>After Effects</span>
+              <span class="chip u" style="--d:.26s"><i></i>Premiere</span>
+              <span class="chip u" style="--d:.36s"><i></i>AI video</span>
+            </div>
+            <div class="motifs">
+              <div class="motif pop" style="--d:.46s">
+                <div class="gpu">
+                  <span class="pins pt"></span><span class="pins pb"></span><span class="pins pl"></span><span class="pins pr"></span>
+                  <span class="die"></span>
+                </div>
+                <span class="mlab">Rented GPUs</span>
+              </div>
+              <div class="motif pop" style="--d:.58s">
+                <div class="photo">
+                  <div class="img">
+                    <span class="sky"></span><span class="sun"></span>
+                    <span class="hill"></span><span class="hill b"></span>
+                  </div>
+                  <span class="sweep"></span>
+                </div>
+                <span class="mlab">Legacy photos restored</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cap">
+          <div class="cap-en u">AI video on rented GPUs; legacy photos restored.</div>
+          <div class="cap-ar u" lang="ar">فيديو بالذكاء الاصطناعي على معالجات GPU مُستأجَرة، مع ترميم الصور القديمة.</div>
+        </div>
+      </section>
+
+      <!-- ============ END CARD ============ -->
+      <section class="scene" data-scene="4" data-screen-label="Result">
+        <div class="endcard">
+          <div class="kicker u" style="--d:.05s">SYSTEM 4 · Brand &amp; content engine</div>
+          <div class="big u" style="--d:.18s"><span class="o">~254</span> files <span class="dotm">·</span> <span class="o">~144</span> videos</div>
+          <div class="thesis u" style="--d:.34s">One person, the output of a studio.</div>
+          <div class="thesis-ar u" style="--d:.44s" lang="ar">شخص واحد، بإنتاج استوديو كامل.</div>
+        </div>
+      </section>
+
+    </div><!-- /scenes -->
+
+    <div class="vignette"></div>
+    <div class="loopbar"><i id="loopfill"></i></div>
+  </div><!-- /stage -->
+</div><!-- /film -->
+
+<script>
+(function(){
+  var root    = document.documentElement;
+  var scenes  = Array.prototype.slice.call(document.querySelectorAll('.scene'));
+  var dots    = Array.prototype.slice.call(document.querySelectorAll('.dot'));
+  var fill    = document.getElementById('loopfill');
+  var filesEl = document.getElementById('files');
+  var vidsEl  = document.getElementById('vids');
+
+  /* scene durations (ms) — total ≈ 35s */
+  var DUR    = [7000, 7400, 8800, 7600, 4600];
+  var total  = DUR.reduce(function(a,b){ return a+b; }, 0);
+  var starts = []; (function(){ var a=0; for(var k=0;k<DUR.length;k++){ starts.push(a); a+=DUR[k]; } })();
+
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* continuous loop progress bar, kept in lockstep with scenes */
+  function setBar(n){
+    var from = starts[n]/total, to = (starts[n]+DUR[n])/total;
+    fill.style.transition = 'none';
+    fill.style.transform  = 'scaleX(' + from + ')';
+    void fill.offsetWidth;
+    fill.style.transition = 'transform ' + DUR[n] + 'ms linear';
+    fill.style.transform  = 'scaleX(' + to + ')';
+  }
+
+  /* ticking counter */
+  var raf = null, cTimer = null;
+  function tick(el, target, dur){
+    if(!el) return;
+    var t0 = null;
+    function step(ts){
+      if(t0===null) t0 = ts;
+      var p = Math.min(1, (ts - t0) / dur);
+      var e = 1 - Math.pow(1 - p, 3);
+      el.textContent = '~' + Math.round(e * target);
+      if(p < 1){ raf = requestAnimationFrame(step); }
+      else { el.textContent = '~' + target; }
+    }
+    raf = requestAnimationFrame(step);
+  }
+
+  function activate(n){
+    for(var k=0;k<scenes.length;k++) scenes[k].classList.remove('on');
+    var el = scenes[n];
+    void el.offsetWidth;               /* reflow → restart CSS animations */
+    el.classList.add('on');
+    for(var d=0; d<dots.length; d++) dots[d].classList.toggle('act', d===n);
+    setBar(n);
+
+    if(cTimer){ clearTimeout(cTimer); cTimer = null; }
+    if(raf){ cancelAnimationFrame(raf); raf = null; }
+    if(n === 2){
+      if(filesEl) filesEl.textContent = '~0';
+      if(vidsEl)  vidsEl.textContent  = '~0';
+      cTimer = setTimeout(function(){
+        tick(filesEl, 254, 1700);
+        tick(vidsEl, 144, 1700);
+      }, 650);
+    }
+  }
+
+  var i = 0, timer = null;
+  function run(){
+    activate(i);
+    timer = setTimeout(function(){ i = (i + 1) % DUR.length; run(); }, DUR[i]);
+  }
+
+  if(reduce){
+    root.classList.add('reduced');
+    for(var s=0;s<scenes.length;s++) scenes[s].classList.add('on');
+    if(filesEl) filesEl.textContent = '~254';
+    if(vidsEl)  vidsEl.textContent  = '~144';
+  } else {
+    run();
+  }
+})();
+</script>
+</body>
+</html>
