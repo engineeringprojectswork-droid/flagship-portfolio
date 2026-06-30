@@ -8,304 +8,270 @@ interface Props {
 const { lang } = Astro.props;
 const ar = lang === 'ar';
 
+// Grand-finale convergence contact (Claude Design pack #2). SSR-bilingual.
 const kicker = ar ? 'لنتحدّث' : 'Let’s talk';
-const h2 = ar ? 'وظِّف واحدًا.<br>واحصل على فريق.' : 'Hire one.<br>Get a team.';
+const l1 = ar ? 'وظِّف واحدًا.' : 'Hire one.';
+const l2 = ar ? 'واحصل على فريق.' : 'Get a team.';
 const lead = ar
   ? 'متاحٌ لوظائف التسويق وعملياته وأتمتة الذكاء الاصطناعي في الكويت ودول الخليج.'
   : 'Open to marketing, marketing-ops, and AI-automation roles in Kuwait & the GCC.';
-const sign = ar ? 'متاحٌ الآن · الكويت ودول الخليج' : 'Available now · Kuwait & the GCC';
+const sig = ar ? 'متاحٌ الآن · الكويت ودول الخليج' : 'Available now · Kuwait & the GCC';
+const arrow = ar ? '←' : '→';
 
-const channels = [
+const cards = [
   {
+    acc: 'var(--cf-green)',
     href: profile.contact.whatsapp,
-    name: 'WhatsApp',
+    ext: true,
+    label: 'WhatsApp',
     sub: ar ? 'أسرع طريقة للوصول إليّ' : 'the fastest way to reach me',
-    ext: true,
-    // WhatsApp glyph
-    path: 'M19.05 4.91A9.82 9.82 0 0 0 12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.004c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01zM12.04 20.15h-.003a8.2 8.2 0 0 1-4.18-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 0 1-1.26-4.38c0-4.54 3.7-8.23 8.24-8.23a8.2 8.2 0 0 1 8.23 8.24c0 4.54-3.7 8.23-8.24 8.23zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.13-.16.25-.64.81-.78.97-.14.17-.29.19-.54.06-.25-.12-1.05-.39-1.99-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.01-.38.11-.51.11-.11.25-.29.37-.43.13-.14.17-.25.25-.41.08-.17.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.4-.42-.56-.43h-.48c-.17 0-.43.06-.66.31-.22.25-.86.85-.86 2.07s.89 2.4 1.01 2.56c.12.17 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.56.1.47-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.14-1.18-.06-.1-.22-.16-.47-.28z',
+    ltr: false,
+    svg: '<svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.05L2 22l5.1-1.34A10 10 0 1 0 12 2Zm5.5 14.2c-.23.64-1.34 1.23-1.85 1.27-.5.05-1.13.07-1.82-.11-.42-.11-.96-.32-1.66-.62-2.92-1.26-4.83-4.2-4.97-4.4-.15-.2-1.2-1.6-1.2-3.06s.77-2.16 1.04-2.46c.27-.3.59-.37.79-.37l.57.01c.18.01.43-.07.67.51.23.58.8 1.99.86 2.13.06.15.1.32.02.51-.08.2-.12.32-.24.49-.12.17-.25.38-.36.5-.12.13-.24.27-.1.51.14.24.62 1.02 1.33 1.65.92.82 1.69 1.07 1.93 1.19.24.12.38.1.52-.06.14-.17.6-.7.76-.94.16-.24.31-.2.53-.12.21.08 1.36.64 1.59.76.23.12.39.18.44.28.05.1.05.58-.18 1.22Z"/></svg>',
   },
   {
+    acc: 'var(--cf-violet)',
     href: `mailto:${profile.contact.email}`,
-    name: 'Email',
-    sub: profile.contact.email,
     ext: false,
-    // envelope
-    path: 'M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 2v.01l8 5 8-5V6H4zm16 2.24-7.46 4.66a1 1 0 0 1-1.08 0L4 8.24V18h16V8.24z',
+    label: ar ? 'البريد الإلكتروني' : 'Email',
+    sub: profile.contact.email,
+    ltr: true,
+    svg: '<svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m3.5 7 8.5 6 8.5-6"/></svg>',
   },
   {
+    acc: 'var(--cf-blue)',
     href: profile.contact.linkedin,
-    name: 'LinkedIn',
-    sub: ar ? 'ملفي المهني' : 'my professional profile',
     ext: true,
-    // LinkedIn glyph
-    path: 'M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9h4v12H3V9zm6 0h3.83v1.64h.05c.53-1 1.84-2.05 3.79-2.05 4.05 0 4.8 2.67 4.8 6.14V21h-4v-5.49c0-1.31-.02-3-1.83-3-1.83 0-2.11 1.43-2.11 2.9V21H9V9z',
+    label: ar ? 'لينكدإن' : 'LinkedIn',
+    sub: ar ? 'ملفي المهني' : 'my professional profile',
+    ltr: false,
+    svg: '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM3 9h4v12H3zM10 9h3.8v1.7h.05c.53-.95 1.83-1.95 3.77-1.95 4.03 0 4.78 2.5 4.78 5.76V21h-4v-5.2c0-1.24-.02-2.84-1.9-2.84-1.9 0-2.2 1.36-2.2 2.76V21h-4z"/></svg>',
   },
 ];
 ---
 
-<section class="finale" id="contact" data-pin style="height:200vh">
-  <div class="finale__stage" data-stage>
-    <!-- converging glow — scales as the section scrubs into view -->
-    <div class="finale__aura" aria-hidden="true">
-      <span class="finale__blob finale__blob--a"></span>
-      <span class="finale__blob finale__blob--b"></span>
-      <span class="finale__blob finale__blob--c"></span>
-      <span class="finale__core"></span>
+<section class:list={['cf', { 'is-ar': ar }]} id="contact" aria-label={`${l1} ${l2}`}>
+  <div class="cf-stars" aria-hidden="true"></div>
+  <div class="cf-corefb" aria-hidden="true"></div>
+  <canvas id="contactFx" class="cf-fx" aria-hidden="true"></canvas>
+  <div class="cf-scrim" aria-hidden="true"></div>
+
+  <div class="cf-wrap">
+    <p class="cf-kicker cf-reveal">{kicker}</p>
+    <h1 class="cf-h">
+      <span class="cf-l1 cf-reveal">{l1}</span>
+      <span class="cf-l2 cf-reveal">{l2}</span>
+    </h1>
+    <p class="cf-lead cf-reveal">{lead}</p>
+
+    <div class="cf-cards cf-reveal">
+      {
+        cards.map((c) => (
+          <a
+            class="cf-card"
+            style={`--acc:${c.acc}`}
+            href={c.href}
+            {...(c.ext ? { target: '_blank', rel: 'noopener' } : {})}
+            aria-label={`${c.label} — ${c.sub}`}
+          >
+            <span class="cf-card__ic" aria-hidden="true" set:html={c.svg} />
+            <span class="cf-card__tx">
+              <span class="cf-card__lbl">{c.label}</span>
+              <span class="cf-card__sub" {...(c.ltr ? { dir: 'ltr' } : {})}>{c.sub}</span>
+            </span>
+            <span class="cf-card__arr" aria-hidden="true">{arrow}</span>
+          </a>
+        ))
+      }
     </div>
 
-    <div class="finale__inner">
-      <p class="finale__kicker" data-step data-glow>{kicker}</p>
-      <h2 class="finale__h" data-step data-glow set:html={h2}></h2>
-      <p class="finale__lead" data-step>{lead}</p>
-
-      <div class="finale__cards" data-step>
-        {
-          channels.map((c) => (
-            <a
-              class="fcontact"
-              href={c.href}
-              {...(c.ext ? { target: '_blank', rel: 'noopener' } : {})}
-            >
-              <span class="fcontact__ic">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d={c.path} fill="currentColor" />
-                </svg>
-              </span>
-              <span class="fcontact__txt">
-                <b>{c.name}</b>
-                <i dir="ltr">{c.sub}</i>
-              </span>
-              <span class="fcontact__go" aria-hidden="true">{ar ? '←' : '→'}</span>
-            </a>
-          ))
-        }
-      </div>
-
-      <p class="finale__sign" data-step>
-        <span class="finale__dot" aria-hidden="true"></span>
-        {sign}
-      </p>
-    </div>
+    <p class="cf-sig cf-reveal"><span class="cf-pulse" aria-hidden="true"></span><span>{sig}</span></p>
   </div>
 </section>
 
 <style>
-  .finale {
-    position: relative;
-    z-index: 1;
+  .cf {
+    --cf-pink: #ff5e8a; --cf-violet: #a259ff; --cf-blue: #2997ff; --cf-cyan: #64d2ff; --cf-green: #30d158;
+    position: relative; width: 100%; height: 100svh; min-height: 600px; overflow: hidden; z-index: 1;
+    background: radial-gradient(150% 130% at 50% 46%, #11101e 0%, #09090f 52%, #050509 100%);
   }
-  .finale__stage {
-    position: sticky;
-    top: 0;
-    min-height: 100svh;
-    display: grid;
-    place-items: center;
-    overflow: hidden;
-    padding: 80px clamp(20px, 5vw, 40px);
+  .cf.is-ar { font-family: var(--font-ar-display, "SF Arabic", "Segoe UI", "Noto Sans Arabic", Tahoma, sans-serif); }
+
+  .cf-stars {
+    position: absolute; inset: -10%; z-index: 0; pointer-events: none; opacity: .8;
+    background-image:
+      radial-gradient(1.5px 1.5px at 14% 16%, rgba(255,255,255,.6), transparent 60%),
+      radial-gradient(1.2px 1.2px at 80% 12%, rgba(180,210,255,.5), transparent 60%),
+      radial-gradient(1px 1px at 30% 70%, rgba(255,255,255,.45), transparent 60%),
+      radial-gradient(1.5px 1.5px at 66% 76%, rgba(255,200,230,.45), transparent 60%),
+      radial-gradient(1px 1px at 90% 54%, rgba(200,255,220,.4), transparent 60%),
+      radial-gradient(1.2px 1.2px at 20% 86%, rgba(180,210,255,.4), transparent 60%),
+      radial-gradient(1px 1px at 50% 32%, rgba(255,255,255,.4), transparent 60%);
+  }
+  .cf-fx { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; pointer-events: none; }
+  .cf-corefb {
+    position: absolute; z-index: 1; left: 50%; top: 48%; width: 54vmin; height: 54vmin; transform: translate(-50%,-50%); border-radius: 50%; pointer-events: none;
+    background: radial-gradient(circle, rgba(255,250,240,.5), rgba(255,180,120,.18) 32%, rgba(162,89,255,.12) 54%, transparent 72%); filter: blur(10px);
+  }
+  .cf-scrim {
+    position: absolute; z-index: 2; left: 50%; top: 50%; width: min(130vw,1200px); height: min(86vh,760px); transform: translate(-50%,-50%); pointer-events: none;
+    background: radial-gradient(58% 52% at 50% 50%, rgba(6,6,11,.6), rgba(6,6,11,.26) 56%, transparent 78%);
   }
 
-  /* converging glow background, driven by the biome --p (0→1) */
-  .finale__aura {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
+  .cf-wrap {
+    position: relative; z-index: 3; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+    padding: clamp(40px,8vh,90px) clamp(22px,5vw,44px);
   }
-  .finale__blob {
-    position: absolute;
-    left: 50%;
-    top: 48%;
-    border-radius: 50%;
-    filter: blur(60px);
-    transform: translate(-50%, -50%) scale(calc(0.55 + var(--p, 0) * 0.7));
-    opacity: calc(0.16 + var(--p, 0) * 0.7);
-  }
-  .finale__blob--a {
-    width: 60vw;
-    height: 60vw;
-    background: radial-gradient(circle, rgba(41, 151, 255, 0.5), transparent 62%);
-  }
-  .finale__blob--b {
-    width: 44vw;
-    height: 44vw;
-    left: 62%;
-    background: radial-gradient(circle, rgba(191, 90, 242, 0.45), transparent 62%);
-  }
-  .finale__blob--c {
-    width: 40vw;
-    height: 40vw;
-    left: 38%;
-    top: 58%;
-    background: radial-gradient(circle, rgba(48, 209, 88, 0.32), transparent 64%);
-  }
-  .finale__core {
-    position: absolute;
-    left: 50%;
-    top: 48%;
-    width: min(30vw, 320px);
-    height: min(30vw, 320px);
-    transform: translate(-50%, -50%) scale(calc(0.5 + var(--p, 0) * 0.7));
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.7), rgba(150, 196, 255, 0.32) 26%, transparent 60%);
-    filter: blur(6px);
-    opacity: calc(0.14 + var(--p, 0) * 0.7);
-  }
+  .cf-reveal { opacity: 1; }
 
-  /* reveal-in: the biome engine (lib/biome.ts) raises these as the section
-     scrubs into view; hidden at rest so they animate in (JS-gated home). */
-  .finale [data-step] {
-    opacity: 0;
-    transform: translateY(32px);
-    will-change: transform, opacity;
+  .cf-kicker {
+    margin: 0 0 clamp(16px,2.4vh,24px); font-size: clamp(12px,1.4vw,15px); font-weight: 600; letter-spacing: .3em; text-transform: uppercase;
+    background: linear-gradient(90deg, var(--cf-cyan), var(--cf-violet)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent;
   }
-  .finale__inner {
-    position: relative;
-    z-index: 2;
-    width: 100%;
-    max-width: 760px;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  .finale__kicker {
-    font-family: var(--font-mono);
-    font-size: clamp(12px, 1.4vw, 14px);
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--accent-ink);
-  }
-  .finale__h {
-    font-size: clamp(44px, 9vw, 120px);
-    font-weight: 850;
-    line-height: 1;
-    letter-spacing: -0.04em;
-    margin: 16px 0 0;
-    color: var(--ink);
-  }
-  [dir='rtl'] .finale__h {
-    letter-spacing: 0;
-    line-height: 1.14;
-  }
-  .finale__lead {
-    color: var(--ink-2);
-    font-size: clamp(17px, 2.2vw, 22px);
-    line-height: 1.5;
-    max-width: 30ch;
-    margin: 22px 0 0;
-  }
-  [dir='rtl'] .finale__lead {
-    max-width: 38ch;
-    line-height: 1.8;
-  }
+  .cf.is-ar .cf-kicker { letter-spacing: .12em; }
 
-  /* the three premium contact cards */
-  .finale__cards {
-    width: 100%;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 14px;
-    margin-top: 40px;
-  }
-  .fcontact {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    text-align: start;
-    text-decoration: none;
-    padding: 18px 20px;
-    border-radius: 18px;
-    border: 1px solid var(--glass-brd, rgba(255, 255, 255, 0.12));
-    background: var(--glass-bg, rgba(255, 255, 255, 0.05));
-    backdrop-filter: saturate(160%) blur(20px);
-    -webkit-backdrop-filter: saturate(160%) blur(20px);
-    color: var(--ink);
-    transition: transform 0.4s var(--ease), border-color 0.3s, box-shadow 0.4s, background 0.3s;
-  }
-  .fcontact:hover {
-    transform: translateY(-4px);
-    border-color: color-mix(in srgb, var(--accent) 60%, transparent);
-    background: color-mix(in srgb, var(--accent) 8%, var(--glass-bg, rgba(255, 255, 255, 0.05)));
-    box-shadow: 0 22px 50px -24px color-mix(in srgb, var(--accent) 75%, transparent),
-      0 0 40px -10px color-mix(in srgb, var(--accent) 40%, transparent);
-  }
-  .fcontact__ic {
-    flex: 0 0 auto;
-    display: grid;
-    place-items: center;
-    width: 46px;
-    height: 46px;
-    border-radius: 13px;
-    color: var(--accent-ink);
-    background: color-mix(in srgb, var(--accent) 16%, transparent);
-    border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
-  }
-  .fcontact__ic svg {
-    width: 24px;
-    height: 24px;
+  .cf-h { margin: 0; font-weight: 850; letter-spacing: -.04em; line-height: 1; font-size: clamp(44px,9vw,120px); text-wrap: balance; }
+  .cf-l1 { display: block; color: var(--ink, #f3f4ff); }
+  .cf-l2 {
     display: block;
+    background: linear-gradient(100deg, var(--cf-pink), var(--cf-violet) 38%, var(--cf-blue) 70%, var(--cf-cyan));
+    background-size: 220% 100%;
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent;
+    filter: drop-shadow(0 8px 50px rgba(120,110,255,.4)); animation: cfShimmer 9s ease-in-out infinite;
   }
-  .fcontact__txt {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    min-width: 0;
-    flex: 1;
-  }
-  .fcontact__txt b {
-    font-size: 17px;
-    font-weight: 700;
-  }
-  .fcontact__txt i {
-    font-style: normal;
-    font-size: 13px;
-    color: var(--ink-2);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  [dir='rtl'] .fcontact__txt i {
-    text-align: start;
-  }
-  .fcontact__go {
-    flex: 0 0 auto;
-    font-size: 20px;
-    color: var(--ink-3);
-    transition: transform 0.3s var(--ease), color 0.3s;
-  }
-  .fcontact:hover .fcontact__go {
-    color: var(--accent-ink);
-    transform: translateX(4px);
-  }
-  [dir='rtl'] .fcontact:hover .fcontact__go {
-    transform: translateX(-4px);
-  }
+  @keyframes cfShimmer { 0%,100% { background-position: 0% 50% } 50% { background-position: 100% 50% } }
+  .cf.is-ar .cf-h { letter-spacing: 0; line-height: 1.16; font-size: clamp(40px,8.4vw,112px); }
 
-  .finale__sign {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 34px;
-    font-family: var(--font-mono);
-    font-size: clamp(12px, 1.4vw, 14px);
-    letter-spacing: 0.06em;
-    color: var(--ink-2);
+  .cf-lead { margin: clamp(20px,3vh,30px) 0 0; font-size: clamp(15px,1.85vw,21px); font-weight: 450; line-height: 1.5; color: var(--ink-2, #aab0d6); max-width: 44ch; }
+  .cf.is-ar .cf-lead { font-size: clamp(16px,2vw,23px); line-height: 1.7; max-width: 40ch; }
+
+  .cf-cards { margin-top: clamp(30px,4.6vh,48px); display: flex; gap: clamp(12px,1.6vw,18px); width: min(100%,960px); }
+  .cf-card {
+    --acc: var(--cf-blue); flex: 1 1 0; display: flex; align-items: center; gap: clamp(12px,1.6vw,16px); text-align: start; text-decoration: none; color: inherit;
+    padding: clamp(16px,2vw,22px) clamp(16px,2vw,24px); border-radius: 18px;
+    background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.12); backdrop-filter: saturate(150%) blur(16px);
+    transition: transform .3s cubic-bezier(.16,1,.3,1), border-color .3s ease, box-shadow .3s ease, background .3s ease;
   }
-  .finale__dot {
-    width: 9px;
-    height: 9px;
-    border-radius: 50%;
-    background: #30d158;
-    box-shadow: 0 0 12px #30d158;
-    animation: finalePulse 2.4s var(--ease) infinite;
+  .cf-card:hover, .cf-card:focus-visible {
+    transform: translateY(-4px); outline: none; border-color: color-mix(in srgb, var(--acc) 60%, transparent);
+    box-shadow: 0 24px 60px -24px color-mix(in srgb, var(--acc) 80%, transparent), 0 0 0 1px color-mix(in srgb, var(--acc) 30%, transparent) inset; background: rgba(255,255,255,.07);
   }
-  @keyframes finalePulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(0.78); }
+  .cf-card__ic {
+    width: clamp(40px,5vw,52px); height: clamp(40px,5vw,52px); border-radius: 13px; flex: none; display: grid; place-items: center; color: #fff;
+    background: linear-gradient(150deg, color-mix(in srgb, var(--acc) 60%, #0b0b12), color-mix(in srgb, var(--acc) 24%, #0b0b12)); box-shadow: 0 8px 24px -12px var(--acc);
   }
+  .cf-card__tx { display: flex; flex-direction: column; gap: 3px; min-width: 0; flex: 1; }
+  .cf-card__lbl { font-size: clamp(15px,1.8vw,20px); font-weight: 700; letter-spacing: -.01em; }
+  .cf-card__sub { font-size: clamp(12px,1.4vw,14.5px); color: var(--ink-2, #aab0d6); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: start; }
+  .cf-card__arr { flex: none; color: var(--ink-3, #6f74a0); font-size: clamp(16px,1.9vw,21px); transition: transform .3s cubic-bezier(.16,1,.3,1), color .3s ease; }
+  .cf-card:hover .cf-card__arr, .cf-card:focus-visible .cf-card__arr { color: var(--acc); transform: translateX(5px); }
+  .cf.is-ar .cf-card:hover .cf-card__arr, .cf.is-ar .cf-card:focus-visible .cf-card__arr { transform: translateX(-5px); }
+
+  .cf-sig { margin-top: clamp(26px,4vh,40px); display: inline-flex; align-items: center; gap: 10px; font-size: clamp(13px,1.5vw,16px); color: var(--ink-2, #aab0d6); }
+  .cf-pulse { position: relative; width: 9px; height: 9px; flex: none; border-radius: 50%; background: var(--cf-green); box-shadow: 0 0 10px var(--cf-green); }
+  .cf-pulse::after { content: ""; position: absolute; inset: -4px; border-radius: 50%; border: 1.5px solid var(--cf-green); opacity: .6; animation: cfPing 2.2s cubic-bezier(.16,1,.3,1) infinite; }
+  @keyframes cfPing { 0% { transform: scale(.7); opacity: .7 } 100% { transform: scale(2.4); opacity: 0 } }
+
+  :global([data-theme='light']) .cf { background: radial-gradient(150% 130% at 50% 46%, #eef1fb 0%, #f4f5fb 52%, #fbfbfe 100%); }
+  :global([data-theme='light']) .cf-scrim { background: radial-gradient(58% 52% at 50% 50%, rgba(244,245,251,.66), rgba(244,245,251,.28) 56%, transparent 78%); }
+  :global([data-theme='light']) .cf-l1 { color: #0b0b14; }
+  :global([data-theme='light']) .cf-lead { color: #3a3f5c; }
+  :global([data-theme='light']) .cf-card { background: rgba(12,14,28,.04); border-color: rgba(10,12,30,.12); }
+  :global([data-theme='light']) .cf-card__sub, :global([data-theme='light']) .cf-sig { color: #3a3f5c; }
 
   @media (max-width: 820px) {
-    .finale__cards {
-      grid-template-columns: 1fr;
-    }
+    .cf-cards { flex-direction: column; width: min(100%,460px); }
+    .cf-card__sub { white-space: normal; }
   }
 </style>
+
+<script>
+  // Convergence canvas + entrance reveal for the contact finale. Guarded +
+  // re-bound for Astro View Transitions; tears down the old rAF on re-init.
+  let cfRaf: number | null = null;
+  let cfCleanup: (() => void) | null = null;
+
+  function initContact() {
+    cfCleanup?.();
+    const cv = document.getElementById('contactFx') as HTMLCanvasElement | null;
+    if (!cv) return;
+    const ctx = cv.getContext('2d');
+    if (!ctx) return;
+
+    const section = cv.closest('.cf') as HTMLElement;
+    const reveals = Array.from(section.querySelectorAll<HTMLElement>('.cf-reveal'));
+    reveals.forEach((el) => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(24px)';
+    });
+    const coreFb = section.querySelector<HTMLElement>('.cf-corefb');
+    if (coreFb) coreFb.style.display = 'none';
+
+    let W = 0, H = 0, cx = 0, cy = 0;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const COLORS = ['#2997ff', '#ff5e8a', '#a259ff', '#30d158', '#64d2ff', '#ffd60a'];
+    type B = { col: string; ang: number; dist: number; size: number; spin: number; phase: number };
+    let blobs: B[] = [];
+    let start = 0;
+
+    const rgba = (hex: string, a: number) => {
+      const n = parseInt(hex.slice(1), 16);
+      return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
+    };
+    const resize = () => {
+      W = cv.clientWidth; H = cv.clientHeight; cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      cx = W * 0.5; cy = H * 0.5;
+      blobs = COLORS.map((c, i) => {
+        const ang = (i / COLORS.length) * Math.PI * 2;
+        return { col: c, ang, dist: Math.min(W, H) * (0.26 + (i % 2) * 0.05), size: Math.min(W, H) * (0.34 + (i % 3) * 0.04), spin: (i % 2 ? 1 : -1) * (0.012 + (i % 3) * 0.004), phase: i * 1.1 };
+      });
+    };
+    const frame = (now: number) => {
+      if (!start) start = now;
+      const t = (now - start) / 1000;
+      for (let k = 0; k < reveals.length; k++) {
+        const rd = 0.22 + k * 0.13, rp = Math.max(0, Math.min(1, (t - rd) / 0.85)), re = 1 - Math.pow(1 - rp, 3);
+        reveals[k].style.opacity = String(re);
+        reveals[k].style.transform = `translateY(${(24 * (1 - re)).toFixed(1)}px)`;
+      }
+      const p = Math.min(1, t / 1.1), ep = 1 - Math.pow(1 - p, 3);
+      ctx.clearRect(0, 0, W, H);
+      ctx.globalCompositeOperation = 'lighter';
+      for (let i = 0; i < blobs.length; i++) {
+        const b = blobs[i];
+        const ang = b.ang + t * b.spin;
+        const breath = 1 + 0.1 * Math.sin(t * 0.6 + b.phase);
+        const d = b.dist * breath * (0.4 + 0.6 * ep);
+        const bx = cx + Math.cos(ang) * d, by = cy + Math.sin(ang) * d * 0.86;
+        const rad = b.size * (0.9 + 0.1 * Math.sin(t * 0.5 + b.phase));
+        const g = ctx.createRadialGradient(bx, by, 0, bx, by, rad);
+        g.addColorStop(0, rgba(b.col, 0.3 * ep));
+        g.addColorStop(0.5, rgba(b.col, 0.1 * ep));
+        g.addColorStop(1, rgba(b.col, 0));
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(bx, by, rad, 0, Math.PI * 2); ctx.fill();
+      }
+      const pulse = 0.5 + 0.5 * Math.sin((t / 7) * Math.PI * 2);
+      const coreR = Math.min(W, H) * 0.2 * (0.92 + 0.12 * pulse) * ep;
+      const cg = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreR * 2.2);
+      cg.addColorStop(0, rgba('#fff7ee', 0.82 * ep));
+      cg.addColorStop(0.22, rgba('#ffe6c8', 0.4 * ep));
+      cg.addColorStop(0.5, rgba('#a259ff', 0.16 * ep));
+      cg.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = cg; ctx.beginPath(); ctx.arc(cx, cy, coreR * 2.2, 0, Math.PI * 2); ctx.fill();
+      ctx.globalCompositeOperation = 'source-over';
+      cfRaf = requestAnimationFrame(frame);
+    };
+
+    window.addEventListener('resize', resize);
+    resize();
+    cfRaf = requestAnimationFrame(frame);
+    cfCleanup = () => {
+      if (cfRaf) cancelAnimationFrame(cfRaf);
+      cfRaf = null;
+      window.removeEventListener('resize', resize);
+      cfCleanup = null;
+    };
+  }
+
+  initContact();
+  document.addEventListener('astro:page-load', initContact);
+</script>

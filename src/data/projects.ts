@@ -160,7 +160,7 @@ export const projects: ProjectMeta[] = [
   },
   {
     slug: 'my-resume',
-    film: '', // no interactive film — the page IS the spine
+    film: 'my-resume.html', // Career OS film (Claude Design pack #2)
     accent: 'resume',
     cardA: '#2997ff',
     cardB: '#bf5af2',

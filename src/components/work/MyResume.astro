@@ -6,6 +6,7 @@ import Build from './spine/Build.astro';
 import Proof from './spine/Proof.astro';
 import Honesty from './spine/Honesty.astro';
 import LaneFlow from './centerpieces/LaneFlow.astro';
+import FilmEmbed from './FilmEmbed.astro';
 import Metrics, { type MetricItem } from '../Metrics.astro';
 import TechRow from '../TechRow.astro';
 import { pick, type Lang } from '../../i18n/utils';
@@ -145,6 +146,12 @@ const note = {
 
   <Honesty lang={lang} slug="my-resume" kicker={{ en: 'Honest credit', ar: 'نسبةٌ صادقة' }} note={note} />
 </Spine>
+
+<FilmEmbed
+  lang={lang}
+  film="my-resume.html"
+  title={{ en: 'Career OS — interactive story film', ar: 'فيلم القصة التفاعلي — نظام المسيرة' }}
+/>
 
 <style>
   .om {
