@@ -13,6 +13,19 @@
 @import '@fontsource-variable/cairo/wght.css';
 /* Mono — spec labels / routes / number-meta (Claude Design parallax package) */
 @import '@fontsource-variable/jetbrains-mono/wght.css';
+/* Al Rai Media ("Media Pro") — the owner's display face for the big Arabic
+   headings. Display weights only (Bold + Black), self-hosted; Arabic BODY text
+   stays on Cairo (Al Rai Media has no regular weight and would be too heavy). */
+@font-face{
+  font-family:'Al Rai Media';
+  src:url('../fonts/alraimedia-bold.woff2') format('woff2');
+  font-weight:500 750;font-style:normal;font-display:swap;
+}
+@font-face{
+  font-family:'Al Rai Media';
+  src:url('../fonts/alraimedia-black.woff2') format('woff2');
+  font-weight:751 950;font-style:normal;font-display:swap;
+}
 
 /* ---------- Reset ---------- */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -45,6 +58,8 @@ ul{list-style:none}
   --ease:cubic-bezier(.2,.7,.2,1);
   --font: "Inter Variable",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,Roboto,Helvetica,Arial,sans-serif;
   --font-ar: "Cairo Variable","Noto Kufi Arabic",var(--font);
+  /* Arabic DISPLAY face (big headings only) — Al Rai Media, falls back to Cairo. */
+  --font-ar-display: "Al Rai Media","Cairo Variable",var(--font);
   --shadow: 0 30px 80px -20px rgba(0,0,0,.7);
   /* App-window mockups + card mesh follow the theme via these tokens */
   --win-body:#101013;   /* device window body */
@@ -165,6 +180,12 @@ body{
 [dir="rtl"] p,[dir="rtl"] .lead,[dir="rtl"] li{line-height:1.9}
 [dir="rtl"] .lead{font-size:clamp(19px,2.5vw,29px)}
 [dir="rtl"] h1,[dir="rtl"] h2,[dir="rtl"] h3{line-height:1.32 !important;font-weight:700}
+/* Big Arabic headings render in Al Rai Media ("Media Pro"); body stays Cairo. */
+[dir="rtl"] h1,[dir="rtl"] h2,[dir="rtl"] h3,
+[dir="rtl"] .bm-h,[dir="rtl"] .display,[dir="rtl"] .h-xl,[dir="rtl"] .h-lg,[dir="rtl"] .h-md,
+[dir="rtl"] .hook__title,[dir="rtl"] .statement p,[dir="rtl"] .climb,[dir="rtl"] .handoff__num{
+  font-family:var(--font-ar-display);
+}
 
 /* ---------- Accessibility ---------- */
 :focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
