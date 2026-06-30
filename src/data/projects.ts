@@ -78,9 +78,9 @@ export const projects: ProjectMeta[] = [
     title: { en: 'A CRM, built from scratch', ar: 'نظام عملاء بُني من الصفر' },
     blurb: {
       en: 'Ads-to-leads, tracked in 12 bilingual tabs.',
-      ar: 'من الإعلان إلى العميل، في ١٢ تبويبًا ثنائي اللغة.',
+      ar: 'من الإعلان إلى العميل، في ١٢ جدولًا ثنائي اللغة.',
     },
-    stat: { en: '12 tabs', ar: '١٢ تبويبًا' },
+    stat: { en: '12 tabs', ar: '١٢ جدولًا' },
     statNote: { en: '· 45 active leads · 22 offers', ar: '· ٤٥ عميلًا نشطًا · ٢٢ عرضًا' },
   },
   {

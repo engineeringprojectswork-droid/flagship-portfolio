@@ -254,30 +254,7 @@ const sources = [
   }
 
   /* fallbacks: neutralise the scrub to the static end-state */
-  @media (prefers-reduced-motion: reduce) {
-    .pipe__stage {
-      --q: 1 !important;
-    }
-    .pipe__node,
-    .pipe__result {
-      opacity: 1 !important;
-      transform: none !important;
-    }
-    .pipe__edge::after {
-      height: 100% !important;
-    }
-  }
+
   @media (max-width: 820px) {
-    .pipe__stage {
-      --q: 1 !important;
-    }
-    .pipe__node,
-    .pipe__result {
-      opacity: 1 !important;
-      transform: none !important;
-    }
-    .pipe__edge::after {
-      height: 100% !important;
-    }
   }
 </style>

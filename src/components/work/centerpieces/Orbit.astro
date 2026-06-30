@@ -267,66 +267,20 @@ const nodes = [
   }
 
   /* Fallbacks: neutralise scrub transforms to the readable end-state. */
-  @media (prefers-reduced-motion: reduce) {
-    .orb__ring {
-      transform: none !important;
-    }
-    .orb__chipinner {
-      transform: none !important;
-    }
-    .orb__sweep::after {
-      transform: none !important;
-    }
-    .orb__hub {
-      transform: none !important;
-    }
-    .orb__win {
-      opacity: 1 !important;
-      transform: none !important;
-    }
-    .orb__arrow {
-      transform: none !important;
-    }
-    [dir='rtl'] .orb__arrow {
-      transform: scaleX(-1) !important;
-    }
-  }
+
   @media (max-width: 820px) {
     .orb__stage {
       width: min(420px, 100%);
-      margin-top: 30px;
-    }
+      margin-top: 30px;}
     .orb__chip {
-      --R: 138px;
-    }
-    .orb__ring {
-      transform: none !important;
-    }
+      --R: 138px;}
     .orb__chipinner {
-      transform: none !important;
-      max-width: 128px;
-    }
-    .orb__sweep::after {
-      transform: none !important;
-    }
-    .orb__hub {
-      transform: none !important;
-    }
-    .orb__win {
-      opacity: 1 !important;
-      transform: none !important;
-    }
-    .orb__arrow {
-      transform: none !important;
-    }
+      max-width: 128px;}
     [dir='rtl'] .orb__arrow {
-      transform: scaleX(-1) !important;
-    }
+      transform: scaleX(-1) !important;}
     .orb__stage > :global(.asset-slot) {
       position: static;
       width: 100%;
-      margin-top: 34px;
-      opacity: 1 !important;
-    }
+      margin-top: 34px;}
   }
 </style>

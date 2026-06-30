@@ -149,21 +149,12 @@ const tiles = [
   }
 
   /* ---- fallbacks: neutralise scatter to the assembled grid end-state ---- */
-  @media (prefers-reduced-motion: reduce) {
-    .mosaic__tile {
-      transform: none !important;
-      opacity: 1 !important;
-    }
-  }
+
   @media (max-width: 820px) {
     .mosaic__wall {
       grid-template-columns: repeat(2, 1fr);
-      perspective: none;
-    }
+      perspective: none;}
     .mosaic__tile {
-      transform: none !important;
-      opacity: 1 !important;
-      box-shadow: 0 14px 36px -24px rgba(0, 0, 0, 0.6);
-    }
+      box-shadow: 0 14px 36px -24px rgba(0, 0, 0, 0.6);}
   }
 </style>

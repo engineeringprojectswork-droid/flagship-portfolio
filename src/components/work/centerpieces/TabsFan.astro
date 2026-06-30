@@ -42,12 +42,12 @@ const funnel = [
 <div class="proof__grid tabsfan">
   <div class="tabsfan__copy reveal">
     <span class="kicker">{pick(lang, { en: 'The proof · the workbook', ar: 'الإثبات · الملف' })}</span>
-    <h2>{pick(lang, { en: '12 tabs, one pipeline.', ar: '١٢ تبويبًا، مسارٌ واحد.' })}</h2>
+    <h2>{pick(lang, { en: '12 tabs, one pipeline.', ar: '١٢ جدولًا، مسارٌ واحد.' })}</h2>
     <p>
       {
         pick(lang, {
           en: 'Every dinar of ad spend lands in a named lead, a status and a next action — across twelve bilingual tabs that read the same in Arabic and English.',
-          ar: 'كل دينار إنفاقٍ يصل إلى عميلٍ مُسمّى وحالةٍ وإجراءٍ تالٍ — عبر اثني عشر تبويبًا ثنائي اللغة يُقرأ بالعربية والإنجليزية سواء.',
+          ar: 'كل دينار إنفاقٍ يصل إلى عميلٍ مُسمّى وحالةٍ وإجراءٍ تالٍ — عبر اثني عشر جدولًا ثنائي اللغة يُقرأ بالعربية والإنجليزية سواء.',
         })
       }
     </p>
@@ -86,7 +86,7 @@ const funnel = [
         <AssetSlot
           lang={lang}
           ratio="16/10"
-          label={{ en: 'CRM workbook — 12 bilingual tabs', ar: 'ملف نظام العملاء — ١٢ تبويبًا ثنائي اللغة' }}
+          label={{ en: 'CRM workbook — 12 bilingual tabs', ar: 'ملف نظام العملاء — ١٢ جدولًا ثنائي اللغة' }}
         />
       </div>
     </div>
@@ -258,33 +258,9 @@ const funnel = [
   }
 
   /* ----- fallbacks: neutralise transforms to the readable END state ----- */
-  @media (prefers-reduced-motion: reduce) {
-    .tabsfan__win {
-      transform: none !important;
-    }
-    .tf-tab {
-      transform: none !important;
-      opacity: 1 !important;
-    }
-    .ff {
-      opacity: 1 !important;
-      transform: none !important;
-    }
-  }
+
   @media (max-width: 820px) {
-    .tabsfan__win {
-      transform: none !important;
-    }
-    .tf-tab {
-      transform: none !important;
-      opacity: 1 !important;
-    }
-    .ff {
-      opacity: 1 !important;
-      transform: none !important;
-    }
     .tabsfan__copy p {
-      max-width: none;
-    }
+      max-width: none;}
   }
 </style>

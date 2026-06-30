@@ -274,35 +274,12 @@ const dials = [
   }
 
   /* ---- fallbacks: neutralise scrub to the readable end-state (--q=1) ---- */
-  @media (prefers-reduced-motion: reduce) {
-    .bd__frame {
-      transform: none !important;
-    }
-    .bd__ring {
-      background: conic-gradient(
-        var(--accent) calc(var(--score) * 1%),
-        color-mix(in srgb, var(--ink) 14%, transparent) 0
-      ) !important;
-    }
-    .bd__ring b {
-      opacity: 1 !important;
-    }
-    .bd__live-dot {
-      animation: none;
-    }
-  }
+
   @media (max-width: 820px) {
-    .bd__frame {
-      transform: none !important;
-    }
     .bd__ring {
       background: conic-gradient(
         var(--accent) calc(var(--score) * 1%),
         color-mix(in srgb, var(--ink) 14%, transparent) 0
-      ) !important;
-    }
-    .bd__ring b {
-      opacity: 1 !important;
-    }
+      ) !important;}
   }
 </style>
