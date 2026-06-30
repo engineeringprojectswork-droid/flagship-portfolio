@@ -45,13 +45,12 @@ export function initBiome(): () => void {
 
       const steps = Array.from(pin.querySelectorAll<HTMLElement>('[data-step]'));
       const n = steps.length || 1;
-      // Phones reveal almost immediately + assemble in the first third of the
-      // pin, so entering a 100dvh stage never shows an empty starfield with a
-      // lone tag. Desktop keeps the slower, more cinematic assembly window.
-      const mob = innerWidth <= 820;
-      const base = mob ? 0.015 : 0.10;
-      const spread = mob ? 0.30 : 0.62;
-      const dur = mob ? 0.12 : 0.20;
+      // Full experience on every width (owner's call): phones get the same
+      // slower, cinematic assembly window as desktop — the pins are full-height
+      // on mobile too now, so there's room for it (no early-reveal shortcut).
+      const base = 0.1;
+      const spread = 0.62;
+      const dur = 0.2;
       for (let i = 0; i < steps.length; i++) {
         const start = base + i * (spread / n);
         const a = reduce ? 1 : Math.min(1, Math.max(0, (p - start) / dur));
@@ -65,10 +64,13 @@ export function initBiome(): () => void {
         climb.textContent = fmt(v);
       }
 
+      // Horizontal Selected-Work scrub runs on EVERY width now (phones too) —
+      // RTL mirrors the travel direction so it always moves with the reading flow.
       const track = pin.querySelector<HTMLElement>('[data-track]');
-      if (track && !reduce && innerWidth > 820) {
+      if (track && !reduce) {
         const extra = Math.max(0, track.scrollWidth - innerWidth + 40);
-        track.style.transform = `translate3d(${(-p * extra).toFixed(1)}px,0,0)`;
+        const rtl = document.documentElement.getAttribute('dir') === 'rtl';
+        track.style.transform = `translate3d(${((rtl ? 1 : -1) * p * extra).toFixed(1)}px,0,0)`;
       }
     }
 
